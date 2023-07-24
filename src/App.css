@@ -1,0 +1,303 @@
+body{
+  padding: 20px;
+}
+hr{
+  color:skyblue;
+  border:2px dotted;
+}
+
+.header{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; 
+  align-items: center;
+  width:70%;
+}
+
+.app-logo{
+  cursor:pointer;
+}
+
+.join{
+  font-weight: bold;
+  margin-left: 20px;
+}
+
+.join-div{
+  display: flex;
+  align-items: center;
+}
+
+.join-title{
+  margin-top:10px;
+  margin-left: 1rem;
+  font-size:2em;
+  font-weight: bold;
+}
+
+.join-area{
+  display: flex;
+  border:2px solid #333;
+  padding:10px;
+  margin-left: 1rem;
+}
+
+.join-text{
+  border:none;
+  outline: none;
+  font-size:1.5em;
+}
+
+.practice-start{
+  font-weight: bold;
+  margin-left:30px;
+}
+
+.user-info{
+  cursor:pointer;
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight:bold;
+  border:1px solid #333;
+  border-radius: 10px;
+  padding:5px;
+  transition: 0.5s;
+}
+
+.user-info:hover{
+  background-color: #999;
+  color:#fff;
+
+}
+
+.user-img{
+  font-size:2rem;
+  margin-right:0.2em;
+}
+
+.script-container{
+  width:70%;
+}
+
+.script-container h1{
+  font-weight: bold;
+  font-size:2em;
+}
+
+.script-area{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+.script-text{
+  width:400px;
+  height:300px;
+  font-size: 1.2em;
+  padding : 10px;
+  border:1px solid black;
+  display: flex;
+  justify-content: center;
+}
+
+.script-change{
+  font-weight: bold;
+}
+
+.card{
+  width:300px;
+  height:200px;
+}
+
+/* 발표연습 페이지 */
+
+.camera-pdf-container{
+  display: flex;
+  justify-content: space-between; 
+}
+
+.practice-title{
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+  font-size:1.2em;
+  width:15em;
+  margin-bottom:20px;
+}
+
+.script-input{
+  width:600px;
+  height:200px;
+}
+
+.practice-title-save{
+  text-align: center;
+  font-weight: bold;
+  font-size:1.2em;
+  margin:0;
+  padding:0;
+  margin-bottom:20px;
+}
+
+.live-camera{
+  height:332.5px;
+  margin-bottom:20px;
+}
+
+.start-stop-button{
+  font-size:20px;
+  font-weight: bold;
+  width:150px;
+}
+
+.practice-right{
+  text-align: center;
+}
+
+.modal-center{
+  text-align: center;
+  margin-top:30px;
+}
+
+.modal-center h2{
+  font-weight:bold;
+  font-size:3em;
+}
+
+.modal-close{
+  width:80px;
+  height:50px;
+  position: absolute;
+  right:20px;
+  bottom:20px;
+}
+
+
+/* 로그인 페이지 */
+.login-container{
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-container input{
+  display: block;
+}
+
+.id-container{
+  margin-top:20px;
+  margin-bottom:10px;
+}
+
+.pwd-container{
+  margin-bottom:20px;
+}
+
+.id-area{
+  padding:5px;
+  width:300px;
+}
+
+.pwd-area{
+  padding:5px;
+  width:300px;
+}
+
+.login-button-container{
+  width:300px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* 회원가입 페이지 */
+.join-container{
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.join-id-area{
+  padding:5px;
+  width:200px;
+  margin-right:15px;
+}
+
+.nickname-area{
+  padding:5px;
+  width:200px;
+  margin-right:15px;
+}
+
+.nickname-container{
+  margin-bottom:10px;
+}
+
+.pwd-check-area{
+  margin-top:10px;
+  width:300px;
+  padding:5px;
+}
+
+/* 참관 페이지 */
+
+.observe-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.observe-text{
+  color:blue;
+  font-weight: bold;
+  font-size:2em;
+}
+
+.observe-middle{
+  display: flex;
+  justify-content: space-between;
+}
+
+.presenter-pdf{
+  width:40%;
+  border:1px solid black;
+}
+
+.camera{
+  width:40%;
+  border:1px solid black;
+}
+
+.observer-camera{
+  border:1px solid black;
+  display: flex;
+  justify-content: space-between;
+}
+
+.observer-camera > div{
+  border: 1px solid black;
+}
+
+
+/* 디테일 페이지 */
+.detail-container {
+  display: flex; /* Flexbox 레이아웃 적용 */
+  width: 100%;
+  height: 100vh; /* 뷰포트 높이만큼 컨테이너 높이 설정 */
+}
+
+.left-column {
+  flex: 0 0 450px; /* 왼쪽 영역 고정 너비 설정 */
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.right-column {
+  flex: 1; /* 오른쪽 영역의 남은 공간 차지 */
+  padding: 20px;
+  border: 1px solid #ccc;
+  overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+}
