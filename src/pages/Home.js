@@ -135,8 +135,8 @@ const Home = () => {
 
     console.log(socket);
     socket.current = io('http://localhost:3001/room', { //소켓 연결
-        withCredentials: true,
-    }); 
+      withCredentials: true,
+    });
     console.log(socket.current);
 
     socket.current.on("connect", () => {
@@ -149,7 +149,7 @@ const Home = () => {
     });
 
     window.open(
-      '/Observe',
+      '/observe',
       '_blank',
       `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
     );

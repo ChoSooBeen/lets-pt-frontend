@@ -57,7 +57,7 @@ const Practice = () => {
       clearInterval(timer);
     }
     return () => clearInterval(timer);
-  }, [playing]);
+  }, [isTimerRunning]);
 
   useEffect(() => {
     // 유저의 화면 공유 요청
@@ -126,7 +126,8 @@ const Practice = () => {
   }, []);
 
   const startRecording = () => {
-    setPlaying(false);
+    setPlaying(true);
+    setIsTimerRunning(true);
     screenRecordedChunksRef.current = [];
     camRecordedChunksRef.current = [];
     screenMediaRecorderRef.current = new MediaRecorder(screenMediaStreamRef.current, {
@@ -209,6 +210,7 @@ const Practice = () => {
       camMediaRecorderRef.current.stop();
       screenMediaRecorderRef.current.stop();
       setPlaying(false);
+      setIsTimerRunning(false);
     }
 
   }
@@ -263,13 +265,13 @@ const Practice = () => {
 
     console.log(socket);
     socket.current = io('http://localhost:3001/room', { //소켓 연결
-        withCredentials: true,
-    }); 
+      withCredentials: true,
+    });
     console.log(socket.current);
 
     socket.current.on("connect", () => {
       console.log("connect");
-      socket.current.emit("createRoom", {"userId": "admin"});
+      socket.current.emit("createRoom", { "userId": "admin" });
     });
 
     socket.current.on("create-succ", (room) => {
@@ -371,10 +373,11 @@ const Practice = () => {
               <br />
               {playing ? (
 
-                <Button variant="danger" onClick={quitPractice} className="start-stop-button">발표 종료</Button>
+                <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
 
               ) : (
-                <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
+
+                <Button variant="danger" onClick={quitPractice} className="start-stop-button">발표 종료</Button>
               )}
             </div>
           </div>
