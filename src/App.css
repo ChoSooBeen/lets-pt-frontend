@@ -1,303 +1,266 @@
-body{
-  padding: 20px;
-}
-hr{
-  color:skyblue;
-  border:2px dotted;
-}
-
-.header{
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between; 
-  align-items: center;
-  width:70%;
+/* 최초 페이지(main) */
+/* ----------------------------------- */
+.main-container{ 
+  height: 100vh;
+  background-image: url("./img/bg01.jpeg");
+  background-position:center;
+  background-repeat: no-repeat;
+  background-size:cover;
 }
 
-.app-logo{
-  cursor:pointer;
-}
-
-.join{
-  font-weight: bold;
-  margin-left: 20px;
-}
-
-.join-div{
-  display: flex;
-  align-items: center;
-}
-
-.join-title{
-  margin-top:10px;
-  margin-left: 1rem;
-  font-size:2em;
-  font-weight: bold;
-}
-
-.join-area{
-  display: flex;
-  border:2px solid #333;
-  padding:10px;
-  margin-left: 1rem;
-}
-
-.join-text{
-  border:none;
+input{
   outline: none;
-  font-size:1.5em;
 }
 
-.practice-start{
-  font-weight: bold;
-  margin-left:30px;
+.main-container::after{
+  content:"";
+  background-color:rgba(0,0,0,0.7);
+  position:absolute;
+  z-index: 1;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
 }
 
-.user-info{
-  cursor:pointer;
-  display: flex;
-  align-items: center;
-  font-size: 1.5rem;
-  font-weight:bold;
-  border:1px solid #333;
-  border-radius: 10px;
-  padding:5px;
-  transition: 0.5s;
-}
-
-.user-info:hover{
-  background-color: #999;
-  color:#fff;
-
-}
-
-.user-img{
-  font-size:2rem;
-  margin-right:0.2em;
-}
-
-.script-container{
-  width:70%;
-}
-
-.script-container h1{
-  font-weight: bold;
-  font-size:2em;
-}
-
-.script-area{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-}
-
-.script-text{
-  width:400px;
-  height:300px;
-  font-size: 1.2em;
-  padding : 10px;
-  border:1px solid black;
-  display: flex;
-  justify-content: center;
-}
-
-.script-change{
-  font-weight: bold;
-}
-
-.card{
-  width:300px;
-  height:200px;
-}
-
-/* 발표연습 페이지 */
-
-.camera-pdf-container{
-  display: flex;
-  justify-content: space-between; 
-}
-
-.practice-title{
-  text-align: center;
-  padding: 10px;
-  font-weight: bold;
-  font-size:1.2em;
-  width:15em;
-  margin-bottom:20px;
-}
-
-.script-input{
-  width:600px;
-  height:200px;
-}
-
-.practice-title-save{
-  text-align: center;
-  font-weight: bold;
-  font-size:1.2em;
-  margin:0;
-  padding:0;
-  margin-bottom:20px;
-}
-
-.live-camera{
-  height:332.5px;
-  margin-bottom:20px;
-}
-
-.start-stop-button{
-  font-size:20px;
-  font-weight: bold;
-  width:150px;
-}
-
-.practice-right{
-  text-align: center;
-}
-
-.modal-center{
-  text-align: center;
-  margin-top:30px;
-}
-
-.modal-center h2{
-  font-weight:bold;
-  font-size:3em;
-}
-
-.modal-close{
-  width:80px;
-  height:50px;
+.main-logo{
   position: absolute;
-  right:20px;
-  bottom:20px;
+  z-index:2;
+  left:50%;
+  top:20%;
+  transform:translate(-50%,0);
 }
 
+.main-login-button{
+  position:absolute;
+  left:50%;
+  top:45%;
+  transform: translate(-50%,0);
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 150px;;
+  height:50px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1.5em;
+  font-weight:bold;
+  z-index:2;
+}
 
-/* 로그인 페이지 */
+.main-login-button:hover{
+  color:#fff;
+  border:2px solid #fff;
+}
+
+.main-login-button:hover{
+  box-shadow:inset 0 0 0 30px #222;
+}
+/* ----------------------------------- */
+
+/* 로그인 페이지(login) */
+/* ----------------------------------- */
+
 .login-container{
+  background-color:#666;
+  height: 100vh;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.login-container input{
-  display: block;
+.login-logo{
+  margin-top:5%;
 }
 
 .id-container{
-  margin-top:20px;
-  margin-bottom:10px;
-}
-
-.pwd-container{
-  margin-bottom:20px;
+  margin-top:5%;
 }
 
 .id-area{
-  padding:5px;
-  width:300px;
+  width:250px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.pwd-container{
+  margin-top:2%;
 }
 
 .pwd-area{
-  padding:5px;
-  width:300px;
+  width:250px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
 }
 
 .login-button-container{
-  width:300px;
   display: flex;
+  position:absolute;
+  width:260px;
+  left:50%;
+  transform: translate(-50%,0);
   justify-content: space-between;
+  margin-top: 5%;
 }
 
-/* 회원가입 페이지 */
+.login-button-container button{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 100px;;
+  height:40px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.login-button-container button:hover{
+color:#fff;
+border:2px solid #fff;
+}
+
+.join-button:hover{
+  box-shadow:inset -120px 0 0 0 #333;
+}
+
+.login-login-button:hover{
+  box-shadow:inset 120px 0 0 0 #333;
+}
+/* ----------------------------------- */
+
+/* 회원가입 페이지(join) */
+/* ----------------------------------- */
 .join-container{
+  background-color:#666;
+  height: 100vh;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+}
+
+.join-logo{
+  margin-top:5%;
+}
+
+.double-check{
+  width:70px;
+  margin-left: 5px;
+  height: 35px;
+  outline: none;
+  border:none;
+  padding: 0;
+}
+
+.double-check{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1em;
+  font-weight:bold;
+}
+
+.double-check:hover{
+  color:#fff;
+  border:2px solid #fff;
+  box-shadow:inset -60px 0 0 0 #333, inset 60px 0 0 0 #333;
+}
+
+
+.join-id-container{
+  margin-top:5%;
 }
 
 .join-id-area{
-  padding:5px;
-  width:200px;
-  margin-right:15px;
+  width:180px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
 }
 
-.nickname-area{
-  padding:5px;
-  width:200px;
-  margin-right:15px;
+.join-nickname-container{
+  margin-top:2%;
 }
 
-.nickname-container{
-  margin-bottom:10px;
+.join-nickname-area{
+  width:180px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
 }
 
-.pwd-check-area{
-  margin-top:10px;
-  width:300px;
-  padding:5px;
+.join-email-area{
+  width:180px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
 }
 
-/* 참관 페이지 */
+.join-email-container{
+  margin-top:2%;
+}
 
-.observe-top{
+.join-pwd-container{
+  margin-top:2%;
+}
+
+.join-pwd-area{
+  width:255px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.join-pwd-check-container{
+  margin-top:2%;
+}
+
+.join-pwd-check-area{
+  width:255px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.join-button-container{
   display: flex;
-  align-items: center;
+  position:absolute;
+  width:265px;
+  left:50%;
+  transform: translate(-50%,0);
   justify-content: space-between;
+  margin-top: 5%;
 }
 
-.observe-text{
-  color:blue;
-  font-weight: bold;
-  font-size:2em;
+.join-button-container button{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 100px;;
+  height:40px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1.2em;
+  font-weight:bold;
 }
 
-.observe-middle{
-  display: flex;
-  justify-content: space-between;
+.join-button-container button:hover{
+color:#fff;
+border:2px solid #fff;
 }
 
-.presenter-pdf{
-  width:40%;
-  border:1px solid black;
+.join-login-button:hover{
+  box-shadow:inset -120px 0 0 0 #333;
 }
 
-.camera{
-  width:40%;
-  border:1px solid black;
+.join-join-button:hover{
+  box-shadow:inset 120px 0 0 0 #333;
 }
+/* ----------------------------------- */
 
-.observer-camera{
-  border:1px solid black;
-  display: flex;
-  justify-content: space-between;
-}
-
-.observer-camera > div{
-  border: 1px solid black;
-}
-
-
-/* 디테일 페이지 */
-.detail-container {
-  display: flex; /* Flexbox 레이아웃 적용 */
-  width: 100%;
-  height: 100vh; /* 뷰포트 높이만큼 컨테이너 높이 설정 */
-}
-
-.left-column {
-  flex: 0 0 450px; /* 왼쪽 영역 고정 너비 설정 */
-  padding: 10px;
-  border: 1px solid #ccc;
-}
-
-.right-column {
-  flex: 1; /* 오른쪽 영역의 남은 공간 차지 */
-  padding: 20px;
-  border: 1px solid #ccc;
-  overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
-}
+/*  */
+/* ----------------------------------- */

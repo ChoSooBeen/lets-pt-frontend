@@ -33,7 +33,7 @@ const Practice = () => {
   const [myStream, setMyStream] = useState(null); //내 스트림
   const [muted, setMuted] = useState(false); //음소거 여부
   const [cameraOff, setCameraOff] = useState(false); //카메라가 꺼져있는지 여부
-  const roomName = useState(""); //참관코드
+  const [roomName, setRoomName] = useState(""); //참관코드
   const myPeerConnection = useRef(null); //피어 연결 객체
   const camerasSelect = useRef(null); //카메라 선택 요소
   // ----------------------------------------------------------------------
@@ -276,8 +276,7 @@ const Practice = () => {
 
     socket.current.on("create-succ", (room) => {
       console.log("create-succ", room);
-      roomName.current = room;
-      console.log(roomName);
+      setRoomName(room);
     });
   }
 
@@ -364,6 +363,8 @@ const Practice = () => {
             </div>
             <div className="real-right">
               <video ref={videoOutputRef} className="live-camera" muted></video>
+              <h2>참관코드</h2>
+              <h2>{roomName}</h2>
               {playing ? (
                 <p className="practice-title-save">{title}</p>
               ) : (
@@ -373,11 +374,11 @@ const Practice = () => {
               <br />
               {playing ? (
 
-                <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
+                <Button variant="danger" onClick={quitPractice} className="start-stop-button">발표 종료</Button>
 
               ) : (
+                <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
 
-                <Button variant="danger" onClick={quitPractice} className="start-stop-button">발표 종료</Button>
               )}
             </div>
           </div>
