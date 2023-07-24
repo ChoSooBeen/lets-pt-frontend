@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
+import { useLocation } from 'react-router-dom';
 
 const Observe = () => {
   const socket = useRef(); //소켓 객체
@@ -12,9 +13,13 @@ const Observe = () => {
   const myPeerConnection = useRef(null); //피어 연결 객체
   const camerasSelect = useRef(null); //카메라 선택 요소
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const visitorCode = searchParams.get('visitorcode');
+
   useEffect(() => {
     socket.current = io();
-
+    console.log(visitorCode);
     // socket event -------------------------------------------------------
     // socket.current.on("connect", (socket) => { //연결 확인
     //   console.log("connected to socket server");

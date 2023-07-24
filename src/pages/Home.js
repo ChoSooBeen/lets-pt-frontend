@@ -133,6 +133,8 @@ const Home = () => {
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
+    const url = `/observe?visitorcode=${encodeURIComponent(visitorcode)}`;
+
     console.log(socket);
     socket.current = io('http://localhost:3001/room', { //소켓 연결
       withCredentials: true,
@@ -149,7 +151,7 @@ const Home = () => {
     });
 
     window.open(
-      '/observe',
+      url,
       '_blank',
       `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
     );
