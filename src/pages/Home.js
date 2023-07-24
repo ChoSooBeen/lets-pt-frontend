@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import logo from '../img/logo.png';
 import { Container, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -6,6 +6,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { ClipLoader } from 'react-spinners';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
+import { io } from "socket.io-client";
 
 const responsive = {
   superLargeDesktop: {
@@ -30,15 +31,32 @@ const responsive = {
 
 
 const Home = () => {
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [textareaValue, setTextareaValue] = useState("");
   const [convertedScript, setConvertedScript] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [visitorcode, setVisitorCode] = useState("");
+  // 실시간 통신을 위한 변수 선언-----------------------------------------------
+  const socket = useRef(); //소켓 객체
+  const myFaceRef = useRef(); //내 비디오 요소
+  const peerFaceRef = useRef(); //상대방 비디오 요소
+  const [myStream, setMyStream] = useState(null); //내 스트림
+  const [muted, setMuted] = useState(false); //음소거 여부
+  const [cameraOff, setCameraOff] = useState(false); //카메라가 꺼져있는지 여부
+  const roomName = useState(""); //참관코드
+  const myPeerConnection = useRef(null); //피어 연결 객체
+  const camerasSelect = useRef(null); //카메라 선택 요소
+  // ----------------------------------------------------------------------
+
   const handleTextareaChange = (event) => {
     setTextareaValue(event.target.value);
     console.log(textareaValue);
+  };
+
+  const handleInputChange = (event) => {
+    setVisitorCode(event.target.value);
+    console.log(visitorcode);
   };
 
   const changeScript = async () => {
@@ -115,6 +133,21 @@ const Home = () => {
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
+    console.log(socket);
+    socket.current = io('http://localhost:3001/room', { //소켓 연결
+        withCredentials: true,
+    }); 
+    console.log(socket.current);
+
+    socket.current.on("connect", () => {
+      console.log("connect");
+      socket.current.emit("joinRoom", { "visitorcode": visitorcode, "userId": "admin" });
+    });
+
+    socket.current.on("join-succ", (data) => {
+      console.log("joinRoom : ", data);
+    });
+
     window.open(
       '/Observe',
       '_blank',
@@ -128,7 +161,12 @@ const Home = () => {
         <div className="join-div">
           <p className='join-title'>참관코드</p>
           <div className='join-area'>
-            <input type='text' placeholder='참관코드를 입력해주세요' className='join-text'></input>
+            <input
+              type='text'
+              placeholder='참관코드를 입력해주세요'
+              className='join-text'
+              value={visitorcode}
+              onChange={handleInputChange}></input>
             <Button variant='primary' className='join' onClick={goToObservePage}>참관</Button>
           </div>
           <Button variant='primary' className='join' size='lg' onClick={goToPracticePage}>발표 연습</Button>
