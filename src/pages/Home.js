@@ -1,10 +1,9 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import logo from '../img/logo.png';
 import { Container, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { ClipLoader } from 'react-spinners';
-import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 
 

@@ -9,6 +9,7 @@ import Practice from './pages/Practice';
 import Result from './pages/Result';
 import Main from './pages/Main';
 import PrivateRoute from './PrivateRoute';
+import Script from './pages/Script';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/result" element={<Result />} />
           <Route path="/observe" element={<Observe />} />
           <Route path="/keyword" element={<Keyword />} />
+          <Route path="/script" element={<Script />} />
           <Route path="/practice" element={<Practice />} />
         </Route>
       </Routes>
