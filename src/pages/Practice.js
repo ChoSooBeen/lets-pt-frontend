@@ -4,7 +4,7 @@ import logo from '../img/logo.png';
 import axios from "axios";
 import Modal from "react-modal";
 import { Button } from 'react-bootstrap';
-
+import { io } from "socket.io-client";
 
 const Practice = () => {
   const [minutes, setMinutes] = useState(0);
@@ -25,6 +25,18 @@ const Practice = () => {
   const screenRecordedChunksRef = useRef([]);
   const camRecordedChunksRef = useRef([]);
   const quitFlag = useRef(null); //녹화 종료 버튼 클릭 여부 확인
+
+  // 실시간 통신을 위한 변수 선언-----------------------------------------------
+  const socket = useRef(); //소켓 객체
+  const myFaceRef = useRef(); //내 비디오 요소
+  const peerFaceRef = useRef(); //상대방 비디오 요소
+  const [myStream, setMyStream] = useState(null); //내 스트림
+  const [muted, setMuted] = useState(false); //음소거 여부
+  const [cameraOff, setCameraOff] = useState(false); //카메라가 꺼져있는지 여부
+  const roomName = useState(""); //참관코드
+  const myPeerConnection = useRef(null); //피어 연결 객체
+  const camerasSelect = useRef(null); //카메라 선택 요소
+  // ----------------------------------------------------------------------
 
   useEffect(() => {
     let timer;
@@ -246,6 +258,27 @@ const Practice = () => {
     setSeconds(0);
   }
 
+  const realMode = () => { //실전모드로 전환
+    setIsPractice(false);
+
+    console.log(socket);
+    socket.current = io('http://localhost:3001/room', { //소켓 연결
+        withCredentials: true,
+    }); 
+    console.log(socket.current);
+
+    socket.current.on("connect", () => {
+      console.log("connect");
+      socket.current.emit("createRoom", {"userId": "admin"});
+    });
+
+    socket.current.on("create-succ", (room) => {
+      console.log("create-succ", room);
+      roomName.current = room;
+      console.log(roomName);
+    });
+  }
+
   return (
     <div className="practice-container">
       <div className="practice-top">
@@ -265,7 +298,7 @@ const Practice = () => {
           <FaStop /> 정지
         </button>
         <button onClick={() => setIsPractice(true)}>연습모드</button>
-        <button onClick={() => setIsPractice(false)}>실전모드</button>
+        <button onClick={realMode}>실전모드</button>
 
         <button onClick={goToKeywordPage}>키워드 등록</button>
 
