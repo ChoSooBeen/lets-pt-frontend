@@ -6,7 +6,6 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { ClipLoader } from 'react-spinners';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-import { io } from "socket.io-client";
 
 const responsive = {
   superLargeDesktop: {
@@ -29,25 +28,12 @@ const responsive = {
   }
 };
 
-
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [textareaValue, setTextareaValue] = useState("");
   const [convertedScript, setConvertedScript] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [visitorcode, setVisitorCode] = useState("");
-  // 실시간 통신을 위한 변수 선언-----------------------------------------------
-  const socket = useRef(); //소켓 객체
-  const myFaceRef = useRef(); //내 비디오 요소
-  const peerFaceRef = useRef(); //상대방 비디오 요소
-  const [myStream, setMyStream] = useState(null); //내 스트림
-  const [muted, setMuted] = useState(false); //음소거 여부
-  const [cameraOff, setCameraOff] = useState(false); //카메라가 꺼져있는지 여부
-  const roomName = useState(""); //참관코드
-  const myPeerConnection = useRef(null); //피어 연결 객체
-  const camerasSelect = useRef(null); //카메라 선택 요소
-  // ----------------------------------------------------------------------
 
   const handleTextareaChange = (event) => {
     setTextareaValue(event.target.value);
@@ -134,21 +120,6 @@ const Home = () => {
     const top = window.screen.height / 2 - height / 2;
 
     const url = `/observe?visitorcode=${encodeURIComponent(visitorcode)}`;
-
-    console.log(socket);
-    socket.current = io('http://localhost:3001/room', { //소켓 연결
-      withCredentials: true,
-    });
-    console.log(socket.current);
-
-    socket.current.on("connect", () => {
-      console.log("connect");
-      socket.current.emit("joinRoom", { "visitorcode": visitorcode, "userId": "admin" });
-    });
-
-    socket.current.on("join-succ", (data) => {
-      console.log("joinRoom : ", data);
-    });
 
     window.open(
       url,
