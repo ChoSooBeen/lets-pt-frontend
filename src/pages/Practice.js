@@ -30,12 +30,9 @@ const Practice = () => {
   const socket = useRef(); //소켓 객체
   const myFaceRef = useRef(); //내 비디오 요소
   const peerFaceRef = useRef(); //상대방 비디오 요소
-  const [myStream, setMyStream] = useState(null); //내 스트림
-  const [muted, setMuted] = useState(false); //음소거 여부
-  const [cameraOff, setCameraOff] = useState(false); //카메라가 꺼져있는지 여부
-  const roomName = useState(""); //참관코드
+  // const [myStream, setMyStream] = useState(null); //내 스트림
+  const [roomName, setRoomName] = useState(""); //참관코드
   const myPeerConnection = useRef(null); //피어 연결 객체
-  const camerasSelect = useRef(null); //카메라 선택 요소
   // ----------------------------------------------------------------------
 
   useEffect(() => {
@@ -260,8 +257,55 @@ const Practice = () => {
     setSeconds(0);
   }
 
+  // const getMedia = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({
+  //       audio: true,
+  //       video: true,
+  //     });
+  //     myFaceRef.current.srcObject = stream;
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  //RTCPeerConnection 객체 생성-----------------------------------------------
+  const makeConnection = () => {
+    myPeerConnection.current = new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: [
+            "stun:stun.l.google.com:19302",
+            "stun:stun1.l.google.com:19302",
+            "stun:stun2.l.google.com:19302",
+            "stun:stun3.l.google.com:19302",
+            "stun:stun4.l.google.com:19302",
+          ],
+        },
+      ],
+    });
+    myPeerConnection.current.addEventListener("icecandidate", handleIce);
+    myPeerConnection.current.addEventListener("addstream", handleAddStream);
+    if (camMediaStreamRef.current) {
+      camMediaStreamRef.current.getTracks().forEach((track) => myPeerConnection.current.addTrack(track, camMediaStreamRef.current));
+    }
+  }
+
+  const handleIce = (data) => {
+    console.log("sent candidate");
+    socket.current.emit("icecandidate", data.candidate, roomName);
+  }
+
+  const handleAddStream = (data) => {
+    console.log("got an stream from my peer", data.stream);
+    peerFaceRef.current.srcObject = data.stream;
+  }
+  //----------------------------------------------------------------------
+
   const realMode = () => { //실전모드로 전환
     setIsPractice(false);
+    makeConnection(); //피어 연결 - RTCPeerConnection 객체 생성
+    // getMedia(); //비디오, 오디오 스트림 가져오기
 
     console.log(socket);
     socket.current = io('http://localhost:3001/room', { //소켓 연결
@@ -274,10 +318,38 @@ const Practice = () => {
       socket.current.emit("createRoom", { "userId": "admin" });
     });
 
-    socket.current.on("create-succ", (room) => {
+    socket.current.on("create-succ", async (room) => {
       console.log("create-succ", room);
-      roomName.current = room;
+      setRoomName(room);
       console.log(roomName);
+
+      //offer를 보내는 쪽
+      const offer = await myPeerConnection.current.createOffer();
+      myPeerConnection.current.setLocalDescription(offer);
+      console.log("sent the offer", offer);
+      socket.current.emit("offer", { "visitorcode": roomName, "offer": offer });
+      
+      //offer를 받는 쪽
+      socket.current.on("offer", async (offer) => {
+        console.log("received the offer");
+        myPeerConnection.current.setRemoteDescription(offer);
+        const answer = await myPeerConnection.current.createAnswer();
+        myPeerConnection.current.setLocalDescription(answer);
+        socket.current.emit("answer", {"visitorcode": roomName, "answer": answer});
+        console.log("sent the answer", answer);
+      });
+
+      //answer를 받는 쪽
+      socket.current.on("answer", async (answer) => {
+        console.log("received the answer");
+        await myPeerConnection.current.setRemoteDescription(answer);
+      });
+
+      //ice를 받는 쪽
+      socket.current.on("ice", async (ice) => {
+        console.log("received candidate", ice);
+        await myPeerConnection.current.addIceCandidate(ice);
+      });
     });
   }
 
@@ -331,12 +403,9 @@ const Practice = () => {
             ) : (
               <input type="text" className="practice-title" placeholder="발표 제목을 입력해주세요" value={title} onChange={(e) => titleChange(e)} />
             )}
-
             <br />
             {playing ? (
-
               <Button variant="danger" onClick={quitPractice} className="start-stop-button">발표 종료</Button>
-
             ) : (
               <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
             )}
@@ -363,7 +432,16 @@ const Practice = () => {
               </div>
             </div>
             <div className="real-right">
-              <video ref={videoOutputRef} className="live-camera" muted></video>
+                <video ref={videoOutputRef} className="live-camera" muted></video>
+                <video
+                  ref={peerFaceRef}
+                  autoPlay
+                  playsInline
+                  width="200"
+                  height="200"
+                />
+                <h2>참관코드</h2>
+                <h2>{roomName}</h2>
               {playing ? (
                 <p className="practice-title-save">{title}</p>
               ) : (
@@ -372,12 +450,9 @@ const Practice = () => {
 
               <br />
               {playing ? (
-
-                <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
-
-              ) : (
-
                 <Button variant="danger" onClick={quitPractice} className="start-stop-button">발표 종료</Button>
+              ) : (
+                <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
               )}
             </div>
           </div>
