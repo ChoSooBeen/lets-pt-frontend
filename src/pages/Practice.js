@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaStop } from 'react-icons/fa';
 import logo from '../img/logo.png';
 import axios from "axios";
 import Modal from "react-modal";
-import { Button } from 'react-bootstrap';
 import { io } from "socket.io-client";
+import { BsStopCircleFill, BsStopwatchFill } from "react-icons/bs";
 
 const Practice = () => {
   const [minutes, setMinutes] = useState(0);
@@ -84,7 +83,7 @@ const Practice = () => {
 
   const pdfComponent = useMemo(() => {
     return pdfFile ? (
-      <embed src={URL.createObjectURL(pdfFile) + "#toolbar=0&scrollbar=0"} type="application/pdf" width="100%" height="100%" />
+      <embed className="pdf" src={URL.createObjectURL(pdfFile) + "#toolbar=0&scrollbar=0"} type="application/pdf" width="100%" height="100%" />
     ) : (
       <div>
         <p>PDF 파일을 드래그 앤 드롭하거나</p>
@@ -236,7 +235,18 @@ const Practice = () => {
       `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
     );
   }
+  const goToScriptPage = () => {
+    const width = 1000;
+    const height = 600;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
 
+    window.open(
+      '/script',
+      '_blank',
+      `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
+    );
+  }
 
   const goToKeywordPage = () => {
     const width = 400;
@@ -356,48 +366,41 @@ const Practice = () => {
   return (
     <div className="practice-container">
       <div className="practice-top">
-        <div>
-          <div>
-            <input type="number" />
-            분
-            <input type="number" />
-            초
-            <div>
-              <span>{minutes < 10 ? `0${minutes}` : minutes}</span> :
-              <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
-            </div>
+        <BsStopwatchFill className='timer-icon' size={30} />
+        <div className='timer-container'>
+          <div className='timer-area'>
+            <span>{minutes < 10 ? `0${minutes}` : minutes}</span> :&nbsp;
+            <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
+            &nbsp;/&nbsp;
+            <input type="number" className='minutes-input' />
+            &nbsp;:&nbsp;
+            <input type="number" className='seconds-input' />
           </div>
         </div>
-        <button onClick={stopPractice}>
-          <FaStop /> 정지
+        <button className="stop-button" onClick={stopPractice}>
+          <BsStopCircleFill size={30} />
         </button>
-        <button onClick={() => setIsPractice(true)}>연습모드</button>
-        <button onClick={realMode}>실전모드</button>
-
-        <button onClick={goToKeywordPage}>키워드 등록</button>
-
+        <div className='change-mode-button-container'>
+          <button className='' onClick={() => setIsPractice(true)}>연습모드</button>
+          &nbsp;/&nbsp;
+          <button onClick={realMode}>실전모드</button>
+        </div>
+        <button className="change-script-button" onClick={goToScriptPage}>스크립트 변환</button>
+        <button className="keyword-button" onClick={goToKeywordPage}>키워드 등록</button>
+        <div className='practice-user-info'>
+          유저정보
+        </div>
       </div>
       {isPractice ? (
-        <div className="camera-pdf-container">
+        <div className="practice-camera-pdf-container">
           <div className="practice-left">
-            <div
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              style={{
-                width: '600px',
-                height: '337.5px',
-                border: '2px dashed gray',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
+            <div onDrop={handleDrop} onDragOver={handleDragOver} className='practice-pdf-area'>
               {pdfComponent}
             </div>
             <textarea className="script-input" placeholder="스크립트 작성"></textarea>
           </div>
           <div className="practice-right">
-            <video ref={videoOutputRef} className="live-camera" muted></video>
+            <video ref={videoOutputRef} className="practice-live-camera" muted></video>
             {playing ? (
               <p className="practice-title-save">{title}</p>
             ) : (
@@ -405,34 +408,24 @@ const Practice = () => {
             )}
             <br />
             {playing ? (
-              <Button variant="danger" onClick={quitPractice} className="start-stop-button">발표 종료</Button>
+              <button onClick={quitPractice} className="start-stop-button">발표 종료</button>
             ) : (
-              <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
+              <button onClick={startPractice} className="start-stop-button">발표 시작</button>
             )}
           </div>
         </div>
       ) : (
         <div>
-          <h1>실전임</h1>
-          <div className="camera-pdf-container">
+          <div className="real-camera-pdf-container">
             <div className="real-left">
-              <div
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                style={{
-                  width: '600px',
-                  height: '337.5px',
-                  border: '2px dashed gray',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
+              <div className='real-pdf-area' onDrop={handleDrop} onDragOver={handleDragOver}>
                 {pdfComponent}
               </div>
             </div>
             <div className="real-right">
-              <video ref={videoOutputRef} className="live-camera" muted></video>
+              <h2 className='observe-code-title'>참관코드</h2>
+              <h2 className='observe-code'>{roomName}</h2>
+              <video ref={videoOutputRef} className="real-live-camera" muted></video>
               <video
                 ref={peerFaceRef}
                 autoPlay
@@ -440,19 +433,17 @@ const Practice = () => {
                 width="200"
                 height="200"
               />
-              <h2>참관코드</h2>
-              <h2>{roomName}</h2>
               {playing ? (
-                <p className="practice-title-save">{title}</p>
+                <p className="real-title-save">{title}</p>
               ) : (
-                <input type="text" className="practice-title" placeholder="발표 제목을 입력해주세요" value={title} onChange={(e) => titleChange(e)} />
+                <input type="text" className="real-title" placeholder="발표 제목을 입력해주세요" value={title} onChange={(e) => titleChange(e)} />
               )}
 
               <br />
               {playing ? (
-                <Button variant="danger" onClick={quitPractice} className="start-stop-button">발표 종료</Button>
+                <button onClick={quitPractice} className="start-stop-button">발표 종료</button>
               ) : (
-                <Button onClick={startPractice} className="start-stop-button">발표 시작</Button>
+                <button onClick={startPractice} className="start-stop-button">발표 시작</button>
               )}
             </div>
           </div>
@@ -461,13 +452,13 @@ const Practice = () => {
       )}
 
       <Modal isOpen={modal} onRequestClose={() => setModal(false)}>
-        <div className="modal-center">
-          <img src={logo} className="app-logo" alt="logo" width={200} />
-          <h2>{title}</h2>
-          <video ref={camRecordedVideoRef} autoPlay controls></video>
-          <div>
-            <Button onClick={goToDetailPage}>상세보기</Button>
-            <Button>저장하기</Button>
+        <div className="modal-container">
+          <img src={logo} className="modal-logo" alt="logo" width={200} />
+          <h2 className='modal-title'>{title}</h2>
+          <video className="modal-video" ref={camRecordedVideoRef} autoPlay controls></video>
+          <div className='modal-button-container'>
+            <button className="detail-button" onClick={goToDetailPage}>상세보기</button>
+            <button className='save-button'>저장하기</button>
           </div>
         </div>
         <button onClick={() => setModal(false)} className="modal-close">닫기</button>
