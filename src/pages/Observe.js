@@ -34,9 +34,12 @@ const Observe = () => {
     };
 
     const handleIce = (data) => {
-      console.log("sent candidate");
-      socket.current.emit("icecandidate", data.candidate, visitorCode);
-    }
+      console.log(`sent candidate : ${visitorCode}`, data);
+      socket.current.emit("icecandidate", {
+        visitorcode: visitorCode,
+        icecandidate: data.candidate,
+      });
+    };
   
     const handleAddStream = (data) => {
       console.log("got an stream from my peer", data.stream);
@@ -65,17 +68,18 @@ const Observe = () => {
       }
     };
 
-    makeConnection(); //RTCPeerConnection 객체 생성
-    getMedia(); //비디오, 오디오 스트림 가져오기 
-
     console.log(socket);
     socket.current = io('http://localhost:3001/room', { //소켓 연결
       withCredentials: true,
     });
     console.log(socket.current);
+    console.log("visitorCode : ", visitorCode);
 
     socket.current.on("connect", async () => {
       console.log("connect");
+      makeConnection(); //RTCPeerConnection 객체 생성
+      getMedia(); //비디오, 오디오 스트림 가져오기 
+
       await socket.current.emit("joinRoom", { "visitorcode": visitorCode, "userId": "admin3" });
     });
 
@@ -84,28 +88,28 @@ const Observe = () => {
   
       const offer = await myPeerConnection.current.createOffer();
       myPeerConnection.current.setLocalDescription(offer);
-      console.log("sent the offer", offer);
+      console.log(`sent the offer ${visitorCode} : `, offer);
       socket.current.emit("offer", {"visitorcode": visitorCode, "offer": offer});
     });
     
-    socket.current.on("offer", async (offer) => {
-      console.log("received the offer");
-      myPeerConnection.current.setRemoteDescription(offer);
+    socket.current.on("offer", async (data) => {
+      console.log(`received the offer ${visitorCode} : `, data);
+      myPeerConnection.current.setRemoteDescription(data.offer);
       const answer = await myPeerConnection.current.createAnswer();
       myPeerConnection.current.setLocalDescription(answer);
       socket.current.emit("answer", {"visitorcode": visitorCode, "answer": answer});
-      console.log("sent the answer");
+      console.log(`sent the answer ${visitorCode} : `, answer);
     });
   
-    socket.current.on("answer", async (answer) => {
-      console.log("received the answer");
-      await myPeerConnection.current.setRemoteDescription(answer);
+    socket.current.on("answer", async (data) => {
+      console.log(`received the answer ${visitorCode} : `, data.answer);
+      await myPeerConnection.current.setRemoteDescription(data.answer);
     });
   
-    socket.current.on("ice", async (ice) => {
-      console.log("received candidate", ice);
-      await myPeerConnection.current.addIceCandidate(ice);
-    }); 
+    socket.current.on("icecandidate", async (data) => {
+      console.log("received candidate", data);
+      await myPeerConnection.current.addIceCandidate(data.icecandidate);
+    });
   }, [visitorCode]);
 
   const handleMuteClick = () => {
