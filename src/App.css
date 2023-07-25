@@ -1,303 +1,774 @@
-body{
-  padding: 20px;
+/* 초기화코드 */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
 }
-hr{
-  color:skyblue;
-  border:2px dotted;
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
 }
-
-.header{
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between; 
-  align-items: center;
-  width:70%;
+body {
+	line-height: 1;
+  font-family: 'Arial', 'Helvetica', sans-serif;
 }
-
-.app-logo{
-  cursor:pointer;
+ol, ul {
+	list-style: none;
 }
-
-.join{
-  font-weight: bold;
-  margin-left: 20px;
+blockquote, q {
+	quotes: none;
 }
-
-.join-div{
-  display: flex;
-  align-items: center;
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
 }
-
-.join-title{
-  margin-top:10px;
-  margin-left: 1rem;
-  font-size:2em;
-  font-weight: bold;
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
 }
-
-.join-area{
-  display: flex;
-  border:2px solid #333;
-  padding:10px;
-  margin-left: 1rem;
+textarea {
+  resize: none;
+  padding:0;
+  margin:0;
 }
-
-.join-text{
-  border:none;
+input{
   outline: none;
-  font-size:1.5em;
+}
+/* ----------------------------------- */
+
+/* 최초 페이지(main) */
+/* ----------------------------------- */
+.main-container{ 
+  height: 100vh;
+  background-image: url("./img/bg03.png");
+  background-position:center;
+  background-repeat: no-repeat;
+  background-size:cover;
 }
 
-.practice-start{
-  font-weight: bold;
-  margin-left:30px;
+
+.main-container::after{
+  content:"";
+  background-color:rgba(0,0,0,0.7);
+  position:absolute;
+  z-index: 1;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  transform:skew(20deg) translateX(-50%);
 }
 
-.user-info{
+.main-logo{
+  position: absolute;
+  z-index:2;
+  left:50%;
+  top:30%;
+  transform:translate(-50%,0);
+}
+
+.main-login-button{
+  position:absolute;
+  left:50%;
+  top:55%;
+  transform: translate(-50%,0);
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 150px;;
+  height:50px;
   cursor:pointer;
-  display: flex;
-  align-items: center;
-  font-size: 1.5rem;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1.5em;
   font-weight:bold;
-  border:1px solid #333;
-  border-radius: 10px;
-  padding:5px;
-  transition: 0.5s;
+  z-index:2;
 }
 
-.user-info:hover{
-  background-color: #999;
+.main-login-button:hover{
   color:#fff;
-
+  border:2px solid #fff;
 }
 
-.user-img{
-  font-size:2rem;
-  margin-right:0.2em;
+.main-login-button:hover{
+  box-shadow:inset 0 0 0 30px #222;
+}
+/* ----------------------------------- */
+
+/* 로그인 페이지(login) */
+/* ----------------------------------- */
+
+.login-container{
+  background-color:#666;
+  height: 100vh;
+  text-align: center;
 }
 
-.script-container{
-  width:70%;
+.login-logo{
+  margin-top:5%;
 }
 
-.script-container h1{
-  font-weight: bold;
-  font-size:2em;
+.id-container{
+  margin-top:5%;
 }
 
-.script-area{
+.id-area{
+  width:250px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.pwd-container{
+  margin-top:2%;
+}
+
+.pwd-area{
+  width:250px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.login-button-container{
   display: flex;
+  position:absolute;
+  width:260px;
+  left:50%;
+  transform: translate(-50%,0);
   justify-content: space-between;
-  align-items: center;
-
+  margin-top: 5%;
 }
 
-.script-text{
-  width:400px;
-  height:300px;
-  font-size: 1.2em;
-  padding : 10px;
+.login-button-container button{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 100px;;
+  height:40px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.login-button-container button:hover{
+color:#fff;
+border:2px solid #fff;
+}
+
+.join-button:hover{
+  box-shadow:inset -120px 0 0 0 #333;
+}
+
+.login-login-button:hover{
+  box-shadow:inset 120px 0 0 0 #333;
+}
+/* ----------------------------------- */
+
+/* 회원가입 페이지(join) */
+/* ----------------------------------- */
+.join-container{
+  background-color:#666;
+  height: 100vh;
+  text-align: center;
+}
+
+.join-logo{
+  margin-top:5%;
+}
+
+.double-check{
+  width:70px;
+  margin-left: 5px;
+  height: 35px;
+  outline: none;
+  border:none;
+  padding: 0;
+}
+
+.double-check{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1em;
+  font-weight:bold;
+}
+
+.double-check:hover{
+  color:#fff;
+  border:2px solid #fff;
+  box-shadow:inset -60px 0 0 0 #333, inset 60px 0 0 0 #333;
+}
+
+
+.join-id-container{
+  margin-top:5%;
+}
+
+.join-id-area{
+  width:180px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.join-nickname-container{
+  margin-top:2%;
+}
+
+.join-nickname-area{
+  width:180px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.join-email-area{
+  width:180px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.join-email-container{
+  margin-top:2%;
+}
+
+.join-pwd-container{
+  margin-top:2%;
+}
+
+.join-pwd-area{
+  width:255px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.join-pwd-check-container{
+  margin-top:2%;
+}
+
+.join-pwd-check-area{
+  width:255px;
+  height:30px;
+  text-indent: 2%;
+  font-size:1em;
+}
+
+.join-button-container{
+  display: flex;
+  position:absolute;
+  width:265px;
+  left:50%;
+  transform: translate(-50%,0);
+  justify-content: space-between;
+  margin-top: 5%;
+}
+
+.join-button-container button{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 100px;;
+  height:40px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.join-button-container button:hover{
+color:#fff;
+border:2px solid #fff;
+}
+
+.join-login-button:hover{
+  box-shadow:inset -120px 0 0 0 #333;
+}
+
+.join-join-button:hover{
+  box-shadow:inset 120px 0 0 0 #333;
+}
+/* ----------------------------------- */
+
+/* 홈페이지(Home) */
+.home-container{ 
+  height: 100vh;
+  background-image: url("./img/bg01.jpeg");
+  background-position:center;
+  background-repeat: no-repeat;
+  background-size:cover;
+}
+
+.home-container::after{
+  content:"";
+  background-color:rgba(0,0,0,0.7);
+  position:absolute;
+  z-index: 1;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+}
+
+.home-logo{
+  position: absolute;
+  z-index:2;
+  left:50%;
+  top:10%;
+  transform:translate(-50%,0);
+}
+
+.home-inner-container{
+ position:absolute;
+ z-index: 2;
+ margin-top: 20%;
+ left:50%;
+ transform:translate(-50%,0);
+ text-align: center;
+}
+
+.observe-container{
+  display: block;
+  position: relative;
+}
+
+.observe-text{
+  position: absolute;
+  left:50%;
+  transform: translate(-50%,0);
+  outline:none;
+  font-size:1.5em;
+  padding: 5px;
+  padding-right: 40px;
+}
+
+.observe-button{
+  position:absolute;
+  outline: none;
+  border:none;
+  background:inherit;
+  left:100px;
+  cursor: pointer;
+}
+
+.practice-button{
+  position:absolute;
+  left:50%;
+  top:100%;
+  margin-top:80px;
+  transform: translate(-50%,0);
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 200px;;
+  height:75px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:2em;
+  font-weight:bold;
+  z-index:2;
+}
+
+.practice-button:hover{
+  color:#fff;
+  border:2px solid #fff;
+}
+
+.practice-button:hover{
+  box-shadow:inset 0 0 0 50px #222;
+}
+/* ----------------------------------- */
+
+/* 발표연습페이지(practice) */
+.practice-container{
+  height: 100vh;
+  padding:20px;
+}
+
+.practice-top{
+  display: flex;
+  margin-bottom: 150px;
+}
+
+.timer-container{
+  font-size:20px;
+}
+
+.timer-icon{
+  padding: 0;
+  margin:0;
+  margin-top:4px;
+}
+
+.timer-container input{
+  font-size:20px;
+  width:40px;
+}
+
+.timer-area{
+  display: inline-block;
+  margin-left:10px;
   border:1px solid black;
+  padding:5px;
+  border-radius: 5px;
+}
+
+.stop-button{
+  background: inherit;
+  border:none;
+  outline:none;
+  cursor:pointer;
+  margin-right:20px;
+}
+
+.change-mode-button-container{
+  font-weight: bold;
+  font-size:30px;
+  margin-right: 100px;
+}
+
+.change-mode-button-container button{
+  background: inherit;
+  border:none;
+  font-weight: bold;
+  cursor:pointer;
+  font-size:30px;
+}
+
+.change-script-button, .keyword-button{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 130px;;
+  height:40px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.change-script-button{
+  margin-right: 20px;
+}
+
+.change-script-button:hover, .keyword-button:hover{
+  color:#fff;
+  border:2px solid #fff;
+  box-shadow:inset 0 0 0 50px #222;
+}
+
+.practice-user-info{
+  font-size:25px;
+  font-weight:bold;
+  border:1px solid black;
+  border-radius: 10px;
+  margin-left:100px;
+  padding:5px;
+}
+
+/* 연습모드 */
+.practice-camera-pdf-container{
+  display: flex;
+}
+
+.practice-left{
+  margin-left: 60px;
+  margin-right: 60px;
+}
+
+.practice-pdf-area{
+  width: 560px;
+  height: 315px;
+  border: 2px dashed gray;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
-.script-change{
-  font-weight: bold;
-}
-
-.card{
-  width:300px;
-  height:200px;
-}
-
-/* 발표연습 페이지 */
-
-.camera-pdf-container{
-  display: flex;
-  justify-content: space-between; 
-}
-
-.practice-title{
-  text-align: center;
-  padding: 10px;
-  font-weight: bold;
-  font-size:1.2em;
-  width:15em;
-  margin-bottom:20px;
+.pdf{
+  width: 560px;
+  height: 315px;
 }
 
 .script-input{
-  width:600px;
-  height:200px;
-}
-
-.practice-title-save{
-  text-align: center;
-  font-weight: bold;
-  font-size:1.2em;
-  margin:0;
-  padding:0;
-  margin-bottom:20px;
-}
-
-.live-camera{
-  height:332.5px;
-  margin-bottom:20px;
-}
-
-.start-stop-button{
-  font-size:20px;
-  font-weight: bold;
-  width:150px;
+  width:560px;
+  height: 200px;
 }
 
 .practice-right{
   text-align: center;
 }
 
-.modal-center{
-  text-align: center;
-  margin-top:30px;
+.practice-live-camera{
+  display: block;
+  height:315px;
+  margin-bottom: 30px;
 }
 
-.modal-center h2{
+.script-input{
+  box-sizing:border-box;
+  padding:5px;
+  font-size:16px;
+}
+
+.practice-title{
+  width:250px;
+  height:40px;
+  text-align:center;
+  font-size:20px;
+  margin-bottom: 20px;
+}
+
+.practice-title-save{
+  display: inline-block;
+  width:250px;
+  height:40px;
+  text-align:center;
+  font-size:24px;
+  margin-bottom: 20px;
   font-weight:bold;
-  font-size:3em;
 }
 
-.modal-close{
-  width:80px;
+.start-stop-button{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 200px;;
   height:50px;
-  position: absolute;
-  right:20px;
-  bottom:20px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:24px;
+  font-weight:bold;
 }
 
+.start-stop-button:hover{
+  color:#fff;
+  border:2px solid #fff;
+  box-shadow:inset 0 0 0 50px #222;
+}
 
-/* 로그인 페이지 */
-.login-container{
-  text-align: center;
+/* 실전모드 */
+.real-camera-pdf-container{
   display: flex;
-  flex-direction: column;
+  margin-top: 200px;
+}
+
+.real-left{
+  margin-left: 60px;
+  margin-right: 60px;
+}
+
+.real-pdf-area{
+  width: 720px;
+  height: 405px;
+  border: 2px dashed gray;
+  display: flex;
+  justify-content: center;
   align-items: center;
 }
 
-.login-container input{
-  display: block;
+.real-right{
+  text-align: center;
 }
 
-.id-container{
-  margin-top:20px;
-  margin-bottom:10px;
+.observe-code-title{
+  font-weight:bold;
+  font-size:30px;
+  margin-bottom:5px;
 }
 
-.pwd-container{
+.observe-code{
+  display: inline-block;
+  border:1px solid black;
+  width:200px;
+  height:40px;
+  font-size:24px;
+  line-height: 40px;
   margin-bottom:20px;
 }
 
-.id-area{
-  padding:5px;
-  width:300px;
+.real-live-camera{
+  height:200px;
+  margin-bottom: -180px;
 }
 
-.pwd-area{
-  padding:5px;
-  width:300px;
+.real-title{
+  width:250px;
+  height:40px;
+  text-align:center;
+  font-size:20px;
+  margin-bottom: 10px;
 }
 
-.login-button-container{
-  width:300px;
-  display: flex;
-  justify-content: space-between;
+.real-title-save{
+  display: inline-block;
+  width:250px;
+  height:40px;
+  text-align:center;
+  font-size:24px;
+  margin-bottom: 20px;
+  font-weight:bold;
 }
 
-/* 회원가입 페이지 */
-.join-container{
+/* ----------------------------------- */
+
+/* 스크립트페이지(script) */
+.script-container{
+  height: 100vh
+}
+
+.script-title{
+  font-weight:bold;
+  font-size:40px;
+  padding:20px;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-.join-id-area{
-  padding:5px;
-  width:200px;
-  margin-right:15px;
-}
-
-.nickname-area{
-  padding:5px;
-  width:200px;
-  margin-right:15px;
-}
-
-.nickname-container{
-  margin-bottom:10px;
-}
-
-.pwd-check-area{
-  margin-top:10px;
-  width:300px;
-  padding:5px;
-}
-
-/* 참관 페이지 */
-
-.observe-top{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.observe-text{
-  color:blue;
-  font-weight: bold;
-  font-size:2em;
-}
-
-.observe-middle{
+.script-area{
   display: flex;
   justify-content: space-between;
 }
 
-.presenter-pdf{
+.script-text{
   width:40%;
+  height:400px;
+  margin:30px;
+  padding:10px;
+  font-size:16px;
+}
+
+.script-change{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 150px;;
+  height:50px;
+  cursor:pointer;
+  outline:none;
+  transition:all 1s;
+  font-size:1.5em;
+  font-weight:bold;
+  margin-top:200px;
+}
+
+.script-change:hover{
+  color:#fff;
+  border:2px solid #fff;
+}
+
+.script-change:hover{
+  box-shadow:inset 0 0 0 50px #222;
+}
+
+.before-change{
+  font-size:1.8em;
+  text-align: center;
+  font-weight:bold;
   border:1px solid black;
+  padding-top:100px;
+  height:310px;
 }
-
-.camera{
-  width:40%;
-  border:1px solid black;
-}
-
-.observer-camera{
-  border:1px solid black;
-  display: flex;
-  justify-content: space-between;
-}
-
-.observer-camera > div{
-  border: 1px solid black;
-}
+/* ----------------------------------- */
 
 
-/* 디테일 페이지 */
-.detail-container {
-  display: flex; /* Flexbox 레이아웃 적용 */
-  width: 100%;
-  height: 100vh; /* 뷰포트 높이만큼 컨테이너 높이 설정 */
+/* 결과창(모달) */
+.modal-container{
+  text-align: center;
 }
 
-.left-column {
-  flex: 0 0 450px; /* 왼쪽 영역 고정 너비 설정 */
-  padding: 10px;
-  border: 1px solid #ccc;
+.modal-logo{
+  margin-top: 100px;
+  margin-bottom: 10px;
 }
 
-.right-column {
-  flex: 1; /* 오른쪽 영역의 남은 공간 차지 */
-  padding: 20px;
-  border: 1px solid #ccc;
-  overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+.modal-title{
+  font-size:40px;
+  font-weight:bold;
+  margin-bottom: 20px;
 }
+
+.detail-button, .save-button{
+  width:100px;
+  height:100px;
+}
+
+.modal-close{
+  position: absolute;
+  bottom:0;
+  right:0;
+  width:100px;
+  height:100px;
+}
+/* ----------------------------------- */
+
+/* 키워드 페이지 */
+.keyword-container{
+  text-align:center;
+  padding-top:10px;
+}
+
+.keyword-title{
+  font-size:24px;
+  font-weight:bold;
+  margin-bottom: 15px;
+}
+
+.yes-word-container{
+  font-size:20px;
+  font-weight:bold;
+  text-align: start;
+  padding-left: 20px;
+  margin-bottom: 80px;
+}
+
+.yes-word-input, .no-word-input{
+  height:24px;
+  width:130px;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-size:18px;
+}
+
+.no-word-container{
+  font-size:20px;
+  font-weight:bold;
+  text-align: start;
+  padding-left: 20px;
+}
+
+.yes-word-button, .no-word-button{
+  width:50px;
+  height:30px;
+  font-size:16px;
+}
+
+
+/* ----------------------------------- */
