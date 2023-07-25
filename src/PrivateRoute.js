@@ -1,12 +1,16 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 const PrivateRoute = () => {
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  if (token === '') {
-    return <Navigate replace to="/main" />
-  }
+  useEffect(() => {
+    if (!token) {
+      navigate("/main");
+    }
+  }, [navigate, token]);
+
   return <Outlet />
 };
 
