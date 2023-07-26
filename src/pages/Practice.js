@@ -130,7 +130,7 @@ const Practice = () => {
 
   const pdfComponent = useMemo(() => {
     return pdfFile ? (
-      <embed
+      <iframe
         className="pdf"
         src={URL.createObjectURL(pdfFile) + "#toolbar=0&scrollbar=0"}
         type="application/pdf"
@@ -165,13 +165,14 @@ const Practice = () => {
     setModal(true);
     handleStartStopListening();
   };
-
+  const pdfFileRef = useRef(null);
   const handleDrop = useCallback((event) => {
     event.preventDefault();
+    console.log('세팅 전', pdfFileRef.current);
     const file = event.dataTransfer.files[0];
-    setPdfFile(file);
+    pdfFileRef.current = file;
+    console.log('세팅 후', pdfFileRef.current);
   }, []);
-
   const handleDragOver = useCallback((event) => {
     event.preventDefault();
   }, []);
@@ -229,13 +230,18 @@ const Practice = () => {
           //녹화 종료 버튼이 눌렸을 때만 서버에 데이터 전송
           const formData = new FormData();
           const nowDate = new Date();
+          const token = localStorage.getItem('token');
+          const config = {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          };
 
           formData.append(
             //화면 녹화 추가
             "screen",
             screenBlob,
-            `screen_userID_${nowDate.getFullYear()}.${
-              nowDate.getMonth() + 1
+            `screen_userID_${nowDate.getFullYear()}.${nowDate.getMonth() + 1
             }.${nowDate.getDate()}_${nowDate.getHours()}:${nowDate.getMinutes()}.webm`
           );
 
@@ -243,15 +249,15 @@ const Practice = () => {
             //웹캠 녹화 추가
             "cam",
             camBlob,
-            `cam_userID_${nowDate.getFullYear()}.${
-              nowDate.getMonth() + 1
+            `cam_userID_${nowDate.getFullYear()}.${nowDate.getMonth() + 1
             }.${nowDate.getDate()}_${nowDate.getHours()}:${nowDate.getMinutes()}.webm`
           );
           console.log(formData);
+          formData.append("title", title);
 
           //영상 서버 전송
           axios
-            .post("http://localhost:3001/ffmpeg/", formData)
+            .post("http://localhost:3001/ffmpeg/", formData, config)
             .then((response) => {
               console.log("영상 전송 완료", response.data); // 서버 응답 처리
             })
