@@ -504,6 +504,10 @@ border:2px solid #fff;
   padding:5px;
 }
 
+.my-3{
+  display: none;
+}
+
 /* 연습모드 */
 .practice-camera-pdf-container{
   display: flex;
@@ -752,10 +756,11 @@ border:2px solid #fff;
 }
 /* ----------------------------------- */
 
-/* 키워드 페이지 */
+/* 키워드 모달 */
 .keyword-container{
   text-align:center;
   padding-top:10px;
+  height:250px;
 }
 
 .keyword-title{
@@ -769,7 +774,8 @@ border:2px solid #fff;
   font-weight:bold;
   text-align: start;
   padding-left: 20px;
-  margin-bottom: 80px;
+  height: 100px;
+  margin-bottom: 10px;
 }
 
 .yes-word-input, .no-word-input{
@@ -791,6 +797,41 @@ border:2px solid #fff;
   width:50px;
   height:30px;
   font-size:16px;
+}
+
+.word-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.word-item {
+  display: flex;
+  align-items: center;
+  background-color: #f2f2f2;
+  border-radius: 4px;
+  padding: 2px 2cap;
+  margin: 3px;
+  text-indent: 5px;
+}
+
+.word-item span {
+  flex: 1;
+}
+
+.word-item button {
+  margin-left: 10px;
+  padding: 5px 5px;
+  background-color: inherit;
+  color: #333;
+  border: none;
+  cursor: pointer;
+  font-weight:bold;
+}
+
+.close-keyword-modal-button{
+  position:absolute;
+  right:0;
+  bottom:0;
 }
 
 
