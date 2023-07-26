@@ -403,17 +403,6 @@ const Practice = () => {
     setIsPractice(false);
     makeConnection(); //피어 연결 - RTCPeerConnection 객체 생성
 
-    // // 카메라 스트림을 가져오고 myFaceRef에 연결합니다.
-    // navigator.mediaDevices
-    //   .getUserMedia({ video: true, audio: true })
-    //   .then(function (newMediaStream) {
-    //     camMediaStreamRef.current = newMediaStream;
-    //     myFaceRef.current.srcObject = camMediaStreamRef.current;
-    //   })
-    //   .catch((error) => {
-    //     console.error("카메라 스트림을 가져오지 못했습니다:", error);
-    //   });
-
     console.log(socket);
     socket.current = io("http://localhost:3001/room", {
       //소켓 연결
