@@ -40,6 +40,47 @@ const Practice = () => {
   const myPeerConnection = useRef(null); //피어 연결 객체
   // ----------------------------------------------------------------------
 
+  // stt-----------------------------------------------------------------
+  const [listening, setListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
+
+  const recognitionRef = useRef(null);
+
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  const handleStartStopListening = () => {
+    // 음성 인식 시작/중지 기능 처리
+    if (!recognitionRef.current) {
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.lang = "ko-KR";
+      recognitionRef.current.continuous = true;
+
+      recognitionRef.current.onstart = () => {
+        setListening(true);
+        console.log("음성 인식 시작");
+      };
+
+      recognitionRef.current.onend = () => {
+        setListening(false);
+        console.log("음성 인식 종료");
+      };
+
+      recognitionRef.current.onresult = (event) => {
+        const { transcript } = event.results[event.results.length - 1][0];
+        setTranscript((prevTranscript) => prevTranscript + transcript + " ");
+      };
+    }
+
+    if (listening) {
+      recognitionRef.current.stop(); // 이미 시작된 경우 중지
+    } else {
+      recognitionRef.current.start(); // 아닌 경우 시작
+    }
+  };
+
+  // --------------------------------------------------------------------------
+
   useEffect(() => {
     let timer;
     if (playing) {
@@ -113,6 +154,7 @@ const Practice = () => {
     startRecording();
     setMinutes(0);
     setSeconds(0);
+    handleStartStopListening();
   };
 
   const quitPractice = () => {
@@ -121,6 +163,7 @@ const Practice = () => {
     setMinutes(0);
     setSeconds(0);
     setModal(true);
+    handleStartStopListening();
   };
 
   const handleDrop = useCallback((event) => {
@@ -311,13 +354,16 @@ const Practice = () => {
     myPeerConnection.current.addEventListener("icecandidate", handleIce);
 
     myPeerConnection.current.oniceconnectionstatechange = () => {
-      console.log("ICE connection state change:", myPeerConnection.current.iceConnectionState);
+      console.log(
+        "ICE connection state change:",
+        myPeerConnection.current.iceConnectionState
+      );
     };
 
     myPeerConnection.current.ontrack = (event) => {
       console.log("got an stream from my peer", event.streams[0]);
       peerFaceRef.current.srcObject = event.streams[0];
-    }
+    };
     if (camMediaStreamRef.current) {
       camMediaStreamRef.current
         .getTracks()
@@ -330,8 +376,8 @@ const Practice = () => {
   const handleIce = (data) => {
     console.log(`sent candidate : ${roomName}`, data);
     socket.current.emit("ice", {
-      "visitorcode": roomName,
-      "icecandidate": data.candidate,
+      visitorcode: roomName,
+      icecandidate: data.candidate,
     });
   };
 
@@ -369,7 +415,7 @@ const Practice = () => {
 
     socket.current.on("connect", () => {
       console.log("connect");
-      socket.current.emit("createRoom", { "userId": "admin" });
+      socket.current.emit("createRoom", { userId: "admin" });
     });
 
     socket.current.on("create-succ", async (room) => {
@@ -379,7 +425,7 @@ const Practice = () => {
       //offer를 보내는 쪽
       const offer = await myPeerConnection.current.createOffer();
       await myPeerConnection.current.setLocalDescription(offer);
-      socket.current.emit("offer", { "visitorcode": room, "offer": offer });
+      socket.current.emit("offer", { visitorcode: room, offer: offer });
       console.log(`sent the offer : ${room}`, offer);
     });
     //offer를 받는 쪽
@@ -388,7 +434,10 @@ const Practice = () => {
       myPeerConnection.current.setRemoteDescription(data.offer);
       const answer = await myPeerConnection.current.createAnswer();
       myPeerConnection.current.setLocalDescription(answer);
-      socket.current.emit("answer", { "visitorcode": data.visitorcode, "answer": answer });
+      socket.current.emit("answer", {
+        visitorcode: data.visitorcode,
+        answer: answer,
+      });
       console.log(`sent the answer : ${data.visitorcode}`, answer);
     });
 
@@ -479,6 +528,14 @@ const Practice = () => {
                 발표 시작
               </button>
             )}
+          </div>
+          <div className="my-3">
+            <textarea
+              name="content"
+              className="form-control"
+              value={transcript}
+              readOnly
+            ></textarea>
           </div>
         </div>
       ) : (
