@@ -253,6 +253,7 @@ const Practice = () => {
             }.${nowDate.getDate()}_${nowDate.getHours()}:${nowDate.getMinutes()}.webm`
           );
           console.log(formData);
+          formData.append("title", title);
 
           //영상 서버 전송
           axios

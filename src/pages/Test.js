@@ -19,7 +19,7 @@ const Test = () => {
             .reduce((data, byte) => data + String.fromCharCode(byte), '')
         );
         setPdfFile("data:;base64," + base64data);
-        console.log(pdfFile);
+        console.log(pdfFile)
       });
   }, []);
 
