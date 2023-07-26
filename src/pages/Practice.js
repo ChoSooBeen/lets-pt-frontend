@@ -36,8 +36,7 @@ const Practice = () => {
   const myFaceRef = useRef(); //내 비디오 요소
   const peerFaceRef = useRef(); //상대방 비디오 요소
   const [myStream, setMyStream] = useState(null); //내 스트림
-  // const [roomName, setRoomName] = useState(""); //참관코드
-  let roomName = ""; //참관코드
+  const [roomName, setRoomName] = useState(""); //참관코드
   const myPeerConnection = useRef(null); //피어 연결 객체
   // ----------------------------------------------------------------------
 
@@ -310,7 +309,15 @@ const Practice = () => {
       ],
     });
     myPeerConnection.current.addEventListener("icecandidate", handleIce);
-    myPeerConnection.current.addEventListener("addstream", handleAddStream);
+
+    myPeerConnection.current.oniceconnectionstatechange = () => {
+      console.log("ICE connection state change:", myPeerConnection.current.iceConnectionState);
+    };
+
+    myPeerConnection.current.ontrack = (event) => {
+      console.log("got an stream from my peer", event.streams[0]);
+      peerFaceRef.current.srcObject = event.streams[0];
+    }
     if (camMediaStreamRef.current) {
       camMediaStreamRef.current
         .getTracks()
@@ -322,16 +329,19 @@ const Practice = () => {
 
   const handleIce = (data) => {
     console.log(`sent candidate : ${roomName}`, data);
-    socket.current.emit("icecandidate", {
-      visitorcode: roomName,
-      icecandidate: data.candidate,
+    socket.current.emit("ice", {
+      "visitorcode": roomName,
+      "icecandidate": data.candidate,
     });
   };
 
-  const handleAddStream = (data) => {
-    console.log("got an stream from my peer", data.stream);
-    peerFaceRef.current.srcObject = data.stream;
-  };
+  // const handleAddStream = (data) => {
+  //   console.log("got an stream from my peer", data.stream);
+  //   peerFaceRef.current.srcObject = data.stream;
+  //   console.log("peerFaceRef", peerFaceRef);
+  //   console.log("peerFaceRef.current", peerFaceRef.current);
+  //   console.log("peerFaceRef.current.srcObject", peerFaceRef.current.srcObject);
+  // };
   //----------------------------------------------------------------------
 
   const realMode = () => {
@@ -359,18 +369,17 @@ const Practice = () => {
 
     socket.current.on("connect", () => {
       console.log("connect");
-      socket.current.emit("createRoom", { userId: "admin" });
+      socket.current.emit("createRoom", { "userId": "admin" });
     });
 
     socket.current.on("create-succ", async (room) => {
       console.log("create-succ", room);
-      // setRoomName(room);
-      roomName = room;
+      setRoomName(room);
 
       //offer를 보내는 쪽
       const offer = await myPeerConnection.current.createOffer();
       await myPeerConnection.current.setLocalDescription(offer);
-      socket.current.emit("offer", { visitorcode: room, offer: offer });
+      socket.current.emit("offer", { "visitorcode": room, "offer": offer });
       console.log(`sent the offer : ${room}`, offer);
     });
     //offer를 받는 쪽
@@ -379,7 +388,7 @@ const Practice = () => {
       myPeerConnection.current.setRemoteDescription(data.offer);
       const answer = await myPeerConnection.current.createAnswer();
       myPeerConnection.current.setLocalDescription(answer);
-      socket.current.emit("answer", { visitorcode: data.visitorcode, answer: answer });
+      socket.current.emit("answer", { "visitorcode": data.visitorcode, "answer": answer });
       console.log(`sent the answer : ${data.visitorcode}`, answer);
     });
 
@@ -390,9 +399,9 @@ const Practice = () => {
     });
 
     //ice를 받는 쪽
-    socket.current.on("icecandidate", async (data) => {
-      console.log("received candidate", data);
-      await myPeerConnection.current.addIceCandidate(data.icecandidate);
+    socket.current.on("ice", async (ice) => {
+      console.log("received candidate", ice);
+      await myPeerConnection.current.addIceCandidate(ice);
     });
   };
 
@@ -494,8 +503,8 @@ const Practice = () => {
               ></video>
               <video
                 ref={peerFaceRef}
-                autoPlay
-                playsInline
+                // autoPlay
+                // playsInline
                 width="200"
                 height="200"
               />
