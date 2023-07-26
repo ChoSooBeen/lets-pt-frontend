@@ -38,6 +38,8 @@ const Practice = () => {
   const [myStream, setMyStream] = useState(null); //내 스트림
   const [roomName, setRoomName] = useState(""); //참관코드
   const myPeerConnection = useRef(null); //피어 연결 객체
+
+  let roomname;
   // ----------------------------------------------------------------------
 
   // stt-----------------------------------------------------------------
@@ -380,9 +382,9 @@ const Practice = () => {
   };
 
   const handleIce = (data) => {
-    console.log(`sent candidate : ${roomName}`, data);
+    console.log(`sent candidate : ${roomname}`, data);
     socket.current.emit("ice", {
-      visitorcode: roomName,
+      visitorcode: roomname,
       icecandidate: data.candidate,
     });
   };
@@ -426,7 +428,11 @@ const Practice = () => {
 
     socket.current.on("create-succ", async (room) => {
       console.log("create-succ", room);
+      console.log("바뀌기 전 방이름", roomName);
+      roomname = room;
       setRoomName(room);
+      console.log("바뀐 방이름",roomName);
+      
 
       //offer를 보내는 쪽
       const offer = await myPeerConnection.current.createOffer();
