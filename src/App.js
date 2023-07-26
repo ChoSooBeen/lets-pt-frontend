@@ -10,6 +10,7 @@ import Result from './pages/Result';
 import Main from './pages/Main';
 import PrivateRoute from './PrivateRoute';
 import Script from './pages/Script';
+import Test from './pages/Test';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/main" element={<Main />} />
         <Route path="/login" element={<Login />} />
         <Route path="/join" element={<Join />} />
+        <Route path="/test" element={<Test />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<Home />} />
