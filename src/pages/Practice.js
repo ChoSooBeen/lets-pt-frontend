@@ -33,9 +33,7 @@ const Practice = () => {
 
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
-  const myFaceRef = useRef(); //내 비디오 요소
   const peerFaceRef = useRef(); //상대방 비디오 요소
-  const [myStream, setMyStream] = useState(null); //내 스트림
   const [roomName, setRoomName] = useState(""); //참관코드
   const myPeerConnection = useRef(null); //피어 연결 객체
 
@@ -288,18 +286,6 @@ const Practice = () => {
     }
   };
 
-  // const downloadVideo = () => {
-  //   if (screenRecordedChunksRef.current.length > 0) {
-  //     const blob = new Blob(screenRecordedChunksRef.current, { type: "video/webm;" });
-  //     const url = URL.createObjectURL(blob);
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.download = "video.webm";
-  //     link.click();
-  //     URL.revokeObjectURL(url);
-  //   }
-  // }
-
   const goToDetailPage = () => {
     const width = 1000;
     const height = 600;
@@ -388,14 +374,6 @@ const Practice = () => {
       icecandidate: data.candidate,
     });
   };
-
-  // const handleAddStream = (data) => {
-  //   console.log("got an stream from my peer", data.stream);
-  //   peerFaceRef.current.srcObject = data.stream;
-  //   console.log("peerFaceRef", peerFaceRef);
-  //   console.log("peerFaceRef.current", peerFaceRef.current);
-  //   console.log("peerFaceRef.current.srcObject", peerFaceRef.current.srcObject);
-  // };
   //----------------------------------------------------------------------
 
   const realMode = () => {
@@ -546,6 +524,7 @@ const Practice = () => {
               className="observe-live-camera"
               ref={peerFaceRef}
               muted
+              autoPlay
             >
             </video>
           </div>

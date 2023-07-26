@@ -7,8 +7,6 @@ const Observe = () => {
   const socket = useRef(); //소켓 객체
   const myFaceRef = useRef(); //내 비디오 요소
   const peerFaceRef = useRef(); //상대방 비디오 요소
-  // const [myStream, setMyStream] = useState(null); //내 스트림
-  // let myStream;
   const myStream = useRef(null);
   const [muted, setMuted] = useState(false); //음소거 여부
   const myPeerConnection = useRef(null); //피어 연결 객체
@@ -34,14 +32,6 @@ const Observe = () => {
       }
     };
   
-    // const handleAddStream = (data) => {
-    //   console.log("got an stream from my peer", data.stream);
-    //   peerFaceRef.current.srcObject = data.stream;
-    //   console.log("peerFaceRef", peerFaceRef);
-    //   console.log("peerFaceRef.current", peerFaceRef.current);
-    //   console.log("peerFaceRef.current.srcObject", peerFaceRef.current.srcObject);
-    // }
-  
     //RTCPeerConnection 객체 생성-----------------------------------------------
     const makeConnection = () => {
       myPeerConnection.current = new RTCPeerConnection({
@@ -66,7 +56,8 @@ const Observe = () => {
       myPeerConnection.current.ontrack = (event) => {
         console.log("got an stream from my peer", event.streams[0]);
         peerFaceRef.current.srcObject = event.streams[0];
-      }
+        console.log("peerFaceRef", peerFaceRef);
+      };
       if (myStream.current) {
         myStream.current.getTracks().forEach((track) => myPeerConnection.current.addTrack(track, myStream.current));
       }
@@ -130,7 +121,7 @@ const Observe = () => {
   }, [visitorCode]);
 
   const handleMuteClick = () => {
-    myStream.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
+    myStream.current.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
     setMuted((prevMuted) => !prevMuted); // 상태 업데이트 방법 변경
   }
 
