@@ -836,3 +836,103 @@ border:2px solid #fff;
 
 
 /* ----------------------------------- */
+/* 참관페이지(Observe) */
+.observe-page-container{
+  height:100vh;
+  padding:50px;
+  box-sizing: border-box;
+}
+
+.observe-page-container header{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 50px;
+}
+
+.observe-title{
+  color:blue;
+  font-weight: bold;
+  font-size: 36px;
+}
+
+.observe-user-info{
+  font-size:30px;
+  border:2px solid black;
+  padding:10px;
+  border-radius: 10px;
+}
+
+.observe-page-middle{
+  display: flex;
+  justify-content:space-around;
+}
+
+.pdf-area{
+  width: 560px;
+  height: 315px;
+  border:1px solid black;
+  text-align: center;
+}
+
+.presentation-title{
+  font-weight:bold;
+  font-size:30px;
+  margin-top:100px;
+}
+
+
+#myStream{
+  border:1px solid black;
+  text-align: center;
+}
+
+#myStream video{
+  display: block;
+}
+
+.presentator-camera{
+  width:500px;
+}
+
+.observe-camera{
+  width:180px;
+  margin-left: 50%;
+  transform: translate(-50%,0);
+}
+
+.observe-page-bottom{
+  display: flex;
+  justify-content: space-between;
+  margin-top: 50px;
+}
+
+.timer{
+  border:1px solid gray;
+  border-radius: 5px;
+  padding:10px;
+  font-size:24px;
+}
+
+.comment{
+  display: block;
+  width:500px;
+  font-size: 24px;
+  text-indent: 5px;
+  margin-left: -350px;
+}
+
+.comment-submit{
+  margin-left: -450px;
+  color:#333;
+  background:inherit;
+  cursor:pointer;
+  outline:none;
+  border:none;
+}
+
+.leave-observe-page-button{
+  border:none;
+  background: inherit;
+}
+
+/* ----------------------------------- */
