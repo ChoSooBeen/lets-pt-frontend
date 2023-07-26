@@ -8,9 +8,9 @@ const Observe = () => {
   const myFaceRef = useRef(); //내 비디오 요소
   const peerFaceRef = useRef(); //상대방 비디오 요소
   // const [myStream, setMyStream] = useState(null); //내 스트림
-  let myStream;
+  // let myStream;
+  const myStream = useRef(null);
   const [muted, setMuted] = useState(false); //음소거 여부
-  const [cameraOff, setCameraOff] = useState(false); //카메라가 꺼져있는지 여부
   const myPeerConnection = useRef(null); //피어 연결 객체
   // ----------------------------------------------------------------------
 
@@ -27,8 +27,8 @@ const Observe = () => {
           audio: true,
           video: true,
         });
-        myStream = stream;
-        myFaceRef.current.srcObject = stream;
+        myStream.current = stream;
+        myFaceRef.current.srcObject = myStream.current;
       } catch (error) {
         console.log(error);
       }
@@ -67,8 +67,8 @@ const Observe = () => {
         console.log("got an stream from my peer", event.streams[0]);
         peerFaceRef.current.srcObject = event.streams[0];
       }
-      if (myStream) {
-        myStream.getTracks().forEach((track) => myPeerConnection.current.addTrack(track, myStream));
+      if (myStream.current) {
+        myStream.current.getTracks().forEach((track) => myPeerConnection.current.addTrack(track, myStream.current));
       }
     };
 
@@ -134,11 +134,6 @@ const Observe = () => {
     setMuted((prevMuted) => !prevMuted); // 상태 업데이트 방법 변경
   }
 
-  const handleCameraClick = () => {
-    myStream.getVideoTracks().forEach((track) => (track.enabled = !track.enabled));
-    setCameraOff((prevCameraOff) => !prevCameraOff); // 상태 업데이트 방법 변경
-  }
-
   return (
     <div>
       <header>
@@ -157,9 +152,6 @@ const Observe = () => {
             />
             <button onClick={handleMuteClick} id="mute">
               {muted ? "Unmute" : "Mute"}
-            </button>
-            <button onClick={handleCameraClick} id="camera">
-              {cameraOff ? "Turn Camera On" : "Turn Camera Off"}
             </button>
             <video
               ref={peerFaceRef}
