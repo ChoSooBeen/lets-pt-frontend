@@ -431,8 +431,8 @@ const Practice = () => {
       console.log("바뀌기 전 방이름", roomName);
       roomname = room;
       setRoomName(room);
-      console.log("바뀐 방이름",roomName);
-      
+      console.log("바뀐 방이름", roomName);
+
 
       //offer를 보내는 쪽
       const offer = await myPeerConnection.current.createOffer();
@@ -552,6 +552,14 @@ const Practice = () => {
         </div>
       ) : (
         <div>
+          <div className="observe-camera-container">
+            <video
+              className="observe-live-camera"
+              ref={peerFaceRef}
+              muted
+            >
+            </video>
+          </div>
           <div className="real-camera-pdf-container">
             <div className="real-left">
               <div
@@ -570,13 +578,6 @@ const Practice = () => {
                 className="real-live-camera"
                 muted
               ></video>
-              <video
-                ref={peerFaceRef}
-                // autoPlay
-                // playsInline
-                width="200"
-                height="200"
-              />
               {playing ? (
                 <p className="real-title-save">{title}</p>
               ) : (

@@ -610,6 +610,18 @@ border:2px solid #fff;
   text-align: center;
 }
 
+.observe-camera-container{
+  position: absolute;
+  left:30%;
+  top:110px;
+}
+
+.observe-live-camera{
+  border:1px solid black;
+  width:200px;
+  height:150px;
+}
+
 .observe-code-title{
   font-weight:bold;
   font-size:30px;
@@ -628,7 +640,7 @@ border:2px solid #fff;
 
 .real-live-camera{
   height:200px;
-  margin-bottom: -180px;
+  margin-bottom: 20px;
 }
 
 .real-title{
