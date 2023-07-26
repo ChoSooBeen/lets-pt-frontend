@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Join from './pages/Join';
 import Observe from './pages/Observe';
-import Keyword from './pages/Keyword';
 import Practice from './pages/Practice';
 import Result from './pages/Result';
 import Main from './pages/Main';
@@ -25,7 +24,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/result" element={<Result />} />
           <Route path="/observe" element={<Observe />} />
-          <Route path="/keyword" element={<Keyword />} />
           <Route path="/script" element={<Script />} />
           <Route path="/practice" element={<Practice />} />
         </Route>

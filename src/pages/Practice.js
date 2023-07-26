@@ -80,6 +80,99 @@ const Practice = () => {
   };
 
   // --------------------------------------------------------------------------
+  // 키워드 모달창 --------------------------------------------------------------
+
+  const [recommendedWords, setRecommendedWords] = useState([]);
+  const [prohibitedWords, setProhibitedWords] = useState([]);
+  const [recommendedWord, setRecommendedWord] = useState('');
+  const [prohibitedWord, setProhibitedWord] = useState('');
+  const [keywordModal, setKeywordModal] = useState(false);
+
+  function openKeywordModal() {
+    setKeywordModal(true);
+  }
+
+  function closeKeywordModal() {
+    setKeywordModal(false);
+  }
+
+  const handleRecommendedInputChange = (event) => {
+    setRecommendedWord(event.target.value);
+  };
+
+  const handleProhibitedInputChange = (event) => {
+    setProhibitedWord(event.target.value);
+  };
+
+  const handleRegisterRecommended = () => {
+    if (recommendedWord.trim() !== '') {
+      setRecommendedWords([...recommendedWords, { word: recommendedWord, count: 0 }]);
+      setRecommendedWord('');
+    }
+  };
+
+  const handleRegisterProhibited = () => {
+    if (prohibitedWord.trim() !== '') {
+      setProhibitedWords([...prohibitedWords, { word: prohibitedWord, count: 0 }]);
+      setProhibitedWord('');
+    }
+  };
+
+  const handleRemoveRecommended = (index) => {
+    const updatedWords = recommendedWords.filter((_, i) => i !== index);
+    setRecommendedWords(updatedWords);
+  };
+
+  const handleRemoveProhibited = (index) => {
+    const updatedWords = prohibitedWords.filter((_, i) => i !== index);
+    setProhibitedWords(updatedWords);
+  };
+
+  const customStyles = {
+    content: {
+      top: "50%",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      marginRight: "-50%",
+      transform: "translate(-50%, -50%)",
+    },
+  };
+
+  Modal.setAppElement("#root");
+
+  // --------------------------------------------------------------------------
+
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    // 로컬스토리지에서 토큰 가져오기
+    const token = localStorage.getItem('token');
+
+    // Axios 요청 설정
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`, // 헤더에 토큰 추가
+      },
+    };
+
+    // 서버로 데이터를 요청하는 예시 API 엔드포인트
+    const apiUrl = 'http://localhost:3001/user/';
+
+    // Axios를 사용하여 요청 보내기
+    axios.get(apiUrl, config)
+      .then((response) => {
+        // 요청에 성공한 경우
+        console.log('서버 응답:', response.data);
+        // 서버에서 응답으로 받은 데이터를 처리하거나 상태를 업데이트할 수 있습니다.
+        setUserId(response.data.data.name);
+      })
+      .catch((error) => {
+        // 요청에 실패한 경우
+        console.error('에러:', error);
+        // 에러 처리 로직 추가 가능
+      });
+  }, []);
 
   useEffect(() => {
     let timer;
@@ -130,7 +223,7 @@ const Practice = () => {
 
   const pdfComponent = useMemo(() => {
     return pdfFile ? (
-      <iframe
+      <embed
         className="pdf"
         src={URL.createObjectURL(pdfFile) + "#toolbar=0&scrollbar=0"}
         type="application/pdf"
@@ -157,22 +250,23 @@ const Practice = () => {
     handleStartStopListening();
   };
 
-  const quitPractice = () => {
+  const quitPractice = async () => {
     quitFlag.current = true;
     stopRecording();
     setMinutes(0);
     setSeconds(0);
-    setModal(true);
     handleStartStopListening();
+    const apiUrl = 'http://localhost:3001/presentation/';
+    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": "pdfURL", "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
+    setModal(true);
   };
-  const pdfFileRef = useRef(null);
+
   const handleDrop = useCallback((event) => {
     event.preventDefault();
-    console.log('세팅 전', pdfFileRef.current);
     const file = event.dataTransfer.files[0];
-    pdfFileRef.current = file;
-    console.log('세팅 후', pdfFileRef.current);
+    setPdfFile(file);
   }, []);
+
   const handleDragOver = useCallback((event) => {
     event.preventDefault();
   }, []);
@@ -306,19 +400,6 @@ const Practice = () => {
 
     window.open(
       "/script",
-      "_blank",
-      `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
-    );
-  };
-
-  const goToKeywordPage = () => {
-    const width = 400;
-    const height = 300;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-
-    window.open(
-      "/keyword",
       "_blank",
       `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
     );
@@ -460,11 +541,68 @@ const Practice = () => {
         <button className="change-script-button" onClick={goToScriptPage}>
           스크립트 변환
         </button>
-        <button className="keyword-button" onClick={goToKeywordPage}>
+        <button className="keyword-button" onClick={openKeywordModal}>
           키워드 등록
         </button>
-        <div className="practice-user-info">유저정보</div>
+        <div className="practice-user-info">{userId}</div>
       </div>
+      <div className="my-3">
+        <textarea
+          name="content"
+          className="form-control"
+          value={transcript}
+          readOnly
+        ></textarea>
+      </div>
+      <Modal isOpen={keywordModal} onRequestClose={closeKeywordModal} style={customStyles}>
+        <div className='keyword-container'>
+          <h1 className='keyword-title'>키워드 등록</h1>
+          <div className='yes-word-container'>
+            권장단어
+            <input
+              className="yes-word-input"
+              type="text"
+              placeholder='단어 입력'
+              value={recommendedWord}
+              onChange={handleRecommendedInputChange}
+            />
+            <button className='yes-word-button' onClick={handleRegisterRecommended}>
+              등록
+            </button>
+            <div className="word-list">
+              {recommendedWords.map((word, index) => (
+                <div key={index} className="word-item">
+                  <span>{word.word}</span>
+                  <button onClick={() => handleRemoveRecommended(index)}>X</button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className='no-word-container'>
+            금지단어
+            <input
+              className="no-word-input"
+              type="text"
+              placeholder='단어 입력'
+              value={prohibitedWord}
+              onChange={handleProhibitedInputChange}
+            />
+            <button className='no-word-button' onClick={handleRegisterProhibited}>
+              등록
+            </button>
+            <div className="word-list">
+              {prohibitedWords.map((word, index) => (
+                <div key={index} className="word-item">
+                  <span>{word.word}</span>
+                  <button onClick={() => handleRemoveProhibited(index)}>X</button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <button className="close-keyword-modal-button" onClick={closeKeywordModal}>닫기</button>
+        </div>
+      </Modal>
+
       {isPractice ? (
         <div className="practice-camera-pdf-container">
           <div className="practice-left">
@@ -507,14 +645,6 @@ const Practice = () => {
                 발표 시작
               </button>
             )}
-          </div>
-          <div className="my-3">
-            <textarea
-              name="content"
-              className="form-control"
-              value={transcript}
-              readOnly
-            ></textarea>
           </div>
         </div>
       ) : (
