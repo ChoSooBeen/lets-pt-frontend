@@ -7,7 +7,8 @@ const Observe = () => {
   const socket = useRef(); //소켓 객체
   const myFaceRef = useRef(); //내 비디오 요소
   const peerFaceRef = useRef(); //상대방 비디오 요소
-  const [myStream, setMyStream] = useState(null); //내 스트림
+  // const [myStream, setMyStream] = useState(null); //내 스트림
+  let myStream;
   const [muted, setMuted] = useState(false); //음소거 여부
   const [cameraOff, setCameraOff] = useState(false); //카메라가 꺼져있는지 여부
   const myPeerConnection = useRef(null); //피어 연결 객체
@@ -26,7 +27,7 @@ const Observe = () => {
           audio: true,
           video: true,
         });
-        setMyStream(stream);
+        myStream = stream;
         myFaceRef.current.srcObject = stream;
       } catch (error) {
         console.log(error);
@@ -35,16 +36,19 @@ const Observe = () => {
 
     const handleIce = (data) => {
       console.log(`sent candidate : ${visitorCode}`, data);
-      socket.current.emit("icecandidate", {
-        visitorcode: visitorCode,
-        icecandidate: data.candidate,
+      socket.current.emit("ice", {
+        "visitorcode": visitorCode,
+        "icecandidate": data.candidate,
       });
     };
   
-    const handleAddStream = (data) => {
-      console.log("got an stream from my peer", data.stream);
-      peerFaceRef.current.srcObject = data.stream;
-    }
+    // const handleAddStream = (data) => {
+    //   console.log("got an stream from my peer", data.stream);
+    //   peerFaceRef.current.srcObject = data.stream;
+    //   console.log("peerFaceRef", peerFaceRef);
+    //   console.log("peerFaceRef.current", peerFaceRef.current);
+    //   console.log("peerFaceRef.current.srcObject", peerFaceRef.current.srcObject);
+    // }
   
     //RTCPeerConnection 객체 생성-----------------------------------------------
     const makeConnection = () => {
@@ -62,7 +66,15 @@ const Observe = () => {
         ],
       });
       myPeerConnection.current.addEventListener("icecandidate", handleIce);
-      myPeerConnection.current.addEventListener("addstream", handleAddStream);
+
+      myPeerConnection.current.oniceconnectionstatechange = () => {
+        console.log("ICE connection state change:", myPeerConnection.current.iceConnectionState);
+      };
+
+      myPeerConnection.current.ontrack = (event) => {
+        console.log("got an stream from my peer", event.streams[0]);
+        peerFaceRef.current.srcObject = event.streams[0];
+      }
       if (myStream) {
         myStream.getTracks().forEach((track) => myPeerConnection.current.addTrack(track, myStream));
       }
@@ -80,6 +92,7 @@ const Observe = () => {
       makeConnection(); //RTCPeerConnection 객체 생성
       getMedia(); //비디오, 오디오 스트림 가져오기 
 
+      console.log("joinRoom : ", { "visitorcode": visitorCode, "userId": "admin3" });
       await socket.current.emit("joinRoom", { "visitorcode": visitorCode, "userId": "admin3" });
     });
 
@@ -106,9 +119,9 @@ const Observe = () => {
       await myPeerConnection.current.setRemoteDescription(data.answer);
     });
   
-    socket.current.on("icecandidate", async (data) => {
-      console.log("received candidate", data);
-      await myPeerConnection.current.addIceCandidate(data.icecandidate);
+    socket.current.on("ice", async (ice) => {
+      console.log("received candidate", ice);
+      await myPeerConnection.current.addIceCandidate(ice);
     });
   }, [visitorCode]);
 
