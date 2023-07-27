@@ -812,6 +812,10 @@ border:2px solid #fff;
   width:100px;
   height:100px;
 }
+
+.modal-video{
+  width:300px;
+}
 /* ----------------------------------- */
 
 /* 키워드 모달 */

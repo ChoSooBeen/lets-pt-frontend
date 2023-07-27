@@ -380,6 +380,16 @@ const Practice = () => {
     }
   };
 
+  const handleModalOpen = () => {
+    if (camRecordedVideoRef.current) {
+      const camBlob = new Blob(camRecordedChunksRef.current, {
+        type: "video/webm",
+      });
+      const camRecordedMediaURL = URL.createObjectURL(camBlob);
+      camRecordedVideoRef.current.src = camRecordedMediaURL;
+    }
+  };
+
   const goToDetailPage = () => {
     const width = 1000;
     const height = 600;
@@ -703,7 +713,7 @@ const Practice = () => {
         </div>
       )}
 
-      <Modal isOpen={modal} onRequestClose={() => setModal(false)}>
+      <Modal isOpen={modal} onRequestClose={() => setModal(false)} onAfterOpen={handleModalOpen}>
         <div className="modal-container">
           <img src={logo} className="modal-logo" alt="logo" width={200} />
           <h2 className="modal-title">{title}</h2>
