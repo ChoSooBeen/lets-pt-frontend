@@ -1036,3 +1036,35 @@ border:2px solid #fff;
   height:40px;
   font-size:20px;
 }
+
+/* 상세결과페이지(result) */
+
+.detail-container {
+  display: flex; /* Flexbox 레이아웃 적용 */
+  width: 100%;
+  height: 100vh; /* 뷰포트 높이만큼 컨테이너 높이 설정 */
+}
+
+.left-column {
+  flex: 0 0 450px; /* 왼쪽 영역 고정 너비 설정 */
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.right-column {
+  flex: 1; /* 오른쪽 영역의 남은 공간 차지 */
+  padding: 20px;
+  border: 1px solid #ccc;
+  overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+}
+
+.detail-container h1{
+  font-weight:bold;
+  font-size:24px;
+  margin-bottom: 20px;
+}
+
+.right-column > div{
+  border:1px solid black;
+  margin-bottom: 20px;
+}
