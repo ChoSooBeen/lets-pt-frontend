@@ -10,6 +10,7 @@ import Main from './pages/Main';
 import PrivateRoute from './PrivateRoute';
 import Script from './pages/Script';
 import Test from './pages/Test';
+import MyPage from './pages/MyPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/observe" element={<Observe />} />
           <Route path="/script" element={<Script />} />
           <Route path="/practice" element={<Practice />} />
+          <Route path="/mypage" element={<MyPage />} />
         </Route>
       </Routes>
     </div >

@@ -62,6 +62,19 @@ const Home = () => {
     );
   }
 
+  const goToMyPage = () => {
+    const width = 800;
+    const height = 600;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    window.open(
+      "/mypage",
+      '_blank',
+      `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
+    );
+  }
+
   const goToObservePage = () => {
     const width = 1200;
     const height = 800;
@@ -91,8 +104,11 @@ const Home = () => {
         </form>
         <button className='practice-button' type='button' onClick={goToPracticePage}>발표 연습</button>
       </div>
-      <p style={{ fontSize: 100 }}>userId : {userId}</p>
-      <button onClick={logout} style={{ zIndex: 2, position: 'absolute' }}>로그아웃</button>
+      <div className='user-info-container'>
+        <p className='user-info'><span className='user-nickname'>{userId}</span> 님 환영합니다! </p>
+        <button className='mypage-button' onClick={goToMyPage}>마이 페이지</button>
+        <button className='logout-button' onClick={logout}>로그아웃</button>
+      </div>
     </div >
   )
 }
