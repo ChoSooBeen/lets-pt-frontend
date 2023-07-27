@@ -55,8 +55,15 @@ input{
 
 /* 최초 페이지(main) */
 /* ----------------------------------- */
+
+body{
+  overflow: hidden;
+}
+
 .main-container{ 
   height: 100vh;
+  width:100vw;
+  overflow: hidden;
   background-image: url("./img/bg03.png");
   background-position:center;
   background-repeat: no-repeat;
@@ -73,7 +80,7 @@ input{
   bottom:0;
   left:0;
   right:0;
-  transform:skew(20deg) translateX(-50%);
+  transform:skew(20deg) translateX(50%);
 }
 
 .main-logo{
@@ -344,6 +351,58 @@ border:2px solid #fff;
   bottom:0;
   left:0;
   right:70%;
+}
+
+.user-info-container{
+  position: absolute;
+  z-index: 2;
+  top:5%;
+  right:7%;
+  text-align: center;
+}
+
+.user-info-container button{
+  display: inline-block;
+}
+
+.user-info{
+  color:#fff;
+  font-size:30px;
+  margin-bottom: 20px;
+}
+
+.mypage-button{
+  margin-right: 10px;
+}
+
+.mypage-button, .logout-button{
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 120px;;
+  height:40px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.mypage-button:hover, .logout-button:hover{
+color:#fff;
+border:2px solid #fff;
+}
+
+.mypage-button:hover{
+  box-shadow:inset -120px 0 0 0 #333;
+}
+
+.logout-button:hover{
+  box-shadow:inset 120px 0 0 0 #333;
+}
+
+.user-nickname{
+  font-weight: bold;
 }
 
 .home-logo{
@@ -621,7 +680,6 @@ border:2px solid #fff;
 }
 
 .observe-live-camera{
-  border:1px solid black;
   width:200px;
   height:150px;
 }
@@ -882,7 +940,6 @@ border:2px solid #fff;
 
 
 #myStream{
-  border:1px solid black;
   text-align: center;
 }
 
@@ -936,3 +993,46 @@ border:2px solid #fff;
 }
 
 /* ----------------------------------- */
+
+/* 마이페이지 */
+.mypage-container{
+  padding:30px;
+  box-sizing: border-box;
+}
+
+.mypage-title{
+  font-size:36px;
+}
+
+.mypage-user-nickname{
+  font-weight: bold;
+}
+
+.record-container{
+  margin-top: 50px;
+  margin-left: 100px;
+}
+
+.practice-record{
+  list-style-type: disc;
+  font-size:30px;
+}
+
+.practice-record li{
+  margin-bottom: 30px;
+}
+
+.practice-record li span{
+  display: inline-block;
+  width:200px;
+  border:1px solid gray;
+  padding:5px;
+  border-radius:5px;
+  margin-right: 15px;
+}
+
+.practice-record li button{
+  margin-right: 15px;
+  height:40px;
+  font-size:20px;
+}
