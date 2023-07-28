@@ -10,6 +10,8 @@ import axios from "axios";
 import Modal from "react-modal";
 import { io } from "socket.io-client";
 import { BsStopCircleFill, BsStopwatchFill } from "react-icons/bs";
+import { Document, Page, pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const Practice = () => {
   const [minutes, setMinutes] = useState(0);
@@ -216,27 +218,105 @@ const Practice = () => {
       });
   }, [isPractice]);
 
-  const handleFileChange = useCallback((event) => {
-    const file = event.target.files[0];
-    setPdfFile(file);
+  // pdf 관련 함수들--------------------------------------
+  const [scriptText, setscriptText] = useState("");
+  const [scriptArray, setScriptArray] = useState([]);
+  const [currentScriptIndex, setcurrentScriptIndex] = useState(0);
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+
+
+  const handleDrop = useCallback((event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    console.log(file);
+
+    let formData = new FormData();
+    formData.append('pdf', file);
+
+    axios.post('http://localhost:3001/s3/pdf', formData)
+      .then(response => {
+        setPdfFile(response.data);
+      });
   }, []);
 
-  const pdfComponent = useMemo(() => {
-    return pdfFile ? (
-      <embed
-        className="pdf"
-        src={URL.createObjectURL(pdfFile) + "#toolbar=0&scrollbar=0"}
-        type="application/pdf"
-        width="100%"
-        height="100%"
-      />
+  const handleDragOver = useCallback((event) => {
+    event.preventDefault();
+  }, []);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+  }
+
+  function nextPage() {
+    setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, numPages));
+  }
+
+  function prevPage() {
+    setPageNumber(prevPageNumber => Math.max(prevPageNumber - 1, 1));
+  }
+
+  const handleChange = (event) => {
+    setscriptText(event.target.value);
+  };
+
+  const handleSave = () => {
+    if (scriptText.trim() === "") {
+      setScriptArray((prevArray) => [...prevArray, "해당 페이지에는 스크립트 내용이 없습니다."]);
+    } else {
+      setScriptArray((prevArray) => [...prevArray, scriptText]);
+    }
+    setscriptText("");
+    nextPage();
+    if (numPages === scriptArray.length + 1) {
+      alert("마지막 페이지입니다");
+    }
+  };
+
+  const handlePrevious = () => {
+    prevPage();
+    setscriptText(scriptArray[pageNumber - 2]);
+  };
+
+
+
+  const handleArrowKey = (event) => {
+    if (playing) {
+      if (event.key === "ArrowLeft") {
+        setcurrentScriptIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+        prevPage();
+      } else if (event.key === "ArrowRight") {
+        setcurrentScriptIndex((prevIndex) => Math.min(prevIndex + 1, scriptArray.length - 1));
+        nextPage();
+      }
+    }
+  };
+
+  useEffect(() => {
+
+    window.addEventListener("keydown", handleArrowKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleArrowKey);
+    };
+  }, [currentScriptIndex, playing, pageNumber, numPages]);
+
+  const pdfComponent =
+    (pdfFile ? (
+      <div>
+        <Document
+          file={pdfFile}
+          onLoadSuccess={onDocumentLoadSuccess}
+        >
+          <Page pageNumber={pageNumber} width="560" />
+        </Document>
+      </div>
     ) : (
       <div>
-        <p>PDF 파일을 드래그 앤 드롭하거나</p>
-        <input type="file" accept=".pdf" onChange={handleFileChange} />
+        <p className="pdf-file-drag-drop">PDF 파일을 드래그 & 드롭해주세요</p>
       </div>
-    );
-  }, [pdfFile, handleFileChange]);
+
+    ))
 
   const titleChange = (event) => {
     const newInputValue = event.target.value;
@@ -247,6 +327,8 @@ const Practice = () => {
     startRecording();
     setMinutes(0);
     setSeconds(0);
+    setcurrentScriptIndex(0);
+    setPageNumber(1);
     handleStartStopListening();
   };
 
@@ -260,16 +342,6 @@ const Practice = () => {
     await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": "pdfURL", "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
     setModal(true);
   };
-
-  const handleDrop = useCallback((event) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    setPdfFile(file);
-  }, []);
-
-  const handleDragOver = useCallback((event) => {
-    event.preventDefault();
-  }, []);
 
   const startRecording = () => {
     setPlaying(true);
@@ -616,6 +688,9 @@ const Practice = () => {
       {isPractice ? (
         <div className="practice-camera-pdf-container">
           <div className="practice-left">
+            <p>
+              Page {pageNumber || (numPages ? 1 : "--")} of {numPages || "--"}
+            </p>
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -623,10 +698,31 @@ const Practice = () => {
             >
               {pdfComponent}
             </div>
-            <textarea
-              className="script-input"
-              placeholder="스크립트 작성"
-            ></textarea>
+            {!playing && (
+              <button onClick={handlePrevious} className="prev-page-button">이전 페이지</button>
+            )}
+            {!playing && (
+              <button onClick={handleSave} className="next-page-button">
+                다음페이지
+              </button>
+            )}
+            {!playing && (
+              <textarea
+                className="script-input"
+                placeholder="스크립트 작성"
+                value={scriptText}
+                onChange={handleChange}
+              />
+            )}
+            {playing && (
+              <div>
+                <div>
+                  {scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
+                    <div key={lineIndex} className="script-save">{line}</div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className="practice-right">
             <video
