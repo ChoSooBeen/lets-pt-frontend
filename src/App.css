@@ -567,9 +567,24 @@ border:2px solid #fff;
   display: none;
 }
 
+.pdf-file-drag-drop{
+  font-weight:bold;
+  font-size:24px;
+}
+
 /* 연습모드 */
 .practice-camera-pdf-container{
   display: flex;
+  width:580px;
+}
+
+.prev-page-button{
+  font-size:20px;
+}
+
+.next-page-button{
+  float:right;
+  font-size:20px;
 }
 
 .practice-left{
@@ -610,6 +625,15 @@ border:2px solid #fff;
   box-sizing:border-box;
   padding:5px;
   font-size:16px;
+  width:564px;
+}
+
+.script-save{
+  border:1px solid black;
+  height: 200px;
+  border-radius: 5px;
+  padding:5px;
+  font-size: 18px;
 }
 
 .practice-title{
@@ -1071,4 +1095,12 @@ border:2px solid #fff;
 .right-column > div{
   border:1px solid black;
   margin-bottom: 20px;
+}
+
+.textLayer{
+  display: none;
+}
+
+.annotationLayer{
+  display: none;
 }
