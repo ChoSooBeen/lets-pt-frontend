@@ -420,6 +420,7 @@ const Practice = () => {
           );
           console.log(formData);
           formData.append("title", title);
+          formData.append("userId", userId);
 
           //영상 서버 전송
           axios
