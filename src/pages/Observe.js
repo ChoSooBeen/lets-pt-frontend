@@ -72,42 +72,47 @@ const Observe = () => {
 
     //RTCPeerConnection 객체 생성-----------------------------------------------
     const makeConnection = (id) => {
-      myPeerConnection.current[id] = new RTCPeerConnection({
-        iceServers: [
-          {
-            urls: [
-              "stun:stun.l.google.com:19302",
-              "stun:stun1.l.google.com:19302",
-              "stun:stun2.l.google.com:19302",
-              "stun:stun3.l.google.com:19302",
-              "stun:stun4.l.google.com:19302",
-            ],
-          },
-        ],
-      });
-      myPeerConnection.current[id].addEventListener("icecandidate", (data) => handleIce(data, id));
-
-      myPeerConnection.current[id].oniceconnectionstatechange = () => {
-        console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
-      };
-
-      console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
-      myPeerConnection.current[id].ontrack = (event) => {
-        console.log("got an stream from my peer", event.streams[0]);
-
-        if (!peerFaceRef.current[id]) {
-          peerFaceRef.current[id] = document.createElement("video");
-          peerFaceRef.current[id].autoplay = true;
-          peerFaceRef.current[id].playsInline = true;
+      return new Promise((resolve, reject) => {
+        myPeerConnection.current[id] = new RTCPeerConnection({
+          iceServers: [
+            {
+              urls: [
+                "stun:stun.l.google.com:19302",
+                "stun:stun1.l.google.com:19302",
+                "stun:stun2.l.google.com:19302",
+                "stun:stun3.l.google.com:19302",
+                "stun:stun4.l.google.com:19302",
+              ],
+            },
+          ],
+        });
+        console.log("Peer connection created for ID:", id, myPeerConnection.current[id]);
+        myPeerConnection.current[id].addEventListener("icecandidate", (data) => handleIce(data, id));
+  
+        myPeerConnection.current[id].oniceconnectionstatechange = () => {
+          console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
+        };
+  
+        console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
+        myPeerConnection.current[id].ontrack = (event) => {
+          console.log("got an stream from my peer", event.streams[0]);
+  
+          if (!peerFaceRef.current[id]) {
+            peerFaceRef.current[id] = document.createElement("video");
+            peerFaceRef.current[id].autoplay = true;
+            peerFaceRef.current[id].playsInline = true;
+          }
+  
+          peerFaceRef.current[id].srcObject = event.streams[0];
+          console.log("peerFaceRef", peerFaceRef.current[id].srcObject);
+        };
+  
+        if (myStream.current) {
+          myStream.current.getTracks().forEach((track) => myPeerConnection.current[id].addTrack(track, myStream.current));
         }
 
-        peerFaceRef.current[id].srcObject = event.streams[0];
-        console.log("peerFaceRef", peerFaceRef.current[id].srcObject);
-      };
-
-      if (myStream.current) {
-        myStream.current.getTracks().forEach((track) => myPeerConnection.current[id].addTrack(track, myStream.current));
-      }
+        resolve();
+      });
     };
 
     const handleIce = (data, id) => {
@@ -141,7 +146,6 @@ const Observe = () => {
         console.log("socket.current.id: ", socket.current.id);  
         console.log("userlist : ", data.userlist);
         for (const id in data.userlist) {
-          console.log("id : ", id);
           if (data.userlist[id] !== socket.current.id) {
             if (!myPeerConnection.current[data.userlist[id]]) {
               await makeConnection(data.userlist[id]); //상대방과 연결 객체 생성
@@ -165,6 +169,10 @@ const Observe = () => {
     //offer 받기
     socket.current.on("offer", async (data) => {
       console.log(`${data.from} received the offer : `, data);
+
+      if (!myPeerConnection.current[data.from]) {
+        await makeConnection(data.from);
+      }
 
       if (myPeerConnection.current[data.from].connectionState === "stable") {
         console.log("Ignoring offer, connection already established.");
