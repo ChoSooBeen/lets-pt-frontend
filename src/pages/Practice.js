@@ -432,9 +432,7 @@ const Practice = () => {
             });
         }
         screenMediaRecorderRef.current = null;
-        console.log(screenMediaRecorderRef.current);
         camMediaRecorderRef.current = null;
-        console.log(camMediaRecorderRef.current);
       }
     };
     console.log("Recording Start!");
