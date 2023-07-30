@@ -15,7 +15,7 @@ const Script = () => {
     console.log(textareaValue);
     const data = {
       question: textareaValue,
-      maxTokens: 1500,
+      maxTokens: 500,
     };
 
     try {
