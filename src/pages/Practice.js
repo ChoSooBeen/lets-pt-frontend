@@ -40,6 +40,7 @@ const Practice = () => {
   const myPeerConnection = useRef({}); //피어 연결 객체
 
   let roomname;
+  const joinUser = useRef([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
 
   // stt-----------------------------------------------------------------
@@ -606,6 +607,13 @@ const Practice = () => {
         );
       }
     });
+
+    //참관자 입장
+    socket.current.on("user-join", async (data) => {
+      // console.log("user-join", data);
+      joinUser.current = data;
+      console.log("joinUser.current", joinUser.current);
+    });
   };
 
   return (
@@ -769,7 +777,7 @@ const Practice = () => {
         <div>
           <div className="observe-camera-container">
             <video
-              className="observe-live-camera"
+
               ref={peerFaceRef}
               muted
               autoPlay
