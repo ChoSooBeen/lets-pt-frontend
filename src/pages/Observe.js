@@ -13,6 +13,8 @@ const Observe = () => {
   const myStream = useRef(null);
   const [muted, setMuted] = useState(false); //음소거 여부
   const myPeerConnection = useRef({}); //피어 연결 객체
+
+  const joinUser = useRef([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
 
   const location = useLocation();
@@ -144,7 +146,9 @@ const Observe = () => {
 
       try {
         console.log("socket.current.id: ", socket.current.id);  
-        console.log("userlist : ", data.userlist);
+        // console.log("userlist : ", data.userlist);
+        joinUser.current = data.userlist;
+        console.log("joinUser.current : ", joinUser.current);
         for (const id in data.userlist) {
           if (data.userlist[id] !== socket.current.id) {
             if (!myPeerConnection.current[data.userlist[id]]) {
