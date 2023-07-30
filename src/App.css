@@ -483,7 +483,7 @@ border:2px solid #fff;
 
 .practice-top{
   display: flex;
-  margin-bottom: 150px;
+  margin-bottom: 100px;
 }
 
 .timer-container{
@@ -676,7 +676,6 @@ border:2px solid #fff;
 /* 실전모드 */
 .real-camera-pdf-container{
   display: flex;
-  margin-top: 200px;
 }
 
 .real-left{
@@ -698,9 +697,10 @@ border:2px solid #fff;
 }
 
 .observe-camera-container{
-  position: absolute;
-  left:30%;
-  top:110px;
+  width: 720px;
+  display: flex;
+  justify-content: center;
+  margin-left: 60px;
 }
 
 .observe-live-camera{
