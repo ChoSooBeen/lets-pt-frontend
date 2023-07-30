@@ -43,16 +43,53 @@ const Practice = () => {
   // stt-----------------------------------------------------------------
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [pauseDuration, setPauseDuration] = useState(0);
+  const [inputValue, setInputValue] = useState("");
+  const [showNotification, setShowNotification] = useState(false);
 
   const recognitionRef = useRef(null);
+  const pauseStartTimeRef = useRef(null);
 
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+  useEffect(() => {
+    if (pauseDuration > 5000) {
+      setInputValue("무음 지속 시간이 5초를 초과했습니다!");
+      setShowNotification(true);
+    } else {
+      setInputValue("");
+      setShowNotification(false);
+    }
+  }, [pauseDuration]);
+
+  useEffect(() => {
+    if (showNotification) {
+      requestNotificationPermission().then((permission) => {
+        if (permission === "granted") {
+          alert("무음 지속 시간이 5초를 초과했습니다!");
+        }
+      });
+    }
+  }, [showNotification]);
+
+  const requestNotificationPermission = () => {
+    if (Notification.permission === "granted") {
+      return Promise.resolve();
+    } else if (Notification.permission !== "denied") {
+      return Notification.requestPermission();
+    }
+    return Promise.resolve();
+  };
 
   const handleStartStopListening = () => {
-    // 음성 인식 시작/중지 기능 처리
     if (!recognitionRef.current) {
-      recognitionRef.current = new SpeechRecognition();
+      const isSpeechRecognitionSupported =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!isSpeechRecognitionSupported) {
+        console.log("현재 브라우저에서 SpeechRecognition API를 지원하지 않습니다.");
+        return;
+      }
+
+      recognitionRef.current = new isSpeechRecognitionSupported();
       recognitionRef.current.lang = "ko-KR";
       recognitionRef.current.continuous = true;
 
@@ -64,18 +101,26 @@ const Practice = () => {
       recognitionRef.current.onend = () => {
         setListening(false);
         console.log("음성 인식 종료");
+        if (pauseStartTimeRef.current) {
+          const pauseEndTime = Date.now();
+          const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
+          pauseStartTimeRef.current = null;
+          setPauseDuration(pauseDuration);
+          console.log("무음 지속 시간 (밀리초):", pauseDuration);
+        }
       };
 
       recognitionRef.current.onresult = (event) => {
         const { transcript } = event.results[event.results.length - 1][0];
         setTranscript((prevTranscript) => prevTranscript + transcript + " ");
+        pauseStartTimeRef.current = Date.now();
       };
     }
 
     if (listening) {
-      recognitionRef.current.stop(); // 이미 시작된 경우 중지
+      recognitionRef.current.stop();
     } else {
-      recognitionRef.current.start(); // 아닌 경우 시작
+      recognitionRef.current.start();
     }
   };
 
