@@ -10,6 +10,9 @@ import axios from "axios";
 import Modal from "react-modal";
 import { io } from "socket.io-client";
 import { BsStopCircleFill, BsStopwatchFill } from "react-icons/bs";
+import { Document, Page, pdfjs } from 'react-pdf';
+import { element } from "prop-types";
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const Practice = () => {
   const [minutes, setMinutes] = useState(0);
@@ -33,11 +36,12 @@ const Practice = () => {
 
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
-  const peerFaceRef = useRef(); //상대방 비디오 요소
+  const peerFaceRef = useRef([]); //상대방 비디오 요소
   const [roomName, setRoomName] = useState(""); //참관코드
-  const myPeerConnection = useRef(null); //피어 연결 객체
+  const myPeerConnection = useRef({}); //피어 연결 객체
 
   let roomname;
+  const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
 
   // stt-----------------------------------------------------------------
@@ -240,6 +244,13 @@ const Practice = () => {
     return () => clearInterval(timer);
   }, [isTimerRunning]);
 
+  function setVideoOutput() {
+    videoOutputRef.current.srcObject = camMediaStreamRef.current;
+    videoOutputRef.current.onloadedmetadata = function (e) {
+      videoOutputRef.current.play();
+    };
+  }
+
   useEffect(() => {
     // 유저의 화면 공유 요청
     navigator.mediaDevices
@@ -253,35 +264,144 @@ const Practice = () => {
       .getUserMedia({ video: true, audio: true })
       .then(function (newMediaStream) {
         camMediaStreamRef.current = newMediaStream;
-        // 카메라의 입력을 실시간으로 비디오 태그에서 확인
-        videoOutputRef.current.srcObject = camMediaStreamRef.current;
-        videoOutputRef.current.onloadedmetadata = function (e) {
-          videoOutputRef.current.play();
-        };
-      });
-  }, [isPractice]);
+        // 카메라의 입력을 실시간으로 비디오 태그에
+        setVideoOutput();
 
-  const handleFileChange = useCallback((event) => {
-    const file = event.target.files[0];
-    setPdfFile(file);
+        // 이 함수 두 번 쓰지 말고 아예 지우고 하는 법 알아보기!!
+      })
   }, []);
 
-  const pdfComponent = useMemo(() => {
-    return pdfFile ? (
-      <embed
-        className="pdf"
-        src={URL.createObjectURL(pdfFile) + "#toolbar=0&scrollbar=0"}
-        type="application/pdf"
-        width="100%"
-        height="100%"
-      />
+  useEffect(() => {
+    setVideoOutput();
+  }, [isPractice]);
+
+  // pdf 관련 함수들--------------------------------------
+  const [scriptText, setscriptText] = useState("");
+  const [scriptArray, setScriptArray] = useState([]);
+  const [currentScriptIndex, setcurrentScriptIndex] = useState(0);
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageTimeArray, setPageTimeArray] = useState([]);
+  const [prevTime, setPrevTime] = useState(null);
+
+
+  const handleDrop = useCallback((event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    console.log(file);
+
+    let formData = new FormData();
+    formData.append('pdf', file);
+
+    axios.post('http://localhost:3001/s3/pdf', formData)
+      .then(response => {
+        setPdfFile(response.data);
+      });
+  }, []);
+
+  const handleDragOver = useCallback((event) => {
+    event.preventDefault();
+  }, []);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+    setPageNumber(1);
+  }
+
+  function msToTime(duration) {
+    var minutes = Math.floor((duration / (1000 * 60)) % 60),
+      seconds = Math.floor((duration / 1000) % 60);
+
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return minutes + ":" + seconds;
+  }
+
+  function nextPage() {
+    if (playing && prevTime && pageNumber < numPages) {
+      setPageTimeArray(prevArray => [...prevArray, Date.now() - prevTime]);
+      setPrevTime(Date.now());
+    }
+    setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, numPages));
+  }
+
+  function prevPage() {
+    setPageNumber(prevPageNumber => Math.max(prevPageNumber - 1, 1));
+  }
+
+  const handleChange = (event) => {
+    setscriptText(event.target.value);
+  };
+
+  const handleSave = () => {
+    if (scriptText.trim() === "") {
+      setScriptArray((prevArray) => [...prevArray, "해당 페이지에는 스크립트 내용이 없습니다."]);
+    } else {
+      setScriptArray((prevArray) => [...prevArray, scriptText]);
+    }
+    setscriptText("");
+    if (!playing) {
+      setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, numPages));
+    } else {
+      nextPage();
+    }
+    if (numPages === scriptArray.length + 1) {
+      alert("마지막 페이지입니다");
+    }
+  };
+
+  const handlePrevious = () => {
+    if (!playing) {
+      setPageNumber(prevPageNumber => Math.max(prevPageNumber - 1, 1));
+      setscriptText(scriptArray[pageNumber - 2]);
+    }
+  };
+
+
+
+  const handleArrowKey = (event) => {
+    if (playing) {
+      if (event.key === "ArrowLeft") {
+        setcurrentScriptIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+        prevPage();
+      } else if (event.key === "ArrowRight") {
+        setcurrentScriptIndex((prevIndex) => Math.min(prevIndex + 1, scriptArray.length - 1));
+        if (pageNumber < numPages) {
+          nextPage();
+        } else if (pageNumber === numPages && pageTimeArray.length < numPages - 1) {
+          setPageTimeArray(prevArray => [...prevArray, Date.now() - prevTime]);
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+
+    window.addEventListener("keydown", handleArrowKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleArrowKey);
+    };
+  }, [currentScriptIndex, playing, pageNumber, numPages]);
+
+
+  const pdfComponent =
+    (pdfFile ? (
+      <div>
+        <Document
+          file={pdfFile}
+          onLoadSuccess={onDocumentLoadSuccess}
+        >
+          <Page pageNumber={pageNumber} width="560" />
+        </Document>
+      </div>
     ) : (
       <div>
-        <p>PDF 파일을 드래그 앤 드롭하거나</p>
-        <input type="file" accept=".pdf" onChange={handleFileChange} />
+        <p className="pdf-file-drag-drop">PDF 파일을 드래그 & 드롭해주세요</p>
       </div>
-    );
-  }, [pdfFile, handleFileChange]);
+
+    ))
 
   const titleChange = (event) => {
     const newInputValue = event.target.value;
@@ -292,7 +412,10 @@ const Practice = () => {
     startRecording();
     setMinutes(0);
     setSeconds(0);
+    setcurrentScriptIndex(0);
+    setPageNumber(1);
     handleStartStopListening();
+    setPrevTime(Date.now());
   };
 
   const quitPractice = async () => {
@@ -302,19 +425,10 @@ const Practice = () => {
     setSeconds(0);
     handleStartStopListening();
     const apiUrl = 'http://localhost:3001/presentation/';
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": "pdfURL", "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
+    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
     setModal(true);
+    setPageTimeArray([]);
   };
-
-  const handleDrop = useCallback((event) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    setPdfFile(file);
-  }, []);
-
-  const handleDragOver = useCallback((event) => {
-    event.preventDefault();
-  }, []);
 
   const startRecording = () => {
     setPlaying(true);
@@ -393,6 +507,7 @@ const Practice = () => {
           );
           console.log(formData);
           formData.append("title", title);
+          formData.append("userId", userId);
 
           //영상 서버 전송
           axios
@@ -405,9 +520,7 @@ const Practice = () => {
             });
         }
         screenMediaRecorderRef.current = null;
-        console.log(screenMediaRecorderRef.current);
         camMediaRecorderRef.current = null;
-        console.log(camMediaRecorderRef.current);
       }
     };
     console.log("Recording Start!");
@@ -422,6 +535,16 @@ const Practice = () => {
       screenMediaRecorderRef.current.stop();
       setPlaying(false);
       setIsTimerRunning(false);
+    }
+  };
+
+  const handleModalOpen = () => {
+    if (camRecordedVideoRef.current) {
+      const camBlob = new Blob(camRecordedChunksRef.current, {
+        type: "video/webm",
+      });
+      const camRecordedMediaURL = URL.createObjectURL(camBlob);
+      camRecordedVideoRef.current.src = camRecordedMediaURL;
     }
   };
 
@@ -454,11 +577,12 @@ const Practice = () => {
     stopRecording();
     setMinutes(0);
     setSeconds(0);
+    setPageTimeArray([]);
   };
 
   //RTCPeerConnection 객체 생성-----------------------------------------------
-  const makeConnection = () => {
-    myPeerConnection.current = new RTCPeerConnection({
+  const makeConnection = (id) => {
+    myPeerConnection.current[id] = new RTCPeerConnection({
       iceServers: [
         {
           urls: [
@@ -471,91 +595,113 @@ const Practice = () => {
         },
       ],
     });
-    myPeerConnection.current.addEventListener("icecandidate", handleIce);
+    myPeerConnection.current[id].addEventListener("icecandidate", (data) => handleIce(data, id));
 
-    myPeerConnection.current.oniceconnectionstatechange = () => {
-      console.log(
-        "ICE connection state change:",
-        myPeerConnection.current.iceConnectionState
-      );
+    myPeerConnection.current[id].oniceconnectionstatechange = () => {
+      console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
     };
 
-    myPeerConnection.current.ontrack = (event) => {
-      console.log("got an stream from my peer", event.streams[0]);
-      peerFaceRef.current.srcObject = event.streams[0];
+    // if (!peerFaceRef.current[id]) {
+    //   peerFaceRef.current[id] = document.createElement("video");
+    //   peerFaceRef.current[id].autoplay = true;
+    //   peerFaceRef.current[id].playsInline = true;
+    // }
+
+    myPeerConnection.current[id].ontrack = (event) => {
+      console.log("got an stream from my peer", id, event.streams[0]);
+      peerFaceRef.current[id].srcObject = event.streams[0];
+      // tmpStream.current = event.streams[0];
     };
+    console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
+
     if (camMediaStreamRef.current) {
       camMediaStreamRef.current
         .getTracks()
         .forEach((track) =>
-          myPeerConnection.current.addTrack(track, camMediaStreamRef.current)
+          myPeerConnection.current[id].addTrack(track, camMediaStreamRef.current)
         );
     }
   };
 
-  const handleIce = (data) => {
-    console.log(`sent candidate : ${roomname}`, data);
+  const handleIce = (data, id) => {
+    console.log(`sent candidate : ${data}`);
     socket.current.emit("ice", {
-      visitorcode: roomname,
+      visitorcode: data.visitorcode,
       icecandidate: data.candidate,
+      to: id,
     });
   };
-  //----------------------------------------------------------------------
 
+  //실전모드-----------------------------------------------------------------
   const realMode = () => {
-    //실전모드로 전환
     setIsPractice(false);
-    makeConnection(); //피어 연결 - RTCPeerConnection 객체 생성
 
-    console.log(socket);
-    socket.current = io("http://localhost:3001/room", {
-      //소켓 연결
+    socket.current = io("http://localhost:3001/room", { //소켓 연결
       withCredentials: true,
     });
     console.log(socket.current);
 
     socket.current.on("connect", () => {
-      console.log("connect");
-      socket.current.emit("createRoom", { userId: "admin" });
+      console.log("connect : ", socket.current.id);
+      //방 생성
+      socket.current.emit("createRoom", { userId: userId });
     });
 
-    socket.current.on("create-succ", async (room) => {
-      console.log("create-succ", room);
-      console.log("바뀌기 전 방이름", roomName);
-      roomname = room;
-      setRoomName(room);
-      console.log("바뀐 방이름", roomName);
-
-
-      //offer를 보내는 쪽
-      const offer = await myPeerConnection.current.createOffer();
-      await myPeerConnection.current.setLocalDescription(offer);
-      socket.current.emit("offer", { visitorcode: room, offer: offer });
-      console.log(`sent the offer : ${room}`, offer);
+    //방 생성 성공 - 참관코드 부여
+    socket.current.on("create-succ", async (roomCode) => {
+      console.log("create-succ", roomCode);
+      roomname = roomCode;
+      setRoomName(roomCode);
     });
+
     //offer를 받는 쪽
     socket.current.on("offer", async (data) => {
-      console.log(`received the offer : ${data.visitorcode}`, data);
-      myPeerConnection.current.setRemoteDescription(data.offer);
-      const answer = await myPeerConnection.current.createAnswer();
-      myPeerConnection.current.setLocalDescription(answer);
+      console.log(`from ${data.from} received the offer : `, data);
+      if (!myPeerConnection.current[data.from]) {
+        makeConnection(data.from);
+      }
+
+      if (myPeerConnection.current[data.from].connectionState === "stable") {
+        console.log("Ignoring offer, connection already established.");
+        return;
+      }
+
+      myPeerConnection.current[data.from].setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await myPeerConnection.current[data.from].createAnswer();
+      await myPeerConnection.current[data.from].setLocalDescription(answer);
+
+      //answer를 보내는 쪽
       socket.current.emit("answer", {
         visitorcode: data.visitorcode,
         answer: answer,
+        to: data.from,
       });
-      console.log(`sent the answer : ${data.visitorcode}`, answer);
+      console.log(`${data.from} sent the answer : `, answer);
     });
 
-    //answer를 받는 쪽
+    //answer 받기
     socket.current.on("answer", async (data) => {
-      console.log(`received the answer : ${data.visitorcode}`, data);
-      await myPeerConnection.current.setRemoteDescription(data.answer);
+      console.log(`${data.from} received the answer : `, data.answer);
+
+      await myPeerConnection.current[data.from].setRemoteDescription(new RTCSessionDescription(data.answer));
     });
 
     //ice를 받는 쪽
-    socket.current.on("ice", async (ice) => {
-      console.log("received candidate", ice);
-      await myPeerConnection.current.addIceCandidate(ice);
+    socket.current.on("ice", async (data) => {
+      console.log("received candidate", data);
+      if (myPeerConnection.current[data.from]) {
+        await myPeerConnection.current[data.from].addIceCandidate(
+          data.icecandidate
+        );
+      }
+    });
+
+    //참관자 입장
+    socket.current.on("user-join", async (data) => {
+      // console.log("user-join", data);
+      setJoinUser(data.filter((id) => id !== socket.current.id));
+      console.log("joinUser.current", joinUser.current);
+      console.log("peer.current", peerFaceRef.current);
     });
   };
 
@@ -651,6 +797,9 @@ const Practice = () => {
       {isPractice ? (
         <div className="practice-camera-pdf-container">
           <div className="practice-left">
+            <p>
+              Page {pageNumber || (numPages ? 1 : "--")} of {numPages || "--"}
+            </p>
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -658,10 +807,31 @@ const Practice = () => {
             >
               {pdfComponent}
             </div>
-            <textarea
-              className="script-input"
-              placeholder="스크립트 작성"
-            ></textarea>
+            {!playing && (
+              <button onClick={handlePrevious} className="prev-page-button">이전 페이지</button>
+            )}
+            {!playing && (
+              <button onClick={handleSave} className="next-page-button">
+                다음페이지
+              </button>
+            )}
+            {!playing && (
+              <textarea
+                className="script-input"
+                placeholder="스크립트 작성"
+                value={scriptText}
+                onChange={handleChange}
+              />
+            )}
+            {playing && (
+              <div>
+                <div>
+                  {scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
+                    <div key={lineIndex} className="script-save">{line}</div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className="practice-right">
             <video
@@ -695,13 +865,19 @@ const Practice = () => {
       ) : (
         <div>
           <div className="observe-camera-container">
-            <video
-              className="observe-live-camera"
-              ref={peerFaceRef}
-              muted
-              autoPlay
-            >
-            </video>
+            {joinUser.map((user, index) => (
+              <video key={index}
+                style={{ border: '1px solid black' }}
+                ref={(el) => {
+                  peerFaceRef.current[user] = el
+                }}
+                muted
+                autoPlay
+                width={200}
+              >
+              </video>
+            ))}
+
           </div>
           <div className="real-camera-pdf-container">
             <div className="real-left">
@@ -721,6 +897,11 @@ const Practice = () => {
                 className="real-live-camera"
                 muted
               ></video>
+              <p>
+                {pageTimeArray.map((time, index) => (
+                  `페이지 ${index + 1}에 머문 시간: ${msToTime(time)} \n`
+                ))}
+              </p>
               {playing ? (
                 <p className="real-title-save">{title}</p>
               ) : (
@@ -746,9 +927,10 @@ const Practice = () => {
             </div>
           </div>
         </div>
-      )}
+      )
+      }
 
-      <Modal isOpen={modal} onRequestClose={() => setModal(false)}>
+      <Modal isOpen={modal} onRequestClose={() => setModal(false)} onAfterOpen={handleModalOpen}>
         <div className="modal-container">
           <img src={logo} className="modal-logo" alt="logo" width={200} />
           <h2 className="modal-title">{title}</h2>
@@ -769,7 +951,7 @@ const Practice = () => {
           닫기
         </button>
       </Modal>
-    </div>
+    </div >
   );
 };
 

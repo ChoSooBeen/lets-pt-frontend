@@ -1,40 +1,87 @@
-import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import axios from 'axios';
+import React, { useEffect, useRef } from 'react';
+import * as faceapi from 'face-api.js';
+import { useState } from 'react';
 
 const Test = () => {
-  const [pdfFile, setPdfFile] = useState(null);
+  const videoHeight = 480;
+  const videoWidth = 640;
+  const videoRef = useRef();
+  const canvasRef = useRef();
 
-  const onDrop = useCallback(acceptedFiles => {
-    const file = acceptedFiles[0];
-    console.log(file);
-
-    let formData = new FormData();
-    formData.append('pdf', file);
-
-    axios.post('http://localhost:3001/s3/pdf', formData)
-      .then(response => {
-        setPdfFile(response.data);
-      });
+  useEffect(() => {
+    runFaceApi();
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const runFaceApi = async () => {
+    await loadModels();
+    startVideo();
+
+    videoRef.current.addEventListener('play', () => {
+      const canvas = faceapi.createCanvasFromMedia(videoRef.current);
+      document.body.append(canvas);
+      const displaySize = { width: videoWidth, height: videoHeight };
+      faceapi.matchDimensions(canvas, displaySize);
+
+      setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+
+        // faceapi.draw.drawDetections(canvas, resizedDetections);
+        // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
+        if (resizedDetections && resizedDetections.length > 0) {
+          let expressions = resizedDetections[0].expressions;
+          let max = 0.00;
+          let expression = 'neutral';
+
+          Object.keys(expressions).forEach(key => {
+            if (expressions[key] > max) {
+              max = expressions[key];
+              expression = key;
+            }
+          });
+
+          if (expression === 'happy') {
+            setMessage('좋습니다');
+          } else {
+            setMessage('좀 웃어보세요');
+          }
+        }
+      }, 100)
+
+    });
+  };
+
+  const loadModels = async () => {
+    const MODEL_URL = '/models';
+    await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
+    await faceapi.loadFaceExpressionModel(MODEL_URL);
+  };
+
+  const startVideo = () => {
+    navigator.getUserMedia(
+      { video: {} },
+      stream => (videoRef.current.srcObject = stream),
+      err => console.error(err)
+    );
+  };
+
+  const [message, setMessage] = useState('');
 
   return (
-    <div {...getRootProps()}>
-      <input {...getInputProps()} />
-      {
-        isDragActive ?
-          <p>Drop the files here ...</p> :
-          <p>Drag 'n' drop some files here, or click to select files</p>
-      }
-      <iframe
-        src={pdfFile + "#toolbar=0&scrollbar=0"}
-        style={{ width: '80%', height: '500px', border: '1px solid black' }} />
+    <div className="App">
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        height={videoHeight}
+        width={videoWidth}
+      />
+      <div className="message">{message}</div>
 
     </div>
-  )
-}
+  );
+};
 
-export default Test
-
+export default Test;

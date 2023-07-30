@@ -11,7 +11,7 @@ import PrivateRoute from './PrivateRoute';
 import Script from './pages/Script';
 import Test from './pages/Test';
 import MyPage from './pages/MyPage';
-
+import PdfTest from './pages/pdfTest';
 function App() {
   return (
     <div>
@@ -20,6 +20,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/join" element={<Join />} />
         <Route path="/test" element={<Test />} />
+        <Route path="/pdf" element={<PdfTest />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<Home />} />
