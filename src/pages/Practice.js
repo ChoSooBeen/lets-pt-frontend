@@ -380,7 +380,7 @@ const Practice = () => {
     setSeconds(0);
     handleStartStopListening();
     const apiUrl = 'http://localhost:3001/presentation/';
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": "pdfURL", "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
+    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
     setModal(true);
     setPageTimeArray([]);
   };
@@ -825,16 +825,12 @@ const Practice = () => {
                 style={{ border: '1px solid black' }}
                 ref={(el) => {
                   peerFaceRef.current[user] = el
-                  console.log('set peerfaceref', user, peerFaceRef.current[user])
                 }}
                 muted
                 autoPlay
+                width={200}
               >
               </video>
-            ))}
-
-            {pageTimeArray.map((time, index) => (
-              `페이지 ${index + 1}에 머문 시간: ${msToTime(time)} \n`
             ))}
 
           </div>
