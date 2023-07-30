@@ -36,7 +36,7 @@ const Practice = () => {
 
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
-  const peerFaceRef = useRef({}); //상대방 비디오 요소
+  const peerFaceRef = useRef([]); //상대방 비디오 요소
   const [roomName, setRoomName] = useState(""); //참관코드
   const myPeerConnection = useRef({}); //피어 연결 객체
 
@@ -556,15 +556,16 @@ const Practice = () => {
       console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
     };
 
-    if (!peerFaceRef.current[id]) {
-      peerFaceRef.current[id] = document.createElement("video");
-      peerFaceRef.current[id].autoplay = true;
-      peerFaceRef.current[id].playsInline = true;
-    }
+    // if (!peerFaceRef.current[id]) {
+    //   peerFaceRef.current[id] = document.createElement("video");
+    //   peerFaceRef.current[id].autoplay = true;
+    //   peerFaceRef.current[id].playsInline = true;
+    // }
 
     myPeerConnection.current[id].ontrack = (event) => {
-      console.log("got an stream from my peer", event.streams[0]);
+      console.log("got an stream from my peer", id, event.streams[0]);
       peerFaceRef.current[id].srcObject = event.streams[0];
+      // tmpStream.current = event.streams[0];
     };
     console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
 
@@ -653,7 +654,7 @@ const Practice = () => {
     //참관자 입장
     socket.current.on("user-join", async (data) => {
       // console.log("user-join", data);
-      setJoinUser(data);
+      setJoinUser(data.filter((id) => id !== socket.current.id));
       console.log("joinUser.current", joinUser.current);
       console.log("peer.current", peerFaceRef.current);
     });
@@ -822,7 +823,10 @@ const Practice = () => {
             {joinUser.map((user, index) => (
               <video key={index}
                 style={{ border: '1px solid black' }}
-                ref={peerFaceRef.current[user]}
+                ref={(el) => {
+                  peerFaceRef.current[user] = el
+                  console.log('set peerfaceref', user, peerFaceRef.current[user])
+                }}
                 muted
                 autoPlay
               >
