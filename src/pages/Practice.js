@@ -263,9 +263,10 @@ const Practice = () => {
     setPageNumber(1);
   }
 
+
   function msToTime(duration) {
-    var minutes = Math.floor((duration / (1000 * 60)) % 60),
-      seconds = Math.floor((duration / 1000) % 60);
+    let minutes = Math.floor((duration / (1000 * 60)) % 60),
+      seconds = Math.ceil((duration / 1000) % 60);
 
     minutes = (minutes < 10) ? "0" + minutes : minutes;
     seconds = (seconds < 10) ? "0" + seconds : seconds;
@@ -275,8 +276,14 @@ const Practice = () => {
 
   function nextPage() {
     if (playing && prevTime && pageNumber < numPages) {
-      setPageTimeArray(prevArray => [...prevArray, Date.now() - prevTime]);
-      setPrevTime(Date.now());
+      const currentTime = Date.now();
+      const timeDifference = currentTime - prevTime;
+
+      const minutes = Math.floor((timeDifference / (1000 * 60)) % 60);
+      const seconds = Math.ceil((timeDifference / 1000) % 60);
+
+      setPageTimeArray(prevArray => [...prevArray, { minutes, seconds }]);
+      setPrevTime(currentTime);
     }
     setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, numPages));
   }
@@ -322,14 +329,23 @@ const Practice = () => {
         prevPage();
       } else if (event.key === "ArrowRight") {
         setcurrentScriptIndex((prevIndex) => Math.min(prevIndex + 1, scriptArray.length - 1));
+
         if (pageNumber < numPages) {
           nextPage();
         } else if (pageNumber === numPages && pageTimeArray.length < numPages - 1) {
-          setPageTimeArray(prevArray => [...prevArray, Date.now() - prevTime]);
+          const currentTime = Date.now();
+          const timeDifference = currentTime - prevTime;
+
+          const minutes = Math.floor((timeDifference / (1000 * 60)) % 60);
+          const seconds = Math.ceil((timeDifference / 1000) % 60);
+
+          setPageTimeArray(prevArray => [...prevArray, { minutes, seconds }]);
+          setPrevTime(currentTime);
         }
       }
     }
   };
+
 
   useEffect(() => {
 
@@ -380,7 +396,7 @@ const Practice = () => {
     setSeconds(0);
     handleStartStopListening();
     const apiUrl = 'http://localhost:3001/presentation/';
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
+    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "sttScript": transcript, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords, "pdfTime": pageTimeArray });
     setModal(true);
     setPageTimeArray([]);
   };
@@ -852,11 +868,11 @@ const Practice = () => {
                 className="real-live-camera"
                 muted
               ></video>
-              <p>
+              <ul className="page-time-array">
                 {pageTimeArray.map((time, index) => (
-                  `페이지 ${index + 1}에 머문 시간: ${msToTime(time)} \n`
+                  <li>페이지 {index + 1} : <span className="">{time.minutes} : {time.seconds} </span></li>
                 ))}
-              </p>
+              </ul>
               {playing ? (
                 <p className="real-title-save">{title}</p>
               ) : (
