@@ -35,9 +35,9 @@ const Practice = () => {
 
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
-  const peerFaceRef = useRef(); //상대방 비디오 요소
+  const peerFaceRef = useRef({}); //상대방 비디오 요소
   const [roomName, setRoomName] = useState(""); //참관코드
-  const myPeerConnection = useRef(null); //피어 연결 객체
+  const myPeerConnection = useRef({}); //피어 연결 객체
 
   let roomname;
   // ----------------------------------------------------------------------
@@ -420,6 +420,7 @@ const Practice = () => {
           );
           console.log(formData);
           formData.append("title", title);
+          formData.append("userId", userId);
 
           //영상 서버 전송
           axios
@@ -432,9 +433,7 @@ const Practice = () => {
             });
         }
         screenMediaRecorderRef.current = null;
-        console.log(screenMediaRecorderRef.current);
         camMediaRecorderRef.current = null;
-        console.log(camMediaRecorderRef.current);
       }
     };
     console.log("Recording Start!");
@@ -494,8 +493,8 @@ const Practice = () => {
   };
 
   //RTCPeerConnection 객체 생성-----------------------------------------------
-  const makeConnection = () => {
-    myPeerConnection.current = new RTCPeerConnection({
+  const makeConnection = (id) => {
+    myPeerConnection.current[id] = new RTCPeerConnection({
       iceServers: [
         {
           urls: [
@@ -508,91 +507,104 @@ const Practice = () => {
         },
       ],
     });
-    myPeerConnection.current.addEventListener("icecandidate", handleIce);
+    myPeerConnection.current[id].addEventListener("icecandidate", (data) => handleIce(data, id));
 
-    myPeerConnection.current.oniceconnectionstatechange = () => {
-      console.log(
-        "ICE connection state change:",
-        myPeerConnection.current.iceConnectionState
-      );
+    myPeerConnection.current[id].oniceconnectionstatechange = () => {
+      console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
     };
 
-    myPeerConnection.current.ontrack = (event) => {
+    if (!peerFaceRef.current[id]) {
+      peerFaceRef.current[id] = document.createElement("video");
+      peerFaceRef.current[id].autoplay = true;
+      peerFaceRef.current[id].playsInline = true;
+    }
+
+    myPeerConnection.current[id].ontrack = (event) => {
       console.log("got an stream from my peer", event.streams[0]);
-      peerFaceRef.current.srcObject = event.streams[0];
+      peerFaceRef.current[id].srcObject = event.streams[0];
     };
+    console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
+
     if (camMediaStreamRef.current) {
       camMediaStreamRef.current
         .getTracks()
         .forEach((track) =>
-          myPeerConnection.current.addTrack(track, camMediaStreamRef.current)
+          myPeerConnection.current[id].addTrack(track, camMediaStreamRef.current)
         );
     }
   };
 
-  const handleIce = (data) => {
-    console.log(`sent candidate : ${roomname}`, data);
+  const handleIce = (data, id) => {
+    console.log(`sent candidate : ${data}`);
     socket.current.emit("ice", {
-      visitorcode: roomname,
+      visitorcode: data.visitorcode,
       icecandidate: data.candidate,
+      to: id,
     });
   };
-  //----------------------------------------------------------------------
 
+  //실전모드-----------------------------------------------------------------
   const realMode = () => {
-    //실전모드로 전환
     setIsPractice(false);
-    makeConnection(); //피어 연결 - RTCPeerConnection 객체 생성
 
-    console.log(socket);
-    socket.current = io("http://localhost:3001/room", {
-      //소켓 연결
+    socket.current = io("http://localhost:3001/room", { //소켓 연결
       withCredentials: true,
     });
     console.log(socket.current);
 
     socket.current.on("connect", () => {
-      console.log("connect");
-      socket.current.emit("createRoom", { userId: "admin" });
+      console.log("connect : ", socket.current.id);
+      //방 생성
+      socket.current.emit("createRoom", { userId: userId });
     });
 
-    socket.current.on("create-succ", async (room) => {
-      console.log("create-succ", room);
-      console.log("바뀌기 전 방이름", roomName);
-      roomname = room;
-      setRoomName(room);
-      console.log("바뀐 방이름", roomName);
-
-
-      //offer를 보내는 쪽
-      const offer = await myPeerConnection.current.createOffer();
-      await myPeerConnection.current.setLocalDescription(offer);
-      socket.current.emit("offer", { visitorcode: room, offer: offer });
-      console.log(`sent the offer : ${room}`, offer);
+    //방 생성 성공 - 참관코드 부여
+    socket.current.on("create-succ", async (roomCode) => {
+      console.log("create-succ", roomCode);
+      roomname = roomCode;
+      setRoomName(roomCode);
     });
+
     //offer를 받는 쪽
     socket.current.on("offer", async (data) => {
-      console.log(`received the offer : ${data.visitorcode}`, data);
-      myPeerConnection.current.setRemoteDescription(data.offer);
-      const answer = await myPeerConnection.current.createAnswer();
-      myPeerConnection.current.setLocalDescription(answer);
+      console.log(`from ${data.from} received the offer : `, data);
+      if (!myPeerConnection.current[data.from]) {
+        makeConnection(data.from);
+      }
+
+      if (myPeerConnection.current[data.from].connectionState === "stable") {
+        console.log("Ignoring offer, connection already established.");
+        return;
+      }
+
+      myPeerConnection.current[data.from].setRemoteDescription(new RTCSessionDescription(data.offer));
+      const answer = await myPeerConnection.current[data.from].createAnswer();
+      await myPeerConnection.current[data.from].setLocalDescription(answer);
+      
+      //answer를 보내는 쪽
       socket.current.emit("answer", {
         visitorcode: data.visitorcode,
         answer: answer,
+        to: data.from,
       });
-      console.log(`sent the answer : ${data.visitorcode}`, answer);
+      console.log(`${data.from} sent the answer : `, answer);
     });
 
-    //answer를 받는 쪽
+    //answer 받기
     socket.current.on("answer", async (data) => {
-      console.log(`received the answer : ${data.visitorcode}`, data);
-      await myPeerConnection.current.setRemoteDescription(data.answer);
+      console.log(`${data.from} received the answer : `, data.answer);
+      
+      await myPeerConnection.current[data.from].setRemoteDescription(new RTCSessionDescription(data.answer));
     });
 
     //ice를 받는 쪽
-    socket.current.on("ice", async (ice) => {
-      console.log("received candidate", ice);
-      await myPeerConnection.current.addIceCandidate(ice);
+    socket.current.on("ice", async (data) => {
+      console.log("received candidate", data);
+      if (myPeerConnection.current[data.from]) {
+        await myPeerConnection.current[data.from].addIceCandidate(
+          data.icecandidate
+        );
+      }
     });
   };
 
