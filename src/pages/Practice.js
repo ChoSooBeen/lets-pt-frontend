@@ -11,6 +11,7 @@ import Modal from "react-modal";
 import { io } from "socket.io-client";
 import { BsStopCircleFill, BsStopwatchFill } from "react-icons/bs";
 import { Document, Page, pdfjs } from 'react-pdf';
+import { element } from "prop-types";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const Practice = () => {
@@ -40,7 +41,7 @@ const Practice = () => {
   const myPeerConnection = useRef({}); //피어 연결 객체
 
   let roomname;
-  const joinUser = useRef([]); //접속한 유저 정보
+  const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
 
   // stt-----------------------------------------------------------------
@@ -198,6 +199,13 @@ const Practice = () => {
     return () => clearInterval(timer);
   }, [isTimerRunning]);
 
+  function setVideoOutput() {
+    videoOutputRef.current.srcObject = camMediaStreamRef.current;
+    videoOutputRef.current.onloadedmetadata = function (e) {
+      videoOutputRef.current.play();
+    };
+  }
+
   useEffect(() => {
     // 유저의 화면 공유 요청
     navigator.mediaDevices
@@ -211,12 +219,15 @@ const Practice = () => {
       .getUserMedia({ video: true, audio: true })
       .then(function (newMediaStream) {
         camMediaStreamRef.current = newMediaStream;
-        // 카메라의 입력을 실시간으로 비디오 태그에서 확인
-        videoOutputRef.current.srcObject = camMediaStreamRef.current;
-        videoOutputRef.current.onloadedmetadata = function (e) {
-          videoOutputRef.current.play();
-        };
-      });
+        // 카메라의 입력을 실시간으로 비디오 태그에
+        setVideoOutput();
+
+        // 이 함수 두 번 쓰지 말고 아예 지우고 하는 법 알아보기!!
+      })
+  }, []);
+
+  useEffect(() => {
+    setVideoOutput();
   }, [isPractice]);
 
   // pdf 관련 함수들--------------------------------------
@@ -225,6 +236,8 @@ const Practice = () => {
   const [currentScriptIndex, setcurrentScriptIndex] = useState(0);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [pageTimeArray, setPageTimeArray] = useState([]);
+  const [prevTime, setPrevTime] = useState(null);
 
 
   const handleDrop = useCallback((event) => {
@@ -247,9 +260,24 @@ const Practice = () => {
 
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages);
+    setPageNumber(1);
+  }
+
+  function msToTime(duration) {
+    var minutes = Math.floor((duration / (1000 * 60)) % 60),
+      seconds = Math.floor((duration / 1000) % 60);
+
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return minutes + ":" + seconds;
   }
 
   function nextPage() {
+    if (playing && prevTime && pageNumber < numPages) {
+      setPageTimeArray(prevArray => [...prevArray, Date.now() - prevTime]);
+      setPrevTime(Date.now());
+    }
     setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, numPages));
   }
 
@@ -268,15 +296,21 @@ const Practice = () => {
       setScriptArray((prevArray) => [...prevArray, scriptText]);
     }
     setscriptText("");
-    nextPage();
+    if (!playing) {
+      setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, numPages));
+    } else {
+      nextPage();
+    }
     if (numPages === scriptArray.length + 1) {
       alert("마지막 페이지입니다");
     }
   };
 
   const handlePrevious = () => {
-    prevPage();
-    setscriptText(scriptArray[pageNumber - 2]);
+    if (!playing) {
+      setPageNumber(prevPageNumber => Math.max(prevPageNumber - 1, 1));
+      setscriptText(scriptArray[pageNumber - 2]);
+    }
   };
 
 
@@ -288,7 +322,11 @@ const Practice = () => {
         prevPage();
       } else if (event.key === "ArrowRight") {
         setcurrentScriptIndex((prevIndex) => Math.min(prevIndex + 1, scriptArray.length - 1));
-        nextPage();
+        if (pageNumber < numPages) {
+          nextPage();
+        } else if (pageNumber === numPages && pageTimeArray.length < numPages - 1) {
+          setPageTimeArray(prevArray => [...prevArray, Date.now() - prevTime]);
+        }
       }
     }
   };
@@ -301,6 +339,7 @@ const Practice = () => {
       window.removeEventListener("keydown", handleArrowKey);
     };
   }, [currentScriptIndex, playing, pageNumber, numPages]);
+
 
   const pdfComponent =
     (pdfFile ? (
@@ -331,6 +370,7 @@ const Practice = () => {
     setcurrentScriptIndex(0);
     setPageNumber(1);
     handleStartStopListening();
+    setPrevTime(Date.now());
   };
 
   const quitPractice = async () => {
@@ -342,6 +382,7 @@ const Practice = () => {
     const apiUrl = 'http://localhost:3001/presentation/';
     await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": "pdfURL", "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
     setModal(true);
+    setPageTimeArray([]);
   };
 
   const startRecording = () => {
@@ -491,6 +532,7 @@ const Practice = () => {
     stopRecording();
     setMinutes(0);
     setSeconds(0);
+    setPageTimeArray([]);
   };
 
   //RTCPeerConnection 객체 생성-----------------------------------------------
@@ -581,7 +623,7 @@ const Practice = () => {
       myPeerConnection.current[data.from].setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await myPeerConnection.current[data.from].createAnswer();
       await myPeerConnection.current[data.from].setLocalDescription(answer);
-      
+
       //answer를 보내는 쪽
       socket.current.emit("answer", {
         visitorcode: data.visitorcode,
@@ -594,7 +636,7 @@ const Practice = () => {
     //answer 받기
     socket.current.on("answer", async (data) => {
       console.log(`${data.from} received the answer : `, data.answer);
-      
+
       await myPeerConnection.current[data.from].setRemoteDescription(new RTCSessionDescription(data.answer));
     });
 
@@ -611,8 +653,9 @@ const Practice = () => {
     //참관자 입장
     socket.current.on("user-join", async (data) => {
       // console.log("user-join", data);
-      joinUser.current = data;
+      setJoinUser(data);
       console.log("joinUser.current", joinUser.current);
+      console.log("peer.current", peerFaceRef.current);
     });
   };
 
@@ -776,13 +819,20 @@ const Practice = () => {
       ) : (
         <div>
           <div className="observe-camera-container">
-            <video
+            {joinUser.map((user, index) => (
+              <video key={index}
+                style={{ border: '1px solid black' }}
+                ref={peerFaceRef.current[user]}
+                muted
+                autoPlay
+              >
+              </video>
+            ))}
 
-              ref={peerFaceRef}
-              muted
-              autoPlay
-            >
-            </video>
+            {pageTimeArray.map((time, index) => (
+              `페이지 ${index + 1}에 머문 시간: ${msToTime(time)} \n`
+            ))}
+
           </div>
           <div className="real-camera-pdf-container">
             <div className="real-left">
@@ -802,6 +852,11 @@ const Practice = () => {
                 className="real-live-camera"
                 muted
               ></video>
+              <p>
+                {pageTimeArray.map((time, index) => (
+                  `페이지 ${index + 1}에 머문 시간: ${msToTime(time)} \n`
+                ))}
+              </p>
               {playing ? (
                 <p className="real-title-save">{title}</p>
               ) : (
@@ -827,7 +882,8 @@ const Practice = () => {
             </div>
           </div>
         </div>
-      )}
+      )
+      }
 
       <Modal isOpen={modal} onRequestClose={() => setModal(false)} onAfterOpen={handleModalOpen}>
         <div className="modal-container">
@@ -850,7 +906,7 @@ const Practice = () => {
           닫기
         </button>
       </Modal>
-    </div>
+    </div >
   );
 };
 

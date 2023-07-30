@@ -1,117 +1,85 @@
-import React, { useEffect, useState } from "react";
-import { Document, Page, pdfjs } from 'react-pdf';
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+import React, { useEffect, useRef } from 'react';
+import * as faceapi from 'face-api.js';
+import { useState } from 'react';
 
 const Test = () => {
-  const [scriptText, setscriptText] = useState("");
-  const [scriptArray, setScriptArray] = useState([]);
-  const [currentScriptIndex, setcurrentScriptIndex] = useState(0);
-  const [isStarted, setIsStarted] = useState(false);
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-
-  function onDocumentLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-    setPageNumber(1);
-  }
-
-  function nextPage() {
-    setPageNumber(prevPageNumber => Math.min(prevPageNumber + 1, numPages));
-  }
-
-  function prevPage() {
-    setPageNumber(prevPageNumber => Math.max(prevPageNumber - 1, 1));
-  }
-
-  const handleChange = (event) => {
-    setscriptText(event.target.value);
-  };
-
-  const handleSave = () => {
-    if (scriptText.trim() === "") {
-      setScriptArray((prevArray) => [...prevArray, "해당 페이지에는 스크립트 내용이 없습니다."]);
-    } else {
-      setScriptArray((prevArray) => [...prevArray, scriptText]);
-    }
-    setscriptText("");
-    nextPage();
-    if (numPages === scriptArray.length + 1) {
-      alert("마지막 페이지입니다");
-    }
-  };
-
-  const handlePrevious = () => {
-    prevPage();
-    setscriptText(scriptArray[pageNumber - 2]);
-  };
-
-  const handleStart = () => {
-    setIsStarted(true);
-    setcurrentScriptIndex(0);
-    setPageNumber(1);
-  };
-
-  const handleArrowKey = (event) => {
-    if (isStarted) {
-      if (event.key === "ArrowLeft") {
-        setcurrentScriptIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-        prevPage();
-      } else if (event.key === "ArrowRight") {
-        setcurrentScriptIndex((prevIndex) => Math.min(prevIndex + 1, scriptArray.length - 1));
-        nextPage();
-      }
-    }
-  };
+  const videoHeight = 480;
+  const videoWidth = 640;
+  const videoRef = useRef();
+  const canvasRef = useRef();
 
   useEffect(() => {
+    runFaceApi();
+  }, []);
 
-    window.addEventListener("keydown", handleArrowKey);
+  const runFaceApi = async () => {
+    await loadModels();
+    startVideo();
 
-    return () => {
-      window.removeEventListener("keydown", handleArrowKey);
-    };
-  }, [currentScriptIndex, isStarted, pageNumber, numPages]);
+    videoRef.current.addEventListener('play', () => {
+      const canvas = faceapi.createCanvasFromMedia(videoRef.current);
+      document.body.append(canvas);
+      const displaySize = { width: videoWidth, height: videoHeight };
+      faceapi.matchDimensions(canvas, displaySize);
+
+      setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+
+        // faceapi.draw.drawDetections(canvas, resizedDetections);
+        // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
+        if (resizedDetections && resizedDetections.length > 0) {
+          let expressions = resizedDetections[0].expressions;
+          let max = 0.00;
+          let expression = 'neutral';
+
+          Object.keys(expressions).forEach(key => {
+            if (expressions[key] > max) {
+              max = expressions[key];
+              expression = key;
+            }
+          });
+
+          if (expression === 'happy') {
+            setMessage('좋습니다');
+          } else {
+            setMessage('좀 웃어보세요');
+          }
+        }
+      }, 100)
+
+    });
+  };
+
+  const loadModels = async () => {
+    const MODEL_URL = '/models';
+    await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
+    await faceapi.loadFaceExpressionModel(MODEL_URL);
+  };
+
+  const startVideo = () => {
+    navigator.getUserMedia(
+      { video: {} },
+      stream => (videoRef.current.srcObject = stream),
+      err => console.error(err)
+    );
+  };
+
+  const [message, setMessage] = useState('');
 
   return (
-    <div>
-      <Document
-        file="https://speech-video-storage.s3.ap-northeast-2.amazonaws.com/TCP_IP.pdf"
-        onLoadSuccess={onDocumentLoadSuccess}
+    <div className="App">
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        height={videoHeight}
+        width={videoWidth}
+      />
+      <div className="message">{message}</div>
 
-      >
-        <Page pageNumber={pageNumber} />
-      </Document>
-      <p>
-        Page {pageNumber || (numPages ? 1 : "--")} of {numPages || "--"}
-      </p>
-      {!isStarted && (
-        <textarea
-          className="script-input"
-          placeholder="스크립트 작성"
-          value={scriptText}
-          onChange={handleChange}
-        />
-      )}
-      {!isStarted && pageNumber > 1 && (
-        <button onClick={handlePrevious}>이전 페이지</button>
-      )}
-      {!isStarted && (
-        <button onClick={handleSave}>
-          다음페이지
-        </button>
-      )}
-      {!isStarted && (
-        <button onClick={handleStart}>시작하기</button>
-      )}
-      {isStarted && (
-        <div>
-          <div>
-            {scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
-              <div key={lineIndex}>{line}</div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
