@@ -11,6 +11,7 @@ import Modal from "react-modal";
 import { io } from "socket.io-client";
 import { BsStopCircleFill, BsStopwatchFill } from "react-icons/bs";
 import { Document, Page, pdfjs } from 'react-pdf';
+import { element } from "prop-types";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const Practice = () => {
@@ -40,7 +41,7 @@ const Practice = () => {
   const myPeerConnection = useRef({}); //피어 연결 객체
 
   let roomname;
-  const joinUser = useRef([]); //접속한 유저 정보
+  const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
 
   // stt-----------------------------------------------------------------
@@ -652,8 +653,9 @@ const Practice = () => {
     //참관자 입장
     socket.current.on("user-join", async (data) => {
       // console.log("user-join", data);
-      joinUser.current = data;
+      setJoinUser(data);
       console.log("joinUser.current", joinUser.current);
+      console.log("peer.current", peerFaceRef.current);
     });
   };
 
@@ -817,13 +819,20 @@ const Practice = () => {
       ) : (
         <div>
           <div className="observe-camera-container">
-            <video
+            {joinUser.map((user, index) => (
+              <video key={index}
+                style={{ border: '1px solid black' }}
+                ref={peerFaceRef.current[user]}
+                muted
+                autoPlay
+              >
+              </video>
+            ))}
 
-              ref={peerFaceRef}
-              muted
-              autoPlay
-            >
-            </video>
+            {pageTimeArray.map((time, index) => (
+              `페이지 ${index + 1}에 머문 시간: ${msToTime(time)} \n`
+            ))}
+
           </div>
           <div className="real-camera-pdf-container">
             <div className="real-left">
@@ -873,7 +882,8 @@ const Practice = () => {
             </div>
           </div>
         </div>
-      )}
+      )
+      }
 
       <Modal isOpen={modal} onRequestClose={() => setModal(false)} onAfterOpen={handleModalOpen}>
         <div className="modal-container">
@@ -896,7 +906,7 @@ const Practice = () => {
           닫기
         </button>
       </Modal>
-    </div>
+    </div >
   );
 };
 
