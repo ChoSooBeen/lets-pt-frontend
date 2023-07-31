@@ -258,6 +258,22 @@ const Observe = () => {
     setPageNumber((prevPageNumber) => prevPageNumber + change);
   };
 
+  // 타이머 값을 저장할 상태 변수
+  const [timer, setTimer] = useState(0);
+
+  // 타이머를 시작하는 함수
+  const startTimer = () => {
+    setInterval(() => {
+      setTimer((prevTimer) => prevTimer + 1);
+    }, 1000); // 1초마다 타이머 업데이트 (1000ms)
+  };
+
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
+
   return (
     <div className="observe-page-container">
       <header>
@@ -301,7 +317,7 @@ const Observe = () => {
           </div>
         </div>
         <div className="observe-page-bottom">
-          <p className="timer">00:00</p>
+          <p className="timer">{formatTime(timer)}</p>
           <input
             type="text"
             className="comment"
