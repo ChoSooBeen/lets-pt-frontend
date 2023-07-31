@@ -396,19 +396,19 @@ const Practice = () => {
     if (playing) {
       if (event.key === "ArrowLeft") {
         setcurrentScriptIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-        
-        //socket으로 참관자들에게 왼쪽 이벤트 발생 알리기
-        console.log("leftArrow");
-        socket.current.emit("leftArrow");
-
+        if (!isPractice) {
+          //socket으로 참관자들에게 왼쪽 이벤트 발생 알리기
+          console.log("leftArrow");
+          socket.current.emit("leftArrow");
+        }
         prevPage();
       } else if (event.key === "ArrowRight") {
         setcurrentScriptIndex((prevIndex) => Math.min(prevIndex + 1, scriptArray.length - 1));
-        
-        //socket으로 참관자들에게 오른쪽 이벤트 발생 알리기
-        console.log("rightArrow");
-        socket.current.emit("rightArrow");
-
+        if (!isPractice) {
+          //socket으로 참관자들에게 오른쪽 이벤트 발생 알리기
+          console.log("rightArrow");
+          socket.current.emit("rightArrow");
+        }
         if (pageNumber < numPages) {
           nextPage();
         } else if (pageNumber === numPages && pageTimeArray.length < numPages - 1) {
@@ -424,7 +424,6 @@ const Practice = () => {
       }
     }
   };
-
 
   useEffect(() => {
 
@@ -466,7 +465,9 @@ const Practice = () => {
     handleStartStopListening();
     setPrevTime(Date.now());
     startRecording();
-    socket.current.emit("start-timer"); //socket으로 참관자들에게 타이머 시작 알리기
+    if (!isPractice) {
+      socket.current.emit("start-timer"); //socket으로 참관자들에게 타이머 시작 알리기
+    }
     const apiUrl = 'http://localhost:3001/presentation/';
     await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
 
@@ -475,7 +476,9 @@ const Practice = () => {
   const quitPractice = async () => {
     quitFlag.current = true;
     stopRecording();
-    socket.current.emit("stop-timer"); //socket으로 참관자들에게 타이머 종료 알리기
+    if (!isPractice) {
+      socket.current.emit("stop-timer"); //socket으로 참관자들에게 타이머 종료 알리기
+    }
     handleStartStopListening();
     const apiUrl = 'http://localhost:3001/presentation/update';
     await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
@@ -751,9 +754,9 @@ const Practice = () => {
     //참관자 입장
     socket.current.on("user-join", async (data) => {
       // console.log("user-join", data);
-      await socket.current.emit("title-url", {'title': title, 'pdfURL': pdfFile});
+      await socket.current.emit("title-url", { 'title': title, 'pdfURL': pdfFile });
       setJoinUser(data.filter((id) => id !== socket.current.id));
-      console.log("title-url",title, pdfFile); 
+      console.log("title-url", title, pdfFile);
     });
   };
 
