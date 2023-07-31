@@ -6,6 +6,8 @@ import { IoExit } from "react-icons/io5";
 import axios from "axios";
 import { Document, Page, pdfjs } from 'react-pdf';
 
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
 const Observe = () => {
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
@@ -24,6 +26,7 @@ const Observe = () => {
   //----------------------------------------------------------------------
 
   const [userId, setUserId] = useState(null);
+  const [receiveData, setReceiveData] = useState(null);
 
   const leavePage = () => {
     window.close();
@@ -176,7 +179,21 @@ const Observe = () => {
       }
     });
 
+    socket.current.on("title-url", (data) => {
+      console.log("title-url : ", data);
+      setReceiveData(data);
+    });
+
     //pdf 이벤트 받기
+    socket.current.on("leftArrow", () => {
+      console.log("leftArrow");
+      //왼쪽 이벤트 발생
+    });
+
+    socket.current.on("rightArrow", () => {
+      console.log("rightArrow");
+      //오른쪽 이벤트 발생
+    });
   }, [visitorCode]);
 
 
@@ -226,6 +243,13 @@ const Observe = () => {
       to: id,
     });
   };
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+    setPageNumber(1);
+  }
 
   return (
     <div className="observe-page-container">
@@ -235,15 +259,16 @@ const Observe = () => {
       </header>
       <main>
         <div className="observe-page-middle">
-          <div className="pdf-area">
-            <Document
-              file={pdfFile}
-            >
-              <Page width="560" />
-            </Document>
-
-            <h2 className="presentation-title">정글 중간 발표</h2>
-          </div>
+          {receiveData ? (
+            <div className="pdf-area">
+              <Document file={receiveData.pdfURL} onLoadSuccess={onDocumentLoadSuccess}>
+                <Page pageNumber={pageNumber} width="560" />
+              </Document>
+              <h2 className="presentation-title">{receiveData.title}</h2>
+            </div>
+          ) : (
+            <div>Loading...</div>
+          )}
           <div id="call">
             <div id="myStream">
               {joinUser.map((user, index) => (
