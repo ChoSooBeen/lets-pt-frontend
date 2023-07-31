@@ -188,11 +188,13 @@ const Observe = () => {
     socket.current.on("leftArrow", () => {
       console.log("leftArrow");
       //왼쪽 이벤트 발생
+      handlePageChange(-1);
     });
 
     socket.current.on("rightArrow", () => {
       console.log("rightArrow");
       //오른쪽 이벤트 발생
+      handlePageChange(1);
     });
   }, [visitorCode]);
 
@@ -244,12 +246,17 @@ const Observe = () => {
     });
   };
   const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
 
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages);
     setPageNumber(1);
   }
+
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const handlePageChange = (change) => {
+    setPageNumber((prevPageNumber) => prevPageNumber + change);
+  };
 
   return (
     <div className="observe-page-container">
