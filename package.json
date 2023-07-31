@@ -13,6 +13,8 @@
     "axios": "^1.4.0",
     "bootstrap": "^5.3.0",
     "face-api.js": "^0.22.2",
+    "main": "^1000.0.1",
+    "origin": "^0.8.6",
     "pdfjs-dist": "^3.8.162",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",

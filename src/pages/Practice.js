@@ -449,7 +449,7 @@ const Practice = () => {
     setTitle(newInputValue);
   };
 
-  const startPractice = () => {
+  const startPractice = async () => {
     startRecording();
     setMinutes(0);
     setSeconds(0);
@@ -457,6 +457,9 @@ const Practice = () => {
     setPageNumber(1);
     handleStartStopListening();
     setPrevTime(Date.now());
+    const apiUrl = 'http://localhost:3001/presentation/';
+    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords});
+
   };
 
   const quitPractice = async () => {
@@ -465,9 +468,11 @@ const Practice = () => {
     setMinutes(0);
     setSeconds(0);
     handleStartStopListening();
+
     const apiUrl = 'http://localhost:3001/presentation/';
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "sttScript": transcript, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
+    await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
     setModal(true);
+
     setPageTimeArray([]);
   };
 
