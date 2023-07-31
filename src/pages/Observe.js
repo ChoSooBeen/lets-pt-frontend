@@ -90,25 +90,25 @@ const Observe = () => {
         });
         console.log("Peer connection created for ID:", id, myPeerConnection.current[id]);
         myPeerConnection.current[id].addEventListener("icecandidate", (data) => handleIce(data, id));
-  
+
         myPeerConnection.current[id].oniceconnectionstatechange = () => {
           console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
         };
-  
+
         console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
         myPeerConnection.current[id].ontrack = (event) => {
           console.log("got an stream from my peer", event.streams[0]);
-  
+
           if (!peerFaceRef.current[id]) {
             peerFaceRef.current[id] = document.createElement("video");
             peerFaceRef.current[id].autoplay = true;
             peerFaceRef.current[id].playsInline = true;
           }
-  
+
           peerFaceRef.current[id].srcObject = event.streams[0];
           console.log("peerFaceRef", peerFaceRef.current[id].srcObject);
         };
-  
+
         if (myStream.current) {
           myStream.current.getTracks().forEach((track) => myPeerConnection.current[id].addTrack(track, myStream.current));
         }
@@ -122,7 +122,7 @@ const Observe = () => {
       socket.current.emit("ice", {
         visitorcode: visitorCode,
         icecandidate: data.candidate,
-        to : id,
+        to: id,
       });
     };
 
@@ -145,7 +145,7 @@ const Observe = () => {
       console.log("joinRoom : ", data);
 
       try {
-        console.log("socket.current.id: ", socket.current.id);  
+        console.log("socket.current.id: ", socket.current.id);
         // console.log("userlist : ", data.userlist);
         joinUser.current = data.userlist;
         console.log("joinUser.current : ", joinUser.current);
@@ -157,12 +157,12 @@ const Observe = () => {
               const offer = await myPeerConnection.current[data.userlist[id]].createOffer();
               myPeerConnection.current[data.userlist[id]].setLocalDescription(offer);
               console.log(`sent the offer ${data.userlist[id]} : `, offer);
-              socket.current.emit("offer", { visitorcode: visitorCode, offer: offer, to: data.userlist[id]}); 
+              socket.current.emit("offer", { visitorcode: visitorCode, offer: offer, to: data.userlist[id] });
             }
           }
         }
       } catch (error) {
-        console.log("Error creating offer!",error);
+        console.log("Error creating offer!", error);
       }
     });
 

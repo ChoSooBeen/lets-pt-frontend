@@ -1,7 +1,6 @@
 import React, {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -10,8 +9,9 @@ import axios from "axios";
 import Modal from "react-modal";
 import { io } from "socket.io-client";
 import { BsStopCircleFill, BsStopwatchFill } from "react-icons/bs";
+import { IoTimerOutline } from "react-icons/io5";
 import { Document, Page, pdfjs } from 'react-pdf';
-import { element } from "prop-types";
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const Practice = () => {
@@ -127,7 +127,7 @@ const Practice = () => {
       recognitionRef.current.start();
     }
   };
-  
+
 
   // --------------------------------------------------------------------------
   // 키워드 모달창 --------------------------------------------------------------
@@ -223,6 +223,9 @@ const Practice = () => {
         // 에러 처리 로직 추가 가능
       });
   }, []);
+
+  const [inputMinutes, setInputMinutes] = useState("");
+  const [inputSeconds, setInputSeconds] = useState("");
 
   useEffect(() => {
     let timer;
@@ -442,7 +445,7 @@ const Practice = () => {
     setSeconds(0);
     handleStartStopListening();
     const apiUrl = 'http://localhost:3001/presentation/';
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "sttScript": transcript, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords, "pdfTime": pageTimeArray });
+    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "sttScript": transcript, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
     setModal(true);
     setPageTimeArray([]);
   };
@@ -555,7 +558,7 @@ const Practice = () => {
     }
   };
 
-  const handleModalOpen = () => {
+  const handleModalOpen = async () => {
     if (camRecordedVideoRef.current) {
       const camBlob = new Blob(camRecordedChunksRef.current, {
         type: "video/webm",
@@ -571,8 +574,11 @@ const Practice = () => {
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
+    const sendTitle = title
+    const url = `/result?title=${sendTitle}`
+
     window.open(
-      "/result",
+      url,
       "_blank",
       `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
     );
@@ -731,9 +737,19 @@ const Practice = () => {
             <span>{minutes < 10 ? `0${minutes}` : minutes}</span> :&nbsp;
             <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
             &nbsp;/&nbsp;
-            <input type="number" className="minutes-input" />
+            <input
+              type="number"
+              className="minutes-input"
+              value={inputMinutes}
+              onChange={(e) => setInputMinutes(e.target.value)}
+            />
             &nbsp;:&nbsp;
-            <input type="number" className="seconds-input" />
+            <input
+              type="number"
+              className="seconds-input"
+              value={inputSeconds}
+              onChange={(e) => setInputSeconds(e.target.value)}
+            />
           </div>
         </div>
         <button className="stop-button" onClick={stopPractice}>
@@ -949,24 +965,62 @@ const Practice = () => {
 
       <Modal isOpen={modal} onRequestClose={() => setModal(false)} onAfterOpen={handleModalOpen}>
         <div className="modal-container">
-          <img src={logo} className="modal-logo" alt="logo" width={200} />
-          <h2 className="modal-title">{title}</h2>
-          <video
-            className="modal-video"
-            ref={camRecordedVideoRef}
-            autoPlay
-            controls
-          ></video>
-          <div className="modal-button-container">
-            <button className="detail-button" onClick={goToDetailPage}>
-              상세보기
-            </button>
-            <button className="save-button">저장하기</button>
+          <div className="modal-left">
+            <div className="modal-keyword-container modal-result-summary">
+              <h1>등록된 키워드</h1>
+              <div>
+                <h2>권장 단어</h2>
+                {recommendedWords.map((word, index) => (
+                  <div>
+                    <span>{word.word}</span>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <h2>금지 단어</h2>
+                {prohibitedWords.map((word, index) => (
+                  <div>
+                    <span>{word.word}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-timer-container modal-result-summary">
+              <h1>경과 시간 / 설정 시간</h1>
+              <IoTimerOutline size={100} />
+              <div>
+                {minutes} : {seconds} / {inputMinutes} : {inputSeconds}
+              </div>
+            </div>
+          </div>
+          <div className="modal-middle">
+            <img src={logo} className="modal-logo" alt="logo" width={200} />
+            <h2 className="modal-title">{title}</h2>
+            <video
+              className="modal-video"
+              ref={camRecordedVideoRef}
+              autoPlay
+              controls
+              muted
+              width={300}
+            ></video>
+            <div className="modal-button-container">
+              <button className="modal-close" onClick={() => setModal(false)}>닫기</button>
+              <button className="detail-button" onClick={goToDetailPage}>
+                상세보기
+              </button>
+            </div>
+          </div>
+          <div className="modal-right">
+            <div className="modal-eye-container modal-result-summary">
+              <h1>시선 처리</h1>
+            </div>
+            <div className="modal-question-container modal-result-summary">
+              <h1>음성 텍스트 변환</h1>
+            </div>
+
           </div>
         </div>
-        <button onClick={() => setModal(false)} className="modal-close">
-          닫기
-        </button>
       </Modal>
     </div >
   );
