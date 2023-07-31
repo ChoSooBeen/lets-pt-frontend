@@ -50,6 +50,7 @@ const Practice = () => {
   const [pauseDuration, setPauseDuration] = useState(0);
   const [inputValue, setInputValue] = useState("");
   const [showNotification, setShowNotification] = useState(false);
+  const [message, setMessage] = useState("");
 
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
@@ -58,9 +59,11 @@ const Practice = () => {
     if (pauseDuration > 5000) {
       setInputValue("무음 지속 시간이 5초를 초과했습니다!");
       setShowNotification(true);
+      setMessage("무음 지속 시간이 5초를 초과했습니다"); // 멘트 수정
     } else {
       setInputValue("");
       setShowNotification(false);
+      setMessage("");
     }
   }, [pauseDuration]);
 
@@ -82,6 +85,30 @@ const Practice = () => {
     }
     return Promise.resolve();
   };
+
+  useEffect(() => {
+    let intervalId;
+
+    if (listening) {
+      intervalId = setInterval(() => {
+        if (pauseStartTimeRef.current) {
+          const pauseEndTime = Date.now();
+          const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
+          setPauseDuration(pauseDuration);
+          console.log("무음 지속 시간 (밀리초):", pauseDuration);
+          if (pauseDuration > 5000) {
+            setMessage("무음 지속 시간이 5초를 초과했습니다!");
+          } else {
+            setMessage("");
+          }
+        }
+      }, 1000);
+    } else {
+      clearInterval(intervalId);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [listening]);
 
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
@@ -105,13 +132,7 @@ const Practice = () => {
       recognitionRef.current.onend = () => {
         setListening(false);
         console.log("음성 인식 종료");
-        if (pauseStartTimeRef.current) {
-          const pauseEndTime = Date.now();
-          const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
-          pauseStartTimeRef.current = null;
-          setPauseDuration(pauseDuration);
-          console.log("무음 지속 시간 (밀리초):", pauseDuration);
-        }
+        pauseStartTimeRef.current = null;
       };
 
       recognitionRef.current.onresult = (event) => {
@@ -883,6 +904,7 @@ const Practice = () => {
                 onChange={(e) => titleChange(e)}
               />
             )}
+            <div className="message">{message}</div>
             <br />
             {playing ? (
               <button onClick={quitPractice} className="start-stop-button">
@@ -895,6 +917,7 @@ const Practice = () => {
             )}
           </div>
         </div>
+
       ) : (
         <div>
           <div className="observe-camera-container">
@@ -946,7 +969,7 @@ const Practice = () => {
                   onChange={(e) => titleChange(e)}
                 />
               )}
-
+              <div className="message">{message}</div>
               <br />
               {playing ? (
                 <button onClick={quitPractice} className="start-stop-button">
