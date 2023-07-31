@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { IoIosSend } from "react-icons/io";
 import { IoExit } from "react-icons/io5";
 import axios from "axios";
+import { Document, Page, pdfjs } from 'react-pdf';
 
 const Observe = () => {
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
@@ -178,6 +179,7 @@ const Observe = () => {
     //pdf 이벤트 받기
   }, [visitorCode]);
 
+
   //RTCPeerConnection 객체 생성-----------------------------------------------
   const makeConnection = (id) => {
     myPeerConnection.current[id] = new RTCPeerConnection({
@@ -234,12 +236,11 @@ const Observe = () => {
       <main>
         <div className="observe-page-middle">
           <div className="pdf-area">
-            <iframe
-              src="https://speech-video-storage.s3.ap-northeast-2.amazonaws.com/%C3%A1%C2%84%C2%80%C3%A1%C2%85%C2%B3%C3%A1%C2%84%C2%85%C3%A1%C2%85%C2%B5%C3%A1%C2%86%C2%AB%C3%A1%C2%84%C2%87%C3%A1%C2%85%C2%A1%C3%A1%C2%86%C2%AB_2%C3%A1%C2%84%C2%90%C3%A1%C2%85%C2%B5%C3%A1%C2%86%C2%B7_%C3%A1%C2%84%C2%87%C3%A1%C2%85%C2%A1%C3%A1%C2%86%C2%AF%C3%A1%C2%84%C2%91%C3%A1%C2%85%C2%AD%C3%A1%C2%84%C2%89%C3%A1%C2%85%C2%B5%C3%A1%C2%84%C2%8C%C3%A1%C2%85%C2%A1%C3%A1%C2%86%C2%A8%C3%A1%C2%84%C2%92%C3%A1%C2%85%C2%A1%C3%A1%C2%84%C2%80%C3%A1%C2%85%C2%A6%C3%A1%C2%86%C2%BB%C3%A1%C2%84%C2%89%C3%A1%C2%85%C2%B3%C3%A1%C2%86%C2%B8%C3%A1%C2%84%C2%82%C3%A1%C2%85%C2%B5%C3%A1%C2%84%C2%83%C3%A1%C2%85%C2%A1.pdf#toolbar=0&scrollbar=0"
-              type="application/pdf"
-              width="100%"
-              height="100%"
-            />
+            <Document
+              file={pdfFile}
+            >
+              <Page width="560" />
+            </Document>
 
             <h2 className="presentation-title">정글 중간 발표</h2>
           </div>

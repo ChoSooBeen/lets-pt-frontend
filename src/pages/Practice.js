@@ -458,21 +458,21 @@ const Practice = () => {
     handleStartStopListening();
     setPrevTime(Date.now());
     const apiUrl = 'http://localhost:3001/presentation/';
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords});
+    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
 
   };
 
   const quitPractice = async () => {
     quitFlag.current = true;
     stopRecording();
-    setMinutes(0);
-    setSeconds(0);
     handleStartStopListening();
 
-    const apiUrl = 'http://localhost:3001/presentation/';
+    const apiUrl = 'http://localhost:3001/presentation/update';
     await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
     setModal(true);
-
+    setMinutes(0);
+    setSeconds(0);
+    setTranscript("");
     setPageTimeArray([]);
   };
 
