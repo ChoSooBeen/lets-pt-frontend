@@ -196,6 +196,16 @@ const Observe = () => {
       //오른쪽 이벤트 발생
       handlePageChange(1);
     });
+
+    socket.current.on("start-timer", () => {
+      console.log("start-timer");
+      //타이머 시작
+    });
+
+    socket.current.on("stop-timer", () => {
+      console.log("stop-timer");
+      //타이머 정지
+    });
   }, [visitorCode]);
 
 

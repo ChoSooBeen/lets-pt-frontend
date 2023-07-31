@@ -459,13 +459,14 @@ const Practice = () => {
   };
 
   const startPractice = async () => {
-    startRecording();
     setMinutes(0);
     setSeconds(0);
     setcurrentScriptIndex(0);
     setPageNumber(1);
     handleStartStopListening();
     setPrevTime(Date.now());
+    startRecording();
+    socket.current.emit("start-timer"); //socket으로 참관자들에게 타이머 시작 알리기
     const apiUrl = 'http://localhost:3001/presentation/';
     await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
 
@@ -474,8 +475,8 @@ const Practice = () => {
   const quitPractice = async () => {
     quitFlag.current = true;
     stopRecording();
+    socket.current.emit("stop-timer"); //socket으로 참관자들에게 타이머 종료 알리기
     handleStartStopListening();
-
     const apiUrl = 'http://localhost:3001/presentation/update';
     await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
     setModal(true);
