@@ -334,15 +334,15 @@ const Practice = () => {
   }
 
 
-  function msToTime(duration) {
-    let minutes = Math.floor((duration / (1000 * 60)) % 60),
-      seconds = Math.ceil((duration / 1000) % 60);
+  // function msToTime(duration) {
+  //   let minutes = Math.floor((duration / (1000 * 60)) % 60),
+  //     seconds = Math.ceil((duration / 1000) % 60);
 
-    minutes = (minutes < 10) ? "0" + minutes : minutes;
-    seconds = (seconds < 10) ? "0" + seconds : seconds;
+  //   minutes = (minutes < 10) ? "0" + minutes : minutes;
+  //   seconds = (seconds < 10) ? "0" + seconds : seconds;
 
-    return minutes + ":" + seconds;
-  }
+  //   return minutes + ":" + seconds;
+  // }
 
   function nextPage() {
     if (playing && prevTime && pageNumber < numPages) {
@@ -396,9 +396,18 @@ const Practice = () => {
     if (playing) {
       if (event.key === "ArrowLeft") {
         setcurrentScriptIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+        
+        //socket으로 참관자들에게 왼쪽 이벤트 발생 알리기
+        console.log("leftArrow");
+        socket.current.emit("leftArrow");
+
         prevPage();
       } else if (event.key === "ArrowRight") {
         setcurrentScriptIndex((prevIndex) => Math.min(prevIndex + 1, scriptArray.length - 1));
+        
+        //socket으로 참관자들에게 오른쪽 이벤트 발생 알리기
+        console.log("rightArrow");
+        socket.current.emit("rightArrow");
 
         if (pageNumber < numPages) {
           nextPage();

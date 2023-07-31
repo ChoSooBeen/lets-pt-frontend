@@ -185,6 +185,15 @@ const Observe = () => {
     });
 
     //pdf 이벤트 받기
+    socket.current.on("leftArrow", () => {
+      console.log("leftArrow");
+      //왼쪽 이벤트 발생
+    });
+
+    socket.current.on("rightArrow", () => {
+      console.log("rightArrow");
+      //오른쪽 이벤트 발생
+    });
   }, [visitorCode]);
 
   //RTCPeerConnection 객체 생성-----------------------------------------------
