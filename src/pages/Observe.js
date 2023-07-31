@@ -200,11 +200,13 @@ const Observe = () => {
     socket.current.on("start-timer", () => {
       console.log("start-timer");
       //타이머 시작
+      startTimer();
     });
 
     socket.current.on("stop-timer", () => {
       console.log("stop-timer");
       //타이머 정지
+      stopTimer();
     });
   }, [visitorCode]);
 
@@ -270,12 +272,20 @@ const Observe = () => {
 
   // 타이머 값을 저장할 상태 변수
   const [timer, setTimer] = useState(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const timerIntervalRef = useRef(null);
 
   // 타이머를 시작하는 함수
   const startTimer = () => {
-    setInterval(() => {
+    setIsTimerRunning(true);
+    timerIntervalRef.current = setInterval(() => {
       setTimer((prevTimer) => prevTimer + 1);
     }, 1000); // 1초마다 타이머 업데이트 (1000ms)
+  };
+
+  const stopTimer = () => {
+    setIsTimerRunning(false);
+    clearInterval(timerIntervalRef.current); // useRef를 이용하여 타이머 interval을 정확히 clearInterval
   };
 
   const formatTime = (timeInSeconds) => {
