@@ -11,11 +11,9 @@ const Observe = () => {
   const myFaceRef = useRef(); //내 비디오 요소
   const peerFaceRef = useRef({}); //상대방 비디오 요소
   const myStream = useRef(null);
-  const [muted, setMuted] = useState(false); //음소거 여부
   const myPeerConnection = useRef({}); //피어 연결 객체
 
   const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
-  const tmpStream = useRef(null); //임시 스트림
   // ----------------------------------------------------------------------
 
   const location = useLocation();
@@ -227,13 +225,6 @@ const Observe = () => {
     });
   };
 
-  const handleMuteClick = () => {
-    myStream.current
-      .getAudioTracks()
-      .forEach((track) => (track.enabled = !track.enabled));
-    setMuted((prevMuted) => !prevMuted); // 상태 업데이트 방법 변경
-  };
-
   return (
     <div className="observe-page-container">
       <header>
@@ -271,11 +262,8 @@ const Observe = () => {
                 className="observe-camera"
                 autoPlay
                 playsInline
-                muted // 상태를 이용하여 비디오 요소의 'muted' 속성 설정
+                muted
               />
-              {/* <button onClick={handleMuteClick} id="mute">
-              {muted ? "Unmute" : "Mute"}
-            </button> */}
             </div>
           </div>
         </div>
