@@ -4,6 +4,9 @@ import { useLocation } from "react-router-dom";
 import { IoIosSend } from "react-icons/io";
 import { IoExit } from "react-icons/io5";
 import axios from "axios";
+import { Document, Page, pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const Observe = () => {
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
@@ -230,6 +233,13 @@ const Observe = () => {
       to: id,
     });
   };
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+    setPageNumber(1);
+  }
 
   return (
     <div className="observe-page-container">
@@ -241,12 +251,9 @@ const Observe = () => {
         <div className="observe-page-middle">
         {receiveData ? (
         <div className="pdf-area">
-          <iframe
-            src={receiveData.pdfURL}
-            type="application/pdf"
-            width="100%"
-            height="100%"
-          />
+        <Document file={receiveData.pdfURL} onLoadSuccess={onDocumentLoadSuccess}>
+        <Page pageNumber={pageNumber} width="560" />
+        </Document>
           <h2 className="presentation-title">{receiveData.title}</h2>
         </div>
       ) : (
