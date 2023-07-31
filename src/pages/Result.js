@@ -1,6 +1,27 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 
 const Result = () => {
+  const [data, setData] = useState(null);
+
+  const params = new URLSearchParams(window.location.search);
+  const title = params.get('title');
+  console.log(title);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3001/presentation/?title=${title}`);
+        setData(response.data);
+        console.log(response)
+        console.log(data)
+      } catch (error) {
+        console.log('An error occurred:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className="detail-container">
       <div className="left-column">

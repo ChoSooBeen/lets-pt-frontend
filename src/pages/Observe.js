@@ -245,18 +245,18 @@ const Observe = () => {
           </div>
           <div id="call">
             <div id="myStream">
-            {joinUser.map((user, index) => (
-              <video key={index}
-                style={{ border: '1px solid black' }}
-                ref={(el) => {
-                  peerFaceRef.current[user] = el
-                }}
-                muted
-                autoPlay
-                width={200}
-              >
-              </video>
-            ))}
+              {joinUser.map((user, index) => (
+                <video key={index}
+                  style={{ border: '1px solid black' }}
+                  ref={(el) => {
+                    peerFaceRef.current[user] = el
+                  }}
+                  muted
+                  autoPlay
+                  width={200}
+                >
+                </video>
+              ))}
               <video
                 ref={myFaceRef}
                 className="observe-camera"
