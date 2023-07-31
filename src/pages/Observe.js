@@ -1,3 +1,5 @@
+// Observe.js
+
 import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import { useLocation } from "react-router-dom";
@@ -27,6 +29,7 @@ const Observe = () => {
 
   const [userId, setUserId] = useState(null);
   const [receiveData, setReceiveData] = useState(null);
+  const [comment, setComment] = useState(""); // 코멘트 상태 변수 추가
 
   const leavePage = () => {
     window.close();
@@ -294,6 +297,35 @@ const Observe = () => {
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
+  // 코멘트를 서버에 전송하는 함수
+  const handleCommentSubmit = async (comment) => {
+    // 데이터를 서버에 보낼 형식으로 가공
+    const dataToSend = {
+      title: receiveData.title,
+      userComment: {
+        name: userId,
+        time: {
+          minute: Math.floor(timer / 60),
+          second: timer % 60,
+        },
+        message: comment,
+      },
+    };
+
+    // 서버에 PUT 요청 보내기
+    await axios.put("http://localhost:3001/presentation/update-comment", dataToSend)
+      .then((response) => {
+        // 성공적으로 요청이 완료된 경우에 수행할 로직 추가 가능
+        console.log("댓글 업데이트 성공:", response.data);
+      })
+      .catch((error) => {
+        // 요청에 실패한 경우 에러 처리 로직 추가 가능
+        console.error("댓글 업데이트 실패:", error);
+      });
+
+    setComment('');
+  };
+
   return (
     <div className="observe-page-container">
       <header>
@@ -338,12 +370,15 @@ const Observe = () => {
         </div>
         <div className="observe-page-bottom">
           <p className="timer">{formatTime(timer)}</p>
+          {/* 코멘트 입력을 위한 input과 버튼 추가 */}
           <input
             type="text"
             className="comment"
             placeholder="코멘트를 입력해주세요!"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
           />
-          <button className="comment-submit" type="submit">
+          <button className="comment-submit" type="submit" onClick={() => handleCommentSubmit(comment)}>
             <IoIosSend size={40} />
           </button>
           <button className="leave-observe-page-button" onClick={leavePage}>

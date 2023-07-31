@@ -622,6 +622,7 @@ const Practice = () => {
       `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
     );
   };
+
   const goToScriptPage = () => {
     const width = 1000;
     const height = 600;
