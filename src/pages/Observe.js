@@ -23,7 +23,8 @@ const Observe = () => {
   //----------------------------------------------------------------------
 
   const [userId, setUserId] = useState(null);
-
+  const [receiveData, setReceiveData] = useState(null);
+ 
   const leavePage = () => {
     window.close();
   };
@@ -175,6 +176,11 @@ const Observe = () => {
       }
     });
 
+    socket.current.on("title-url", (data) => {
+      console.log("title-url : ", data);
+      setReceiveData(data);
+    });
+
     //pdf 이벤트 받기
   }, [visitorCode]);
 
@@ -233,16 +239,19 @@ const Observe = () => {
       </header>
       <main>
         <div className="observe-page-middle">
-          <div className="pdf-area">
-            <iframe
-              src="https://speech-video-storage.s3.ap-northeast-2.amazonaws.com/%C3%A1%C2%84%C2%80%C3%A1%C2%85%C2%B3%C3%A1%C2%84%C2%85%C3%A1%C2%85%C2%B5%C3%A1%C2%86%C2%AB%C3%A1%C2%84%C2%87%C3%A1%C2%85%C2%A1%C3%A1%C2%86%C2%AB_2%C3%A1%C2%84%C2%90%C3%A1%C2%85%C2%B5%C3%A1%C2%86%C2%B7_%C3%A1%C2%84%C2%87%C3%A1%C2%85%C2%A1%C3%A1%C2%86%C2%AF%C3%A1%C2%84%C2%91%C3%A1%C2%85%C2%AD%C3%A1%C2%84%C2%89%C3%A1%C2%85%C2%B5%C3%A1%C2%84%C2%8C%C3%A1%C2%85%C2%A1%C3%A1%C2%86%C2%A8%C3%A1%C2%84%C2%92%C3%A1%C2%85%C2%A1%C3%A1%C2%84%C2%80%C3%A1%C2%85%C2%A6%C3%A1%C2%86%C2%BB%C3%A1%C2%84%C2%89%C3%A1%C2%85%C2%B3%C3%A1%C2%86%C2%B8%C3%A1%C2%84%C2%82%C3%A1%C2%85%C2%B5%C3%A1%C2%84%C2%83%C3%A1%C2%85%C2%A1.pdf#toolbar=0&scrollbar=0"
-              type="application/pdf"
-              width="100%"
-              height="100%"
-            />
-
-            <h2 className="presentation-title">정글 중간 발표</h2>
-          </div>
+        {receiveData ? (
+        <div className="pdf-area">
+          <iframe
+            src={receiveData.pdfURL}
+            type="application/pdf"
+            width="100%"
+            height="100%"
+          />
+          <h2 className="presentation-title">{receiveData.title}</h2>
+        </div>
+      ) : (
+        <div>Loading...</div>
+      )}
           <div id="call">
             <div id="myStream">
               {joinUser.map((user, index) => (

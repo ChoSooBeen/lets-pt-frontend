@@ -650,16 +650,9 @@ const Practice = () => {
       console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
     };
 
-    // if (!peerFaceRef.current[id]) {
-    //   peerFaceRef.current[id] = document.createElement("video");
-    //   peerFaceRef.current[id].autoplay = true;
-    //   peerFaceRef.current[id].playsInline = true;
-    // }
-
     myPeerConnection.current[id].ontrack = (event) => {
       console.log("got an stream from my peer", id, event.streams[0]);
       peerFaceRef.current[id].srcObject = event.streams[0];
-      // tmpStream.current = event.streams[0];
     };
     console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
 
@@ -748,9 +741,9 @@ const Practice = () => {
     //참관자 입장
     socket.current.on("user-join", async (data) => {
       // console.log("user-join", data);
+      await socket.current.emit("title-url", {'title': title, 'pdfURL': pdfFile});
       setJoinUser(data.filter((id) => id !== socket.current.id));
-      console.log("joinUser.current", joinUser.current);
-      console.log("peer.current", peerFaceRef.current);
+      console.log("title-url",title, pdfFile); 
     });
   };
 
