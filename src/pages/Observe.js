@@ -27,7 +27,7 @@ const Observe = () => {
 
   const [userId, setUserId] = useState(null);
   const [receiveData, setReceiveData] = useState(null);
- 
+
   const leavePage = () => {
     window.close();
   };
@@ -188,13 +188,16 @@ const Observe = () => {
     socket.current.on("leftArrow", () => {
       console.log("leftArrow");
       //왼쪽 이벤트 발생
+      handlePageChange(-1);
     });
 
     socket.current.on("rightArrow", () => {
       console.log("rightArrow");
       //오른쪽 이벤트 발생
+      handlePageChange(1);
     });
   }, [visitorCode]);
+
 
   //RTCPeerConnection 객체 생성-----------------------------------------------
   const makeConnection = (id) => {
@@ -243,12 +246,17 @@ const Observe = () => {
     });
   };
   const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
 
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages);
     setPageNumber(1);
   }
+
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const handlePageChange = (change) => {
+    setPageNumber((prevPageNumber) => prevPageNumber + change);
+  };
 
   return (
     <div className="observe-page-container">
@@ -258,16 +266,16 @@ const Observe = () => {
       </header>
       <main>
         <div className="observe-page-middle">
-        {receiveData ? (
-        <div className="pdf-area">
-        <Document file={receiveData.pdfURL} onLoadSuccess={onDocumentLoadSuccess}>
-        <Page pageNumber={pageNumber} width="560" />
-        </Document>
-          <h2 className="presentation-title">{receiveData.title}</h2>
-        </div>
-      ) : (
-        <div>Loading...</div>
-      )}
+          {receiveData ? (
+            <div className="pdf-area">
+              <Document file={receiveData.pdfURL} onLoadSuccess={onDocumentLoadSuccess}>
+                <Page pageNumber={pageNumber} width="560" />
+              </Document>
+              <h2 className="presentation-title">{receiveData.title}</h2>
+            </div>
+          ) : (
+            <div>Loading...</div>
+          )}
           <div id="call">
             <div id="myStream">
               {joinUser.map((user, index) => (

@@ -6,15 +6,13 @@ const Result = () => {
 
   const params = new URLSearchParams(window.location.search);
   const title = params.get('title');
-  console.log(title);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`http://localhost:3001/presentation/?title=${title}`);
         setData(response.data);
-        console.log(response)
-        console.log(data)
+        console.log(response);
       } catch (error) {
         console.log('An error occurred:', error);
       }
@@ -36,8 +34,19 @@ const Result = () => {
           <div className='result-comment-detail'>유저 코멘트 들어갈 자리</div>
         </div>
         <div className='result-page-timer-container'>
-          <h1 className='result-detail-page-title'>발표 시간</h1>
-          <div className='result-timer-detail'>페이지 별 경과 시간 들어갈 자리</div>
+          <h1 className='result-detail-page-title'>상세 경과 시간</h1>
+          <div className='result-timer-detail'>
+            <ul>
+              {data.pdfTime.map((time, index) => (
+                <li>
+                  <span>{index + 1}페이지</span>
+                  <span>{time.minutes}</span>:
+                  <span>{time.seconds}</span>
+                </li>
+              ))}
+            </ul>
+
+          </div>
         </div>
         <div className='result-page-eye-container'>
           <h1 className='result-detail-page-title'>시선 처리</h1>
@@ -45,7 +54,25 @@ const Result = () => {
         </div>
         <div className='result-page-script-container'>
           <h1 className='result-detail-page-title'>스크립트 확인</h1>
-          <div className='result-script-detail'>스크립트 확인 들어갈 자리</div>
+          <div>
+            <h2>권장단어</h2>
+            {data.recommendedWord.map((word, index) => (
+              <div key={index}>
+                <span>{word.word}</span> :
+                <span>{word.count}</span>회
+              </div>
+            ))}
+          </div>
+          <div>
+            <h2>금지단어</h2>
+            {data.forbiddenWord.map((word, index) => (
+              <div key={index}>
+                <span>{word.word}</span> :
+                <span>{word.count}</span>회
+              </div>
+            ))}
+          </div>
+          <div className='result-script-detail'>{data.sttScript}</div>
         </div>
         <div className='result-page-question-container'>
           <h1 className='result-detail-page-title'>예상질문</h1>
