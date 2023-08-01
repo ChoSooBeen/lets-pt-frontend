@@ -51,7 +51,7 @@ const Join = () => {
 
     try {
       //const response = 
-      await axios.post('http://localhost:3001/user', { "id": id, "password": pwd, "name": nickName, "email": email });
+      await axios.post('http://3.88.168.122:3001/user', { "id": id, "password": pwd, "name": nickName, "email": email });
       alert("회원가입 성공!");
 
     } catch (error) {
@@ -63,7 +63,7 @@ const Join = () => {
     e.preventDefault();
 
     try {
-      const request = await axios.post('http://localhost:3001/user/doubleCheckId', { "id": id });
+      const request = await axios.post('http://3.88.168.122:3001/user/doubleCheckId', { "id": id });
       if (request.data.data === true) {
         alert('중복된 아이디 입니다.');
       } else {
@@ -78,7 +78,7 @@ const Join = () => {
     e.preventDefault();
 
     try {
-      const request = await axios.post('http://localhost:3001/user/doubleCheckName', { "name": nickName });
+      const request = await axios.post('http://3.88.168.122:3001/user/doubleCheckName', { "name": nickName });
       if (request.data.data === true) {
         alert('중복된 닉네임 입니다.');
       } else {
@@ -93,7 +93,7 @@ const Join = () => {
     e.preventDefault();
 
     try {
-      const request = await axios.post('http://localhost:3001/user/doubleCheckEmail', { "email": email });
+      const request = await axios.post('http://3.88.168.122:3001/user/doubleCheckEmail', { "email": email });
       if (request.data.data === true) {
         alert('중복된 이메일 입니다.');
       } else {

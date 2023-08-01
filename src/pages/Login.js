@@ -23,7 +23,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3001/user/login', { "id": id, "password": pwd });
+      const response = await axios.post('http://3.88.168.122:3001/user/login', { "id": id, "password": pwd });
       const tokenFromServer = response.data.data.token
       localStorage.setItem('token', tokenFromServer);
       alert("로그인 성공!");

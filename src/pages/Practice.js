@@ -38,10 +38,11 @@ const Practice = () => {
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
   const peerFaceRef = useRef([]); //상대방 비디오 요소
-  const [roomName, setRoomName] = useState(""); //참관코드
+  // const [roomName, setRoomName] = useState(""); //참관코드
   const myPeerConnection = useRef({}); //피어 연결 객체
 
-  let roomname;
+  // let roomname;
+  const roomName = useRef();
   const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
 
@@ -247,7 +248,7 @@ const Practice = () => {
     };
 
     // 서버로 데이터를 요청하는 예시 API 엔드포인트
-    const apiUrl = 'http://localhost:3001/user/';
+    const apiUrl = 'http://3.88.168.122:3001/user/';
 
     // Axios를 사용하여 요청 보내기
     axios.get(apiUrl, config)
@@ -337,7 +338,7 @@ const Practice = () => {
     let formData = new FormData();
     formData.append('pdf', file);
 
-    axios.post('http://localhost:3001/s3/pdf', formData)
+    axios.post('http://3.88.168.122:3001/s3/pdf', formData)
       .then(response => {
         setPdfFile(response.data);
       });
@@ -489,7 +490,7 @@ const Practice = () => {
     } else {
       runFaceApi();
     }
-    const apiUrl = 'http://localhost:3001/presentation/';
+    const apiUrl = 'http://3.88.168.122:3001/presentation/';
     await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
 
   };
@@ -501,7 +502,7 @@ const Practice = () => {
       socket.current.emit("stop-timer"); //socket으로 참관자들에게 타이머 종료 알리기
     }
     handleStartStopListening();
-    const apiUrl = 'http://localhost:3001/presentation/update';
+    const apiUrl = 'http://3.88.168.122:3001/presentation/update';
     await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
     setModal(true);
     setMinutes(0);
@@ -591,7 +592,7 @@ const Practice = () => {
 
           //영상 서버 전송
           axios
-            .post("http://localhost:3001/ffmpeg/", formData, config)
+            .post("http://3.88.168.122:3001/ffmpeg/", formData, config)
             .then((response) => {
               console.log("영상 전송 완료", response.data); // 서버 응답 처리
             })
@@ -664,56 +665,11 @@ const Practice = () => {
     setPageTimeArray([]);
   };
 
-  //RTCPeerConnection 객체 생성-----------------------------------------------
-  const makeConnection = (id) => {
-    myPeerConnection.current[id] = new RTCPeerConnection({
-      iceServers: [
-        {
-          urls: [
-            "stun:stun.l.google.com:19302",
-            "stun:stun1.l.google.com:19302",
-            "stun:stun2.l.google.com:19302",
-            "stun:stun3.l.google.com:19302",
-            "stun:stun4.l.google.com:19302",
-          ],
-        },
-      ],
-    });
-    myPeerConnection.current[id].addEventListener("icecandidate", (data) => handleIce(data, id));
-
-    myPeerConnection.current[id].oniceconnectionstatechange = () => {
-      console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
-    };
-
-    myPeerConnection.current[id].ontrack = (event) => {
-      console.log("got an stream from my peer", id, event.streams[0]);
-      peerFaceRef.current[id].srcObject = event.streams[0];
-    };
-    console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
-
-    if (camMediaStreamRef.current) {
-      camMediaStreamRef.current
-        .getTracks()
-        .forEach((track) =>
-          myPeerConnection.current[id].addTrack(track, camMediaStreamRef.current)
-        );
-    }
-  };
-
-  const handleIce = (data, id) => {
-    console.log(`sent candidate : ${data}`);
-    socket.current.emit("ice", {
-      visitorcode: data.visitorcode,
-      icecandidate: data.candidate,
-      to: id,
-    });
-  };
-
   //실전모드-----------------------------------------------------------------
   const realMode = () => {
     setIsPractice(false);
 
-    socket.current = io("http://localhost:3001/room", { //소켓 연결
+    socket.current = io("http://3.88.168.122:3001/room", { //소켓 연결
       withCredentials: true,
     });
     console.log(socket.current);
@@ -727,8 +683,9 @@ const Practice = () => {
     //방 생성 성공 - 참관코드 부여
     socket.current.on("create-succ", async (roomCode) => {
       console.log("create-succ", roomCode);
-      roomname = roomCode;
-      setRoomName(roomCode);
+      // roomname = roomCode;
+      // setRoomName(roomCode);
+      roomName.current = roomCode;
     });
 
     //offer를 받는 쪽
@@ -780,6 +737,51 @@ const Practice = () => {
       setJoinUser(data.filter((id) => id !== socket.current.id));
       console.log("title-url", title, pdfFile);
     });
+
+    //RTCPeerConnection 객체 생성-----------------------------------------------
+    const makeConnection = (id) => {
+      myPeerConnection.current[id] = new RTCPeerConnection({
+        iceServers: [
+          {
+            urls: [
+              "stun:stun.l.google.com:19302",
+              "stun:stun1.l.google.com:19302",
+              "stun:stun2.l.google.com:19302",
+              "stun:stun3.l.google.com:19302",
+              "stun:stun4.l.google.com:19302",
+            ],
+          },
+        ],
+      });
+      myPeerConnection.current[id].addEventListener("icecandidate", (data) => handleIce(data, id));
+
+      myPeerConnection.current[id].oniceconnectionstatechange = () => {
+        console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
+      };
+
+      myPeerConnection.current[id].ontrack = (event) => {
+        console.log("got an stream from my peer", id, event.streams[0]);
+        peerFaceRef.current[id].srcObject = event.streams[0];
+      };
+      console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
+
+      if (camMediaStreamRef.current) {
+        camMediaStreamRef.current
+          .getTracks()
+          .forEach((track) =>
+            myPeerConnection.current[id].addTrack(track, camMediaStreamRef.current)
+          );
+      }
+    };
+
+    const handleIce = (data, id) => {
+      console.log(`sent candidate : ${data}`);
+      socket.current.emit("ice", {
+        visitorcode: roomName.current,
+        icecandidate: data.candidate,
+        to: id,
+      });
+    };
   };
 
   return (
@@ -980,7 +982,7 @@ const Practice = () => {
             </div>
             <div className="real-right">
               <h2 className="observe-code-title">참관코드</h2>
-              <h2 className="observe-code">{roomName}</h2>
+              <h2 className="observe-code">{roomName.current}</h2>
               <video
                 ref={videoOutputRef}
                 className="real-live-camera"

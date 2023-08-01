@@ -47,7 +47,7 @@ const Observe = () => {
     };
 
     // 서버로 데이터를 요청하는 예시 API 엔드포인트
-    const apiUrl = "http://localhost:3001/user/";
+    const apiUrl = "http://3.88.168.122:3001/user/";
 
     // Axios를 사용하여 요청 보내기
     axios
@@ -80,7 +80,7 @@ const Observe = () => {
     };
 
     console.log(socket);
-    socket.current = io("http://localhost:3001/room", {
+    socket.current = io("http://3.88.168.122:3001/room", {
       //소켓 연결
       withCredentials: true,
     });
@@ -313,7 +313,7 @@ const Observe = () => {
     };
 
     // 서버에 PUT 요청 보내기
-    await axios.put("http://localhost:3001/presentation/update-comment", dataToSend)
+    await axios.put("http://3.88.168.122:3001/presentation/update-comment", dataToSend)
       .then((response) => {
         // 성공적으로 요청이 완료된 경우에 수행할 로직 추가 가능
         console.log("댓글 업데이트 성공:", response.data);
