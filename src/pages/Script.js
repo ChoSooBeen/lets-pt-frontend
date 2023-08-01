@@ -20,7 +20,7 @@ const Script = () => {
 
     try {
       setLoading(true)
-      const response = await fetch("http://3.88.168.122:3001/chat-gpt-ai/message",
+      const response = await fetch(`${process.env.REACT_APP_SITE_URL}/chat-gpt-ai/message`,
         {
           method: "POST",
           headers: {

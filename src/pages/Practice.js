@@ -38,11 +38,10 @@ const Practice = () => {
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
   const peerFaceRef = useRef([]); //상대방 비디오 요소
-  // const [roomName, setRoomName] = useState(""); //참관코드
+  const [roomName2, setRoomName2] = useState(""); //참관코드 - 화면에 바로 띄우기 위해 사용
   const myPeerConnection = useRef({}); //피어 연결 객체
 
-  // let roomname;
-  const roomName = useRef();
+  const roomName = useRef(); //참관코드 - RTC 연결에 사용되는 변수
   const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
 
@@ -248,7 +247,7 @@ const Practice = () => {
     };
 
     // 서버로 데이터를 요청하는 예시 API 엔드포인트
-    const apiUrl = 'http://3.88.168.122:3001/user/';
+    const apiUrl = `${process.env.REACT_APP_SITE_URL}/user/`;
 
     // Axios를 사용하여 요청 보내기
     axios.get(apiUrl, config)
@@ -338,7 +337,7 @@ const Practice = () => {
     let formData = new FormData();
     formData.append('pdf', file);
 
-    axios.post('http://3.88.168.122:3001/s3/pdf', formData)
+    axios.post(`${process.env.REACT_APP_SITE_URL}/s3/pdf`, formData)
       .then(response => {
         setPdfFile(response.data);
       });
@@ -409,8 +408,6 @@ const Practice = () => {
       setscriptText(scriptArray[pageNumber - 2]);
     }
   };
-
-
 
   const handleArrowKey = (event) => {
     if (playing) {
@@ -490,7 +487,7 @@ const Practice = () => {
     } else {
       runFaceApi();
     }
-    const apiUrl = 'http://3.88.168.122:3001/presentation/';
+    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/`;
     await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
 
   };
@@ -502,7 +499,7 @@ const Practice = () => {
       socket.current.emit("stop-timer"); //socket으로 참관자들에게 타이머 종료 알리기
     }
     handleStartStopListening();
-    const apiUrl = 'http://3.88.168.122:3001/presentation/update';
+    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/update`;
     await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
     setModal(true);
     setMinutes(0);
@@ -592,7 +589,7 @@ const Practice = () => {
 
           //영상 서버 전송
           axios
-            .post("http://3.88.168.122:3001/ffmpeg/", formData, config)
+            .post(`${process.env.REACT_APP_SITE_URL}/ffmpeg/`, formData, config)
             .then((response) => {
               console.log("영상 전송 완료", response.data); // 서버 응답 처리
             })
@@ -669,7 +666,7 @@ const Practice = () => {
   const realMode = () => {
     setIsPractice(false);
 
-    socket.current = io("http://3.88.168.122:3001/room", { //소켓 연결
+    socket.current = io(`${process.env.REACT_APP_SITE_URL}/room`, { //소켓 연결
       withCredentials: true,
     });
     console.log(socket.current);
@@ -683,8 +680,7 @@ const Practice = () => {
     //방 생성 성공 - 참관코드 부여
     socket.current.on("create-succ", async (roomCode) => {
       console.log("create-succ", roomCode);
-      // roomname = roomCode;
-      // setRoomName(roomCode);
+      setRoomName2(roomCode);
       roomName.current = roomCode;
     });
 
@@ -732,7 +728,6 @@ const Practice = () => {
 
     //참관자 입장
     socket.current.on("user-join", async (data) => {
-      // console.log("user-join", data);
       await socket.current.emit("title-url", { 'title': title, 'pdfURL': pdfFile });
       setJoinUser(data.filter((id) => id !== socket.current.id));
       console.log("title-url", title, pdfFile);
@@ -982,7 +977,7 @@ const Practice = () => {
             </div>
             <div className="real-right">
               <h2 className="observe-code-title">참관코드</h2>
-              <h2 className="observe-code">{roomName.current}</h2>
+              <h2 className="observe-code">{roomName2}</h2>
               <video
                 ref={videoOutputRef}
                 className="real-live-camera"

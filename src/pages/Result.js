@@ -11,7 +11,7 @@ const Result = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://3.88.168.122:3001/presentation/?title=${title}`);
+        const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${title}`);
         setData(response.data);
         console.log(response);
       } catch (error) {
