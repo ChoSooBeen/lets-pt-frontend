@@ -6,6 +6,7 @@ import React, {
 } from "react";
 import logo from "../img/logo.png";
 import axios from "axios";
+import * as faceapi from 'face-api.js';
 import Modal from "react-modal";
 import { io } from "socket.io-client";
 import { BsStopCircleFill, BsStopwatchFill } from "react-icons/bs";
@@ -44,46 +45,63 @@ const Practice = () => {
   const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
 
-  // stt-----------------------------------------------------------------
+  // stt, 표정인식-----------------------------------------------------------------
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [pauseDuration, setPauseDuration] = useState(0);
-  const [inputValue, setInputValue] = useState("");
-  const [showNotification, setShowNotification] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(""); //메시지 띄우는 곳
 
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
 
-  useEffect(() => {
-    if (pauseDuration > 5000) {
-      setInputValue("무음 지속 시간이 5초를 초과했습니다!");
-      setShowNotification(true);
-      setMessage("무음 지속 시간이 5초를 초과했습니다"); // 멘트 수정
-    } else {
-      setInputValue("");
-      setShowNotification(false);
-      setMessage("");
-    }
-  }, [pauseDuration]);
+  const runFaceApi = async () => {
+    const videoHeight = 315;
+    const videoWidth = 420;
 
-  useEffect(() => {
-    if (showNotification) {
-      requestNotificationPermission().then((permission) => {
-        if (permission === "granted") {
-          alert("무음 지속 시간이 5초를 초과했습니다!");
+    await loadModels();
+    setVideoOutput();
+
+    videoOutputRef.current.addEventListener('play', () => {
+      const canvas = faceapi.createCanvasFromMedia(videoOutputRef.current);
+      document.body.append(canvas);
+      const displaySize = { width: videoWidth, height: videoHeight };
+      faceapi.matchDimensions(canvas, displaySize);
+
+      setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(videoOutputRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+
+        // faceapi.draw.drawDetections(canvas, resizedDetections);
+        // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
+        if (resizedDetections && resizedDetections.length > 0) {
+          let expressions = resizedDetections[0].expressions;
+          let max = 0.00;
+          let expression = 'neutral';
+
+          Object.keys(expressions).forEach(key => {
+            if (expressions[key] > max) {
+              max = expressions[key];
+              expression = key;
+            }
+          });
+
+          if (expression === 'happy') {
+            setMessage('좋습니다');
+          } else {
+            setMessage('좀 웃어보세요');
+          }
         }
-      });
-    }
-  }, [showNotification]);
+      }, 1000)
 
-  const requestNotificationPermission = () => {
-    if (Notification.permission === "granted") {
-      return Promise.resolve();
-    } else if (Notification.permission !== "denied") {
-      return Notification.requestPermission();
-    }
-    return Promise.resolve();
+    });
+  }
+
+  const loadModels = async () => {
+    const MODEL_URL = '/models';
+    await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
+    await faceapi.loadFaceExpressionModel(MODEL_URL);
   };
 
   useEffect(() => {
@@ -96,19 +114,20 @@ const Practice = () => {
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
           setPauseDuration(pauseDuration);
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
-          if (pauseDuration > 5000) {
-            setMessage("무음 지속 시간이 5초를 초과했습니다!");
-          } else {
-            setMessage("");
-          }
         }
       }, 1000);
     } else {
       clearInterval(intervalId);
     }
 
+    if (pauseDuration > 5000) {
+      setMessage("무음 지속 시간이 5초를 초과했습니다!");
+    } else {
+      setMessage("");
+    }
+
     return () => clearInterval(intervalId);
-  }, [listening]);
+  }, [listening, pauseDuration]);
 
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
@@ -467,6 +486,8 @@ const Practice = () => {
     startRecording();
     if (!isPractice) {
       socket.current.emit("start-timer"); //socket으로 참관자들에게 타이머 시작 알리기
+    } else {
+      runFaceApi();
     }
     const apiUrl = 'http://localhost:3001/presentation/';
     await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
@@ -900,6 +921,7 @@ const Practice = () => {
             )}
           </div>
           <div className="practice-right">
+            <div className="message">{message}</div>
             <video
               ref={videoOutputRef}
               className="practice-live-camera"
@@ -916,7 +938,6 @@ const Practice = () => {
                 onChange={(e) => titleChange(e)}
               />
             )}
-            <div className="message">{message}</div>
             <br />
             {playing ? (
               <button onClick={quitPractice} className="start-stop-button">

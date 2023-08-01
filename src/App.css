@@ -1014,18 +1014,23 @@ border:2px solid #fff;
   text-align: center;
 }
 
-#myStream video{
-  display: block;
+#myStream {
+  display: flex;
+  flex-wrap: wrap;
+  width:480px;
+  text-align: center;
 }
 
-.presentator-camera{
-  width:500px;
+#myStream video {
+  border: 1px solid black;
 }
 
-.observe-camera{
-  width:180px;
-  margin-left: 50%;
-  transform: translate(-50%,0);
+#myStream video:nth-child(1) {
+  width: 450px;
+}
+
+#myStream video:not(:nth-child(1)) {
+  width: 150px;
 }
 
 .observe-page-bottom{
