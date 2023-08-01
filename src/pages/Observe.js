@@ -352,9 +352,9 @@ const Observe = () => {
                   ref={(el) => {
                     peerFaceRef.current[user] = el
                   }}
+                  className="observe-camera"
                   muted
                   autoPlay
-                  width={200}
                 >
                 </video>
               ))}

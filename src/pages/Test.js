@@ -9,7 +9,7 @@ const Test = () => {
   const canvasRef = useRef();
 
   useEffect(() => {
-    runFaceApi();
+    startVideo();
   }, []);
 
   const runFaceApi = async () => {
@@ -79,7 +79,7 @@ const Test = () => {
         width={videoWidth}
       />
       <div className="message">{message}</div>
-
+      <button onClick={runFaceApi}>시작</button>
     </div>
   );
 };
