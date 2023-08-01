@@ -910,7 +910,7 @@ const Practice = () => {
                 onChange={handleChange}
               />
             )}
-            {playing && (
+            {/* {playing && (
               <div>
                 <div>
                   {scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
@@ -918,7 +918,7 @@ const Practice = () => {
                   ))}
                 </div>
               </div>
-            )}
+            )} */}
           </div>
           <div className="practice-right">
             <div className="message">{message}</div>
@@ -1073,6 +1073,9 @@ const Practice = () => {
             </div>
             <div className="modal-question-container modal-result-summary">
               <h1>음성 텍스트 변환</h1>
+              <p>
+                {transcript}
+              </p>
             </div>
 
           </div>

@@ -3,7 +3,7 @@ import * as faceapi from 'face-api.js';
 import { useState } from 'react';
 
 const Test = () => {
-  const videoHeight = 480;
+  const videoHeight = 420;
   const videoWidth = 640;
   const videoRef = useRef();
   const canvasRef = useRef();

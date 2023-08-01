@@ -1122,9 +1122,22 @@ border:2px solid #fff;
 }
 
 .left-column {
-  flex: 0 0 450px; /* 왼쪽 영역 고정 너비 설정 */
+  flex: 0 0 550px; /* 왼쪽 영역 고정 너비 설정 */
   padding: 10px;
   border: 1px solid #ccc;
+  position:relative;
+}
+
+.left-column h1{
+  margin-top: 30px;
+  margin-left: 30px;
+}
+
+.result-video{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform: translate(-50%,-50%);
 }
 
 .right-column {
@@ -1136,15 +1149,127 @@ border:2px solid #fff;
 
 .detail-container h1{
   font-weight:bold;
+  font-size:28px;
+  margin-bottom: 10px;
+}
+
+.right-column > div{
+  margin-bottom: 20px;
+}
+
+.user-comment-card{
+  border:1px solid black;
+  margin-bottom: 10px;
+  padding:10px;
+  text-align: center;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.comment-name-time-container{
+  display: flex;
+  justify-content: space-around;
+}
+
+.comment-name-area{
+  border:1.5px solid black;
+  width:100px;
+  height:40px;
+  line-height: 40px;
+  border-radius: 10px;
+}
+
+.comment-time-area{
+  border:1.5px solid black;
+  width:100px;
+  height:40px;
+  line-height: 40px;
+  border-radius: 10px;
+}
+
+.comment-message-area{
+  margin-top: 10px;
+  border:1.5px solid gray;
+  border-radius:10px;
+  padding:10px;
+}
+
+.total-time-area{
   font-size:24px;
   margin-bottom: 20px;
 }
 
-.right-column > div{
+.total-time-area > span{
   border:1px solid black;
-  margin-bottom: 20px;
+  display: inline-block;
+  width:100px;
+  text-align: center;
+  height:35px;
+  line-height: 35px;
+  border-radius: 10px;
 }
 
+.detail-timer-card{
+  display: flex;
+  justify-content: start;
+  font-size:24px;
+  margin-bottom: 10px;
+  line-height: 35px;
+}
+
+.dot{
+  padding-top: 5px;
+  margin-right: 5px;
+}
+
+.detail-page-area{
+  margin-right: 30px;
+}
+
+.detail-time-area{
+  border:1px solid gray;
+  width:100px;
+  text-align: center;
+  height:35px;
+  line-height: 35px;
+  border-radius:10px;
+}
+
+.result-eye-detail > div{
+  display: flex;
+  font-size:24px;
+  line-height: 35px;
+  margin-bottom: 10px;
+}
+
+.result-eye-detail > div > div{
+  margin-right: 30px;
+}
+
+.recommend-word, .forbidden-word{
+  font-weight: bold;
+  font-size:25px;
+  margin-bottom: 10px;
+}
+
+.recommend-word-detail, .forbidden-word-detail{
+  font-size:24px;
+}
+
+.recommend-word-count, .forbidden-word-count{
+  display: inline-block;
+  font-size:24px;
+  margin-bottom: 10px;
+}
+
+.result-script-detail{
+  border: 1px solid black;
+  padding:10px;
+  font-size:24px;
+  border-radius:10px;
+}
+
+/* ---------------------------- */
 .textLayer{
   display: none;
 }
