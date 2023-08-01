@@ -2,7 +2,7 @@
   "name": "frontend_rebuild",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3001",
+  "proxy": "http://3.88.168.122:3001",
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",

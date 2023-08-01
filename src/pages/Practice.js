@@ -247,7 +247,7 @@ const Practice = () => {
     };
 
     // 서버로 데이터를 요청하는 예시 API 엔드포인트
-    const apiUrl = 'http://localhost:3001/user/';
+    const apiUrl = 'http://3.88.168.122:3001/user/';
 
     // Axios를 사용하여 요청 보내기
     axios.get(apiUrl, config)
@@ -337,7 +337,7 @@ const Practice = () => {
     let formData = new FormData();
     formData.append('pdf', file);
 
-    axios.post('http://localhost:3001/s3/pdf', formData)
+    axios.post('http://3.88.168.122:3001/s3/pdf', formData)
       .then(response => {
         setPdfFile(response.data);
       });
@@ -489,7 +489,7 @@ const Practice = () => {
     } else {
       runFaceApi();
     }
-    const apiUrl = 'http://localhost:3001/presentation/';
+    const apiUrl = 'http://3.88.168.122:3001/presentation/';
     await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
 
   };
@@ -501,7 +501,7 @@ const Practice = () => {
       socket.current.emit("stop-timer"); //socket으로 참관자들에게 타이머 종료 알리기
     }
     handleStartStopListening();
-    const apiUrl = 'http://localhost:3001/presentation/update';
+    const apiUrl = 'http://3.88.168.122:3001/presentation/update';
     await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
     setModal(true);
     setMinutes(0);
@@ -591,7 +591,7 @@ const Practice = () => {
 
           //영상 서버 전송
           axios
-            .post("http://localhost:3001/ffmpeg/", formData, config)
+            .post("http://3.88.168.122:3001/ffmpeg/", formData, config)
             .then((response) => {
               console.log("영상 전송 완료", response.data); // 서버 응답 처리
             })
@@ -713,7 +713,7 @@ const Practice = () => {
   const realMode = () => {
     setIsPractice(false);
 
-    socket.current = io("http://localhost:3001/room", { //소켓 연결
+    socket.current = io("http://3.88.168.122:3001/room", { //소켓 연결
       withCredentials: true,
     });
     console.log(socket.current);
