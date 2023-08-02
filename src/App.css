@@ -58,6 +58,7 @@ input{
 
 body{
   overflow: hidden;
+  background-color: #EFEFEF;
 }
 
 .main-container{ 
@@ -483,7 +484,10 @@ border:2px solid #fff;
 
 .practice-top{
   display: flex;
-  margin-bottom: 100px;
+  margin-top: 20px;
+  justify-content: space-between;
+  width:1100px;
+  margin-left: 30px;
 }
 
 .timer-container{
@@ -491,9 +495,8 @@ border:2px solid #fff;
 }
 
 .timer-icon{
-  padding: 0;
-  margin:0;
-  margin-top:4px;
+ margin-top: 10px;
+ margin-right: -20px;
 }
 
 .timer-container input{
@@ -507,6 +510,10 @@ border:2px solid #fff;
   border:1px solid black;
   padding:5px;
   border-radius: 5px;
+  background-color: #fff;
+  height:40px;
+  line-height: 40px;
+  margin-left: -20px;
 }
 
 .stop-button{
@@ -514,13 +521,14 @@ border:2px solid #fff;
   border:none;
   outline:none;
   cursor:pointer;
-  margin-right:20px;
+  margin-left: -50px;
+  margin-right: -20px;
 }
 
 .change-mode-button-container{
   font-weight: bold;
   font-size:30px;
-  margin-right: 100px;
+  margin-top: 5px;
 }
 
 .change-mode-button-container button{
@@ -529,6 +537,10 @@ border:2px solid #fff;
   font-weight: bold;
   cursor:pointer;
   font-size:30px;
+}
+
+.script-keyword-button-container{
+  display: flex;
 }
 
 .change-script-button, .keyword-button{
@@ -542,10 +554,11 @@ border:2px solid #fff;
   transition:all 0.5s;
   font-size:20px;
   font-weight:bold;
+  display: inline-block;
 }
 
 .change-script-button{
-  margin-right: 20px;
+  margin-right: 30px;
 }
 
 .change-script-button:hover, .keyword-button:hover{
@@ -557,10 +570,15 @@ border:2px solid #fff;
 .practice-user-info{
   font-size:25px;
   font-weight:bold;
-  border:1px solid black;
-  border-radius: 10px;
-  margin-left:100px;
   padding:5px;
+  display: flex;
+  height:40px;
+  line-height: 40px;
+  margin-top: -5px;
+}
+
+.top-user-info{
+  margin-left: 10px
 }
 
 .my-3{
@@ -572,24 +590,60 @@ border:2px solid #fff;
   font-size:24px;
 }
 
+/* 초기 상태: 모든 mode-button 클래스에 회색 스타일 지정 */
+.mode-button {
+  color: #6A6A6A;
+}
+
+/* 연습모드 버튼 스타일 */
+.mode-button.active-practice {
+  color: #2686EB
+}
+
+/* 실전모드 버튼 스타일 */
+.mode-button.active-real {
+  color: #EB301D
+}
+
 /* 연습모드 */
 .practice-camera-pdf-container{
   display: flex;
   width:580px;
 }
 
+.prev-next-button-container{
+  display: flex;
+  justify-content: center;
+}
+
 .prev-page-button{
+  border:none;
+  cursor: pointer;
+}
+
+.page-area{
+  display: inline-block;
+  text-align: center;
   font-size:20px;
+  line-height: 30px;
+  background-color: #fff;
+  width:150px;
+  border-radius: 10px;
 }
 
 .next-page-button{
-  float:right;
-  font-size:20px;
+  border:none;
+  cursor: pointer
 }
 
 .practice-left{
   margin-left: 60px;
   margin-right: 60px;
+}
+
+.observe-icon{
+  margin-top: -20px;
+  margin-bottom: -30px;
 }
 
 .practice-pdf-area{
@@ -599,6 +653,7 @@ border:2px solid #fff;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #fff;
 }
 
 .pdf{
@@ -615,10 +670,25 @@ border:2px solid #fff;
   text-align: center;
 }
 
+.message{
+  height:80px;
+  text-align: center;
+  background-color: #fff;
+  font-size:24px;
+  font-weight:bold;
+  margin-top: 30px;
+  line-height: 80px;
+  margin-bottom: 20px;
+  color:#0B4ED3;
+  border-radius: 20px;
+  border:2px solid blue;
+  box-sizing: border-box;
+}
+
 .practice-live-camera{
   display: block;
   height:315px;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
 }
 
 .script-input{
@@ -631,9 +701,9 @@ border:2px solid #fff;
 .script-save{
   border:1px solid black;
   height: 200px;
-  border-radius: 5px;
   padding:5px;
   font-size: 18px;
+  background-color: #fff;
 }
 
 .practice-title{
@@ -641,23 +711,27 @@ border:2px solid #fff;
   height:40px;
   text-align:center;
   font-size:20px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
 .practice-title-save{
   display: inline-block;
   width:250px;
-  height:40px;
+  height:50px;
   text-align:center;
-  font-size:24px;
-  margin-bottom: 20px;
+  font-size:28px;
+  margin-bottom: 40px;
   font-weight:bold;
+  background-color: #fff;
+  line-height: 50px;
+  width:380px;
 }
 
-.start-stop-button{
-  border:2px solid #333;
-  color:#333;
-  background:#fff;
+.practice-start-button{
+  border:none;
+  border-radius:5px;
+  color:#fff;
+  background:#2688EB;
   width: 200px;;
   height:50px;
   cursor:pointer;
@@ -667,7 +741,27 @@ border:2px solid #fff;
   font-weight:bold;
 }
 
-.start-stop-button:hover{
+.practice-start-button:hover{
+  color:#fff;
+  border:2px solid #fff;
+  box-shadow:inset 0 0 0 50px #EB301D;
+}
+
+.practice-stop-button{
+  border:none;
+  border-radius:5px;
+  color:#fff;
+  background:#EB301D;
+  width: 200px;;
+  height:50px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:24px;
+  font-weight:bold;
+}
+
+.practice-stop-button:hover{
   color:#fff;
   border:2px solid #fff;
   box-shadow:inset 0 0 0 50px #222;
@@ -681,6 +775,7 @@ border:2px solid #fff;
 .real-left{
   margin-left: 60px;
   margin-right: 60px;
+  text-align:center;
 }
 
 .real-pdf-area{
@@ -690,6 +785,17 @@ border:2px solid #fff;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #fff;
+}
+
+.real-page-area{
+  display: inline-block;
+  text-align: center;
+  font-size:20px;
+  line-height: 30px;
+  background-color: #fff;
+  width:150px;
+  border-radius: 10px;
 }
 
 .real-right{
@@ -697,10 +803,12 @@ border:2px solid #fff;
 }
 
 .observe-camera-container{
+  margin-top: 30px;
   width: 720px;
   display: flex;
   justify-content: center;
   margin-left: 60px;
+  height:150px;
 }
 
 .observe-live-camera{
@@ -716,12 +824,22 @@ border:2px solid #fff;
 
 .observe-code{
   display: inline-block;
-  border:1px solid black;
   width:200px;
   height:40px;
   font-size:24px;
   line-height: 40px;
   margin-bottom:20px;
+  background-color: #fff;
+  text-align: center;
+  margin-left: 40px;
+}
+
+.copy-button{
+  display: inline-block;
+  background-color: inherit;
+  border:none;
+  cursor:pointer;
+  vertical-align: -6px;
 }
 
 .real-live-camera{
@@ -734,7 +852,7 @@ border:2px solid #fff;
   height:40px;
   text-align:center;
   font-size:20px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .real-title-save{
@@ -743,6 +861,10 @@ border:2px solid #fff;
   height:40px;
   text-align:center;
   font-size:24px;
+  padding-top: 10px;
+  font-weight: bold;
+  background-color: #fff;
+  line-height: 30px;
   margin-bottom: 20px;
   font-weight:bold;
 }
@@ -766,10 +888,18 @@ border:2px solid #fff;
   justify-content: space-between;
 }
 
+.before-change-area h1, .after-change-area h1{
+  text-align: center;
+  margin-bottom:20px;
+  font-weight: bold;
+  font-size:24px;
+}
+
 .script-text{
-  width:40%;
   height:400px;
+  width:350px;
   margin:30px;
+  margin-top:0;
   padding:10px;
   font-size:16px;
 }
@@ -824,6 +954,39 @@ border:2px solid #fff;
   border-radius:20px;
 }
 
+.modal-recommend-word-container, .modal-forbidden-word-container{
+  height:100px;
+}
+
+.modal-recommend-word-title, .modal-forbidden-word-title{
+  font-weight: bold;
+  padding-top: 10px;
+  font-size:20px;
+  text-align: start;
+  text-indent:10px;
+}
+
+.modal-forbidden-word, .modal-recommend-word{
+  display: flex;
+  flex-wrap:wrap;
+}
+
+.modal-forbidden-word > div, .modal-recommend-word > div{
+  padding:10px;
+  margin:10px;
+  border-radius:5px;
+  background-color: #E0E0E0;
+}
+
+.modal-timer-icon{
+  margin-top:30px;
+}
+
+.modal-time-detail{
+  font-size:20px;
+  margin-top: 10px;
+}
+
 .modal-result-summary > h1{
   font-weight: bold;
   border-bottom:1px solid black;
@@ -870,18 +1033,20 @@ color:#fff;
 border:2px solid #fff;
 }
 
+.modal-question-container > p{
+  overflow-y: auto;
+  height:190px;
+  padding-top:10px;
+  font-size:20px;
+}
+
+
 .modal-close:hover{
   box-shadow:inset -120px 0 0 0 #333;
 }
 
 .detail-button:hover{
   box-shadow:inset 120px 0 0 0 #333;
-}
-/* ----
-
-
-.modal-video{
-  width:300px;
 }
 /* ----------------------------------- */
 
@@ -911,7 +1076,7 @@ border:2px solid #fff;
   height:24px;
   width:130px;
   margin-left: 10px;
-  margin-right: 10px;
+
   font-size:18px;
 }
 
@@ -926,6 +1091,9 @@ border:2px solid #fff;
   width:50px;
   height:30px;
   font-size:16px;
+  background-color:inherit;
+  border:none;
+  cursor:pointer;
 }
 
 .word-list {
@@ -938,7 +1106,7 @@ border:2px solid #fff;
   align-items: center;
   background-color: #f2f2f2;
   border-radius: 4px;
-  padding: 2px 2cap;
+  padding: 3px;
   margin: 3px;
   text-indent: 5px;
 }
@@ -959,8 +1127,12 @@ border:2px solid #fff;
 
 .close-keyword-modal-button{
   position:absolute;
+  top:0;
   right:0;
-  bottom:0;
+  background-color: inherit;
+  border:none;
+  margin-top: 10px;
+  cursor:pointer;
 }
 
 
@@ -969,7 +1141,6 @@ border:2px solid #fff;
 .observe-page-container{
   height:100vh;
   padding:50px;
-  box-sizing: border-box;
 }
 
 .observe-page-container header{
@@ -982,13 +1153,6 @@ border:2px solid #fff;
   color:blue;
   font-weight: bold;
   font-size: 36px;
-}
-
-.observe-user-info{
-  font-size:30px;
-  border:2px solid black;
-  padding:10px;
-  border-radius: 10px;
 }
 
 .observe-page-middle{
@@ -1004,9 +1168,14 @@ border:2px solid #fff;
 }
 
 .presentation-title{
+  display: inline-block;
   font-weight:bold;
   font-size:30px;
-  margin-top:100px;
+  margin-top: 50px;
+  background-color: #fff;
+  width:300px;
+  height:50px;
+  line-height: 50px;
 }
 
 
@@ -1019,10 +1188,6 @@ border:2px solid #fff;
   flex-wrap: wrap;
   width:480px;
   text-align: center;
-}
-
-#myStream video {
-  border: 1px solid black;
 }
 
 #myStream video:nth-child(1) {
@@ -1039,33 +1204,51 @@ border:2px solid #fff;
   margin-top: 50px;
 }
 
+.comment-write{
+  display: flex;
+}
+
 .timer{
   border:1px solid gray;
-  border-radius: 5px;
-  padding:10px;
+  border-radius: 3px;
   font-size:24px;
+  line-height: 60px;
+  padding-left:10px;
+  padding-right:10px;
+  background-color: #fff;
+  margin-right: 10px;
 }
 
 .comment{
-  display: block;
-  width:500px;
-  font-size: 24px;
-  text-indent: 5px;
-  margin-left: -350px;
+  width:480px;
+  text-indent:10px;
+  font-size:24px;
 }
 
 .comment-submit{
-  margin-left: -450px;
   color:#333;
   background:inherit;
   cursor:pointer;
   outline:none;
   border:none;
+  margin-left: -60px;
+}
+
+.comment-record{
+  background-color: #fff;
+  width:200px;
+  border:2px blue solid;
+  border-radius:10px;
+  line-height: 60px;
+  text-align:center;
+  font-size:24px;
+  font-weight:bold;
 }
 
 .leave-observe-page-button{
   border:none;
   background: inherit;
+  cursor:pointer;
 }
 
 /* ----------------------------------- */

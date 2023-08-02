@@ -5,12 +5,17 @@ import React, {
   useState,
 } from "react";
 import logo from "../img/logo.png";
+import observeIcon from "../img/observeicon.png";
 import axios from "axios";
 import * as faceapi from 'face-api.js';
 import Modal from "react-modal";
 import { io } from "socket.io-client";
 import { BsStopCircleFill, BsStopwatchFill } from "react-icons/bs";
-import { IoTimerOutline } from "react-icons/io5";
+import { IoTimerOutline, IoCloseCircleSharp } from "react-icons/io5";
+import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
+import { FaUserCircle } from "react-icons/fa";
+import { BiMessageAdd } from "react-icons/bi";
+import { PiCopyBold } from "react-icons/pi";
 import { Document, Page, pdfjs } from 'react-pdf';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -465,7 +470,7 @@ const Practice = () => {
         </Document>
       </div>
     ) : (
-      <div>
+      <div className="pdf-file-drag-drop-container">
         <p className="pdf-file-drag-drop">PDF 파일을 드래그 & 드롭해주세요</p>
       </div>
 
@@ -494,6 +499,10 @@ const Practice = () => {
 
   };
 
+  const [resultMinutes, setResultMinutes] = useState();
+  const [resultSeconds, setResultSeconds] = useState();
+  const [resultScript, setResultScript] = useState();
+
   const quitPractice = async () => {
     quitFlag.current = true;
     stopRecording();
@@ -503,6 +512,9 @@ const Practice = () => {
     handleStartStopListening();
     const apiUrl = 'http://localhost:3001/presentation/update';
     await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
+    setResultMinutes(minutes);
+    setResultSeconds(seconds);
+    setResultScript(transcript);
     setModal(true);
     setMinutes(0);
     setSeconds(0);
@@ -782,6 +794,22 @@ const Practice = () => {
     });
   };
 
+  //input값 음수로 못가게 제한하는 함수
+  const handleMinutesChange = (e) => {
+    const newValue = parseInt(e.target.value);
+    setInputMinutes(Math.max(0, newValue)); // 입력값과 0 중 더 큰 값으로 설정
+  };
+
+  const handleSecondsChange = (e) => {
+    const newValue = parseInt(e.target.value);
+    setInputSeconds(Math.max(0, newValue)); // 입력값과 0 중 더 큰 값으로 설정
+  };
+
+  const copyRoomName = () => {
+    navigator.clipboard.writeText(roomName);
+  }
+
+
   return (
     <div className="practice-container">
       <div className="practice-top">
@@ -795,14 +823,20 @@ const Practice = () => {
               type="number"
               className="minutes-input"
               value={inputMinutes}
-              onChange={(e) => setInputMinutes(e.target.value)}
+              onChange={(e) => {
+                setInputMinutes(e.target.value);
+                handleMinutesChange(e);
+              }}
             />
             &nbsp;:&nbsp;
             <input
               type="number"
               className="seconds-input"
               value={inputSeconds}
-              onChange={(e) => setInputSeconds(e.target.value)}
+              onChange={(e) => {
+                setInputSeconds(e.target.value);
+                handleSecondsChange(e);
+              }}
             />
           </div>
         </div>
@@ -810,19 +844,26 @@ const Practice = () => {
           <BsStopCircleFill size={30} />
         </button>
         <div className="change-mode-button-container">
-          <button className="" onClick={() => setIsPractice(true)}>
+          <button className={`mode-button ${isPractice ? 'active-practice' : ''}`} onClick={() => setIsPractice(true)}>
             연습모드
           </button>
           &nbsp;/&nbsp;
-          <button onClick={realMode}>실전모드</button>
+          <button className={`mode-button ${isPractice ? '' : 'active-real'}`} onClick={realMode}>실전모드</button>
         </div>
-        <button className="change-script-button" onClick={goToScriptPage}>
-          스크립트 변환
-        </button>
-        <button className="keyword-button" onClick={openKeywordModal}>
-          키워드 등록
-        </button>
-        <div className="practice-user-info">{userId}</div>
+        <div className="script-keyword-button-container">
+          <button className="change-script-button" onClick={goToScriptPage}>
+            스크립트 변환
+          </button>
+          <button className="keyword-button" onClick={openKeywordModal}>
+            키워드 등록
+          </button>
+        </div>
+        <div className="practice-user-info">
+          <FaUserCircle size={40} className="user-icon" />
+          <div className="top-user-info">
+            {userId}
+          </div>
+        </div>
       </div>
       <div className="my-3">
         <textarea
@@ -845,7 +886,7 @@ const Practice = () => {
               onChange={handleRecommendedInputChange}
             />
             <button className='yes-word-button' onClick={handleRegisterRecommended}>
-              등록
+              <BiMessageAdd size={30} />
             </button>
             <div className="word-list">
               {recommendedWords.map((word, index) => (
@@ -866,7 +907,7 @@ const Practice = () => {
               onChange={handleProhibitedInputChange}
             />
             <button className='no-word-button' onClick={handleRegisterProhibited}>
-              등록
+              <BiMessageAdd size={30} />
             </button>
             <div className="word-list">
               {prohibitedWords.map((word, index) => (
@@ -877,16 +918,18 @@ const Practice = () => {
               ))}
             </div>
           </div>
-          <button className="close-keyword-modal-button" onClick={closeKeywordModal}>닫기</button>
+          <button className="close-keyword-modal-button" onClick={closeKeywordModal}><IoCloseCircleSharp size={30} /></button>
         </div>
       </Modal>
 
       {isPractice ? (
         <div className="practice-camera-pdf-container">
           <div className="practice-left">
-            <p>
-              Page {pageNumber || (numPages ? 1 : "--")} of {numPages || "--"}
-            </p>
+            <div className="observer-container">
+              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
+              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
+              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
+            </div>
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -894,14 +937,21 @@ const Practice = () => {
             >
               {pdfComponent}
             </div>
-            {!playing && (
-              <button onClick={handlePrevious} className="prev-page-button">이전 페이지</button>
-            )}
-            {!playing && (
-              <button onClick={handleSave} className="next-page-button">
-                다음페이지
-              </button>
-            )}
+            <div className="prev-next-button-container">
+              {!playing && (
+                <button onClick={handlePrevious} className="prev-page-button">
+                  <GrLinkPrevious size={24} />
+                </button>
+              )}
+              <p className="page-area">
+                페이지 {pageNumber || (numPages ? 1 : "--")} / {numPages || "--"}
+              </p>
+              {!playing && (
+                <button onClick={handleSave} className="next-page-button">
+                  <GrLinkNext size={24} />
+                </button>
+              )}
+            </div>
             {!playing && (
               <textarea
                 className="script-input"
@@ -910,7 +960,7 @@ const Practice = () => {
                 onChange={handleChange}
               />
             )}
-            {/* {playing && (
+            {playing && (
               <div>
                 <div>
                   {scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
@@ -918,7 +968,7 @@ const Practice = () => {
                   ))}
                 </div>
               </div>
-            )} */}
+            )}
           </div>
           <div className="practice-right">
             <div className="message">{message}</div>
@@ -940,11 +990,11 @@ const Practice = () => {
             )}
             <br />
             {playing ? (
-              <button onClick={quitPractice} className="start-stop-button">
+              <button onClick={quitPractice} className="practice-stop-button">
                 발표 종료
               </button>
             ) : (
-              <button onClick={startPractice} className="start-stop-button">
+              <button onClick={startPractice} className="practice-start-button">
                 발표 시작
               </button>
             )}
@@ -956,7 +1006,6 @@ const Practice = () => {
           <div className="observe-camera-container">
             {joinUser.map((user, index) => (
               <video key={index}
-                style={{ border: '1px solid black' }}
                 ref={(el) => {
                   peerFaceRef.current[user] = el
                 }}
@@ -977,20 +1026,26 @@ const Practice = () => {
               >
                 {pdfComponent}
               </div>
+              <p className="real-page-area">
+                페이지 {pageNumber || (numPages ? 1 : "--")} / {numPages || "--"}
+              </p>
             </div>
             <div className="real-right">
               <h2 className="observe-code-title">참관코드</h2>
-              <h2 className="observe-code">{roomName}</h2>
+              <div className="observe-code">
+                <h2>{roomName}</h2>
+              </div>
+              <button onClick={copyRoomName} className="copy-button"><PiCopyBold size={30} /></button>
               <video
                 ref={videoOutputRef}
                 className="real-live-camera"
                 muted
               ></video>
-              <ul className="page-time-array">
+              {/* <ul className="page-time-array">
                 {pageTimeArray.map((time, index) => (
                   <li>페이지 {index + 1} : <span className="">{time.minutes} : {time.seconds} </span></li>
                 ))}
-              </ul>
+              </ul> */}
               {playing ? (
                 <p className="real-title-save">{title}</p>
               ) : (
@@ -1002,14 +1057,14 @@ const Practice = () => {
                   onChange={(e) => titleChange(e)}
                 />
               )}
-              <div className="message">{message}</div>
+              {/* <div className="message">{message}</div> */}
               <br />
               {playing ? (
-                <button onClick={quitPractice} className="start-stop-button">
+                <button onClick={quitPractice} className="practice-stop-button">
                   발표 종료
                 </button>
               ) : (
-                <button onClick={startPractice} className="start-stop-button">
+                <button onClick={startPractice} className="practice-start-button">
                   발표 시작
                 </button>
               )}
@@ -1024,28 +1079,32 @@ const Practice = () => {
           <div className="modal-left">
             <div className="modal-keyword-container modal-result-summary">
               <h1>등록된 키워드</h1>
-              <div>
-                <h2>권장 단어</h2>
-                {recommendedWords.map((word, index) => (
-                  <div>
-                    <span>{word.word}</span>
-                  </div>
-                ))}
+              <div className="modal-recommend-word-container">
+                <h2 className="modal-recommend-word-title">권장 단어</h2>
+                <div className="modal-recommend-word">
+                  {recommendedWords.map((word, index) => (
+                    <div>
+                      {word.word}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div>
-                <h2>금지 단어</h2>
-                {prohibitedWords.map((word, index) => (
-                  <div>
-                    <span>{word.word}</span>
-                  </div>
-                ))}
+              <div className="modal-forbidden-word-container">
+                <h2 className="modal-forbidden-word-title">금지 단어</h2>
+                <div className="modal-forbidden-word">
+                  {prohibitedWords.map((word, index) => (
+                    <div>
+                      {word.word}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
             <div className="modal-timer-container modal-result-summary">
               <h1>경과 시간 / 설정 시간</h1>
-              <IoTimerOutline size={100} />
-              <div>
-                {minutes} : {seconds} / {inputMinutes} : {inputSeconds}
+              <IoTimerOutline size={100} className="modal-timer-icon" />
+              <div className="modal-time-detail">
+                {resultMinutes}분 {resultSeconds} 초 / {inputMinutes}분 {inputSeconds} 초
               </div>
             </div>
           </div>
@@ -1074,7 +1133,7 @@ const Practice = () => {
             <div className="modal-question-container modal-result-summary">
               <h1>음성 텍스트 변환</h1>
               <p>
-                {transcript}
+                {resultScript}
               </p>
             </div>
 
