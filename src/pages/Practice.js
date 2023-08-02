@@ -54,6 +54,10 @@ const Practice = () => {
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
 
+  const countSmile = useRef(0);
+
+  const faceIntervalId = useRef(null);
+
   const runFaceApi = async () => {
     const videoHeight = 315;
     const videoWidth = 420;
@@ -67,7 +71,7 @@ const Practice = () => {
       const displaySize = { width: videoWidth, height: videoHeight };
       faceapi.matchDimensions(canvas, displaySize);
 
-      setInterval(async () => {
+      faceIntervalId.current = setInterval(async () => {
         const detections = await faceapi.detectAllFaces(videoOutputRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
@@ -87,14 +91,23 @@ const Practice = () => {
             }
           });
 
-          if (expression === 'happy') {
-            setMessage('좋습니다');
-          } else {
-            setMessage('좀 웃어보세요');
-          }
+          // if (expression === 'happy') {
+          //   countSmile.current = countSmile.current >= 0 ? countSmile.current + 1 : 0;
+          //   if (message === '좀 웃어보세요') {
+          //     setMessage('좋습니다');
+          //   }
+          // }
+          // else {
+          //   countSmile.current--;
+          //   if (countSmile.current <= -5) {
+          //     setMessage('좀 웃어보세요');
+          //   }
+          //   else {
+          //     setMessage('');
+          //   }
+          // }
         }
-      }, 1000)
-
+      }, 1000);
     });
   }
 
@@ -656,6 +669,11 @@ const Practice = () => {
   };
 
   const stopPractice = () => {
+    if (isPractice) {
+      clearInterval(faceIntervalId.current); //얼굴인식 멈춤
+      faceIntervalId.current = null;
+      setMessage("");
+    }
     stopRecording();
     setMinutes(0);
     setSeconds(0);
@@ -728,7 +746,7 @@ const Practice = () => {
 
     //참관자 입장
     socket.current.on("user-join", async (data) => {
-      await socket.current.emit("title-url", { 'title': title, 'pdfURL': pdfFile });
+      await socket.current.emit("title-url", { 'title': title, 'pdfURL': pdfFile, 'userName': userId });
       setJoinUser(data.filter((id) => id !== socket.current.id));
       console.log("title-url", title, pdfFile);
     });
