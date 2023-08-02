@@ -48,12 +48,15 @@ const Script = () => {
     <div className="script-container">
       <h1 className='script-title'>스크립트 다듬기</h1>
       <div className="script-area">
-        <textarea
-          value={textareaValue}
-          onChange={handleTextareaChange}
-          className="script-text"
-          placeholder="스크립트의 다듬고 싶은 부분을 작성해주세요!"
-        ></textarea>
+        <div className='before-change-area'>
+          <h1>변경 전</h1>
+          <textarea
+            value={textareaValue}
+            onChange={handleTextareaChange}
+            className="script-text"
+            placeholder="스크립트의 다듬고 싶은 부분을 작성해주세요!"
+          ></textarea>
+        </div>
         <button
           variant="primary"
           size="lg"
@@ -62,19 +65,22 @@ const Script = () => {
         >
           변환하기
         </button>
-        {loading ? (
-          <div className="script-text before-change">
-            답변을 생성 중입니다.
-            <br />
-            <ClipLoader loading={loading} color="#f88c68" size={150}></ClipLoader>
-          </div>
-        ) : (
-          <textarea
-            value={convertedScript}
-            className="script-text"
-            readOnly
-          ></textarea>
-        )}
+        <div className='after-change-area'>
+          <h1>변경 후</h1>
+          {loading ? (
+            <div className="script-text before-change">
+              답변을 생성 중입니다.
+              <br />
+              <ClipLoader loading={loading} color="#f88c68" size={150}></ClipLoader>
+            </div>
+          ) : (
+            <textarea
+              value={convertedScript}
+              className="script-text"
+              readOnly
+            ></textarea>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import { useLocation } from "react-router-dom";
 import { IoIosSend } from "react-icons/io";
 import { IoExit } from "react-icons/io5";
+import { FaUserCircle } from "react-icons/fa";
 import axios from "axios";
 import { Document, Page, pdfjs } from 'react-pdf';
 
@@ -30,6 +31,8 @@ const Observe = () => {
   const [userId, setUserId] = useState(null);
   const [receiveData, setReceiveData] = useState(null);
   const [comment, setComment] = useState(""); // 코멘트 상태 변수 추가
+  const [send, setSend] = useState('');
+
 
   const leavePage = () => {
     window.close();
@@ -316,11 +319,11 @@ const Observe = () => {
     await axios.put(`${process.env.REACT_APP_SITE_URL}/presentation/update-comment`, dataToSend)
       .then((response) => {
         // 성공적으로 요청이 완료된 경우에 수행할 로직 추가 가능
-        console.log("댓글 업데이트 성공:", response.data);
+        setSend("코멘트 전송 완료!");
       })
       .catch((error) => {
         // 요청에 실패한 경우 에러 처리 로직 추가 가능
-        console.error("댓글 업데이트 실패:", error);
+        setSend("코멘트 전송 실패");
       });
 
     setComment('');
@@ -330,7 +333,12 @@ const Observe = () => {
     <div className="observe-page-container">
       <header>
         <h1 className="observe-title">발표 참관 중</h1>
-        <div className="observe-user-info">{userId}</div>
+        <div className="practice-user-info">
+          <FaUserCircle size={40} className="user-icon" />
+          <div className="top-user-info">
+            {userId}
+          </div>
+        </div>
       </header>
       <main>
         <div className="observe-page-middle">
@@ -348,7 +356,6 @@ const Observe = () => {
             <div id="myStream">
               {joinUser.map((user, index) => (
                 <video key={index}
-                  style={{ border: '1px solid black' }}
                   ref={(el) => {
                     peerFaceRef.current[user] = el
                   }}
@@ -369,18 +376,23 @@ const Observe = () => {
           </div>
         </div>
         <div className="observe-page-bottom">
-          <p className="timer">{formatTime(timer)}</p>
-          {/* 코멘트 입력을 위한 input과 버튼 추가 */}
-          <input
-            type="text"
-            className="comment"
-            placeholder="코멘트를 입력해주세요!"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-          />
-          <button className="comment-submit" type="submit" onClick={() => handleCommentSubmit(comment)}>
-            <IoIosSend size={40} />
-          </button>
+          <div className="comment-write">
+            <p className="timer">{formatTime(timer)}</p>
+            {/* 코멘트 입력을 위한 input과 버튼 추가 */}
+            <input
+              type="text"
+              className="comment"
+              placeholder="코멘트를 입력해주세요!"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
+            <button className="comment-submit" type="submit" onClick={() => handleCommentSubmit(comment)}>
+              <IoIosSend size={40} />
+            </button>
+          </div>
+          <div className="comment-record">
+            {send}
+          </div>
           <button className="leave-observe-page-button" onClick={leavePage}>
             <IoExit size={60} />
           </button>
