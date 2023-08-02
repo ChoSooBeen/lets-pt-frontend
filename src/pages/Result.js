@@ -1,9 +1,10 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { GoDotFill } from "react-icons/go";
 
 const Result = () => {
   const [data, setData] = useState(null);
+  const videoRef = useRef(null);
 
   const params = new URLSearchParams(window.location.search);
   const title = params.get('title');
@@ -19,7 +20,7 @@ const Result = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [title]);
 
   function highlightWords(script, recommendedWords, forbiddenWords) {
     let resultScript = script;
@@ -38,13 +39,17 @@ const Result = () => {
     return resultScript;
   }
 
+  const handleVideoSeek = (time) => {
+    videoRef.current.currentTime = time;
+  };
+
   return (
     <div className="detail-container">
       {data ? (
         <>
           <div className="left-column">
             <h1>녹화 영상</h1>
-            <video muted controls className='result-video' width={350}>
+            <video ref={videoRef} muted controls className='result-video' width={350}>
               <source src={data.resultVideo} type='video/webm' />
               {/* 이하에 필요한 다른 영상 포맷의 소스를 추가할 수 있습니다. */}
             </video>
@@ -58,8 +63,8 @@ const Result = () => {
                     <div className='comment-name-time-container'>
                       <GoDotFill className='comment-dot' size={30} />
                       <div className='comment-name-area'>{user.name}</div>
-                      <div className='comment-time-area'>
-                        <div>0{user.time.minute} : {user.time.second}</div>
+                      <div className='comment-time-area' onClick={() => handleVideoSeek(user.time.minute * 60 + user.time.second)}>
+                        <div>0{user.time.minute} : {String(user.time.second).padStart(2, "0")}</div>
                       </div>
                     </div>
                     <div className='comment-message-area'>

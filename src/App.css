@@ -1,3 +1,19 @@
+/* src/App.css */
+
+@font-face {
+  font-family: 'Nanum Gothic';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Nanum Gothic'), url('../public/fonts/NanumGothic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Nanum Gothic';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Nanum Gothic Bold'), url('../public/fonts/NanumGothicBold.ttf') format('truetype');
+}
+
 /* 초기화코드 */
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -16,17 +32,13 @@ time, mark, audio, video {
 	padding: 0;
 	border: 0;
 	font-size: 100%;
-	font: inherit;
+	font-family: 'Nanum Gothic', sans-serif;
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure, 
 footer, header, hgroup, menu, nav, section {
 	display: block;
-}
-body {
-	line-height: 1;
-  font-family: 'Arial', 'Helvetica', sans-serif;
 }
 ol, ul {
 	list-style: none;
@@ -1325,202 +1337,239 @@ border:2px solid #fff;
 /* 상세결과페이지(result) */
 
 .detail-container {
-  display: flex; /* Flexbox 레이아웃 적용 */
-  width: 100%;
-  height: 100vh; /* 뷰포트 높이만큼 컨테이너 높이 설정 */
+  display: flex;
+  width: 1000px;
+  height: 600px;
+  background-color: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .left-column {
-  flex: 0 0 550px; /* 왼쪽 영역 고정 너비 설정 */
-  padding: 10px;
-  border: 1px solid #ccc;
-  position:relative;
+  flex: 0 0 50%;
+  padding: 20px;
+  position: relative;
 }
 
-.left-column h1{
+.left-column h1 {
   margin-top: 30px;
-  margin-left: 30px;
+  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
 }
 
-.result-video{
-  position:absolute;
-  top:55%;
-  left:50%;
-  transform: translate(-50%,-50%);
+.result-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
 }
 
 .right-column {
-  flex: 1; /* 오른쪽 영역의 남은 공간 차지 */
+  flex: 1;
   padding: 20px;
-  border: 1px solid #ccc;
-  overflow-y: auto; /* 내용이 넘칠 경우 스크롤 생성 */
+  overflow-y: auto;
 }
 
-.detail-container h1{
-  font-weight:bold;
-  font-size:28px;
-  margin-bottom: 10px;
-}
-
-.result-page-comment-container{
-  border:1px solid black;
-  border-radius: 20px;
-  padding:10px;
-  background-color: #fff;
-}
-
-.right-column > div{
+.result-page-comment-container h1,
+.result-page-timer-container h1,
+.result-page-eye-container h1,
+.result-page-script-container h1,
+.result-page-question-container h1 {
+  font-size: 30px;
+  font-weight: bold;
   margin-bottom: 20px;
+  color: #333;
 }
 
-.user-comment-card{
-  margin-bottom: 10px;
-  padding:10px;
-  text-align: center;
-  font-size:24px;
-  cursor:pointer;
+/* 수정된 부분 */
+.result-page-timer-container,
+.result-page-eye-container,
+.result-page-script-container,
+.result-page-question-container {
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #F5F5F5;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
 }
 
-.comment-dot{
+.user-comment-card {
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.user-comment-card:hover {
+  background-color: #F5F5F5;
+}
+
+.comment-dot {
   margin-right: 10px;
-  margin-top: 5px;
 }
 
-.comment-name-time-container{
+.comment-name-time-container {
   display: flex;
-  justify-content: start;
+  align-items: center;
 }
 
-.comment-name-area{
-  width:100px;
-  height:40px;
+.comment-name-area {
+  width: 100px;
+  height: 40px;
   line-height: 40px;
   margin-right: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
 }
 
-.comment-time-area{
-  border:1px solid black;
-  width:100px;
-  height:40px;
+.comment-time-area {
+  border: 1px solid #ccc;
+  width: 100px;
+  height: 40px;
   line-height: 40px;
   border-radius: 10px;
-}
-
-.comment-message-area{
-  margin-top: 10px;
-  border:1.5px solid gray;
-  border-radius:10px;
-  padding:10px;
-  text-align:start;
-  font-size:20px;
-}
-
-.result-page-timer-container{
-  background-color: #fff;
-  border:1px solid black;
-  border-radius:20px;
-  padding:10px;
-}
-
-.total-time-area{
-  font-size:24px;
-  margin-bottom: 20px;
-}
-
-.total-time-area > span{
-  border:1px solid black;
-  display: inline-block;
-  width:100px;
-  text-align: center;
-  height:35px;
-  line-height: 35px;
-  border-radius: 10px;
-}
-
-.detail-timer-card{
   display: flex;
-  justify-content: start;
-  font-size:24px;
-  margin-bottom: 10px;
-  line-height: 35px;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  color: #555;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.dot{
-  padding-top: 5px;
+.comment-time-area:hover {
+  background-color: #F5F5F5;
+}
+
+.comment-message-area {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1.5px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #555;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.total-time-area {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.total-time-area span {
+  display: inline-block;
+  width: 100px;
+  height: 35px;
+  line-height: 35px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 18px;
+  text-align: center;
+  margin: 0 5px;
+  color: #333;
+}
+
+.detail-timer-card {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  line-height: 35px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.dot {
   margin-right: 5px;
 }
 
-.detail-page-area{
+.detail-page-area {
   margin-right: 30px;
-}
-
-.detail-time-area{
-  border:1px solid gray;
-  width:100px;
-  text-align: center;
-  height:35px;
-  line-height: 35px;
-  border-radius:10px;
-}
-
-.result-page-eye-container{
-  border:1px solid black;
-  background-color: #fff;
-  padding:10px;
-  border-radius:20px;
-}
-
-.result-eye-detail > div{
-  display: flex;
-  font-size:24px;
-  line-height: 35px;
-  margin-bottom: 10px;
-}
-
-.result-eye-detail > div > div{
-  margin-right: 30px;
-}
-
-.result-page-script-container{
-  border:1px solid black;
-  border-radius: 20px;
-  padding:10px;
-  background-color: #fff;
-}
-
-.recommend-word, .forbidden-word{
   font-weight: bold;
-  font-size:25px;
+}
+
+.detail-time-area {
+  border: 1px solid #ccc;
+  width: 100px;
+  height: 35px;
+  line-height: 35px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  color: #555;
+}
+
+.result-eye-detail > div {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  line-height: 35px;
   margin-bottom: 10px;
+  color: #333;
 }
 
-.recommend-word-detail, .forbidden-word-detail{
-  font-size:24px;
+.result-page-script-container {
+  padding: 20px;
+  background-color: #F7F7F7;
+  border-radius: 20px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
 }
 
-.recommend-word-count, .forbidden-word-count{
+.recommend-word, .forbidden-word {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.recommend-word-detail, .forbidden-word-detail {
+  font-size: 18px;
+  color: #555;
+}
+
+.recommend-word-count, .forbidden-word-count {
   display: inline-block;
-  font-size:24px;
+  font-size: 18px;
   margin-bottom: 10px;
+  color: #555;
 }
 
-.result-script-detail{
-  border: 1px solid black;
-  padding:10px;
-  font-size:20px;
-  border-radius:10px;
-  line-height: 24px;
-}
-
-.result-page-question-container{
-  border:1px solid black;
-  padding:10px;
-  border-radius:20px;
+.result-script-detail {
+  padding: 10px;
+  font-size: 16px;
+  color: #555;
+  white-space: pre-wrap;
+  line-height: 1.6;
   background-color: #fff;
+  border-radius: 10px;
 }
 
-.result-question-detail{
-  font-size:20px;
+.result-page-question-container {
+  padding: 20px;
+  background-color: #F7F7F7;
+  border-radius: 20px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+}
+
+.result-question-detail {
+  font-size: 16px;
+  color: #333;
+  white-space: pre-wrap;
+  line-height: 1.6;
 }
 
 /* ---------------------------- */
@@ -1581,4 +1630,141 @@ border:2px solid #fff;
   background-color: tomato;
   border-radius:5px;
   padding:1px;
+}
+
+
+/* 레코드 페이지(record) */
+/* 공통 스타일 */
+body {
+  line-height: 1.6;
+}
+
+/* .record-container 스타일 */
+.record-container {
+  display: flex;
+  margin: 50px;
+  margin-left: 100px;
+  margin-right: 100px;
+}
+
+/* .record-video 스타일 */
+.record-video {
+  flex: 1;
+  margin-right: 20px;
+}
+
+/* .record-detail 스타일 */
+.record-detail {
+  display: flex;
+  flex-direction: column;
+  width: 600px; /* 적절한 너비로 조정하십시오 */
+  border: 1px solid #ccc;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+}
+
+/* .record-result-page-comment-container 스타일 */
+.record-result-page-comment-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 500px; /* 최대 높이를 설정합니다. 적절한 값으로 조정하십시오. */
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+/* .record-result-detail-page-title 스타일 */
+.record-result-detail-page-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* .record-result-comment-detail 스타일 */
+.record-result-comment-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+/* .record-user-comment-card 스타일 */
+.record-user-comment-card {
+  display: flex;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+/* .record-comment-name-time-container 스타일 */
+.record-comment-name-time-container {
+  display: flex;
+  margin-right: 10px;
+}
+
+/* .record-comment-dot 스타일 */
+.record-comment-dot {
+  margin-right: 5px;
+}
+
+.record-comment-name-area{
+  margin-right: 10px;
+  line-height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.record-comment-time-area{
+  line-height: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+/* .record-comment-message-area 스타일 */
+.record-comment-message-area {
+  flex: 1;
+  line-height: 30px;
+}
+
+/* .record-comment-write 스타일 */
+.record-comment-write {
+  display: flex;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #ccc;
+  margin-top: 20px;
+}
+
+/* .record-timer 스타일 */
+.record-timer {
+  margin-right: 10px;
+  font-size: 16px;
+  color: #333;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* .record-comment 스타일 */
+.record-comment {
+  flex: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size:16px;
+  height: 25px;
+}
+
+/* .record-comment-submit 스타일 */
+.record-comment-submit {
+  background-color: inherit;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
 }
