@@ -53,15 +53,18 @@ const Practice = () => {
   // stt, 표정인식-----------------------------------------------------------------
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [pauseDuration, setPauseDuration] = useState(0);
-  const [message, setMessage] = useState(""); //메시지 띄우는 곳
+  // const [pauseDuration, setPauseDuration] = useState(0);
+  const [message, setMessage] = useState(`발표 시작 버튼을 눌러주세요!`); //메시지 띄우는 곳
 
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
 
   const countSmile = useRef(0);
 
+  const compareMessage = useRef(`발표 시작 버튼을 눌러주세요!`); //메시지 비교를 위한 변수
+
   const faceIntervalId = useRef(null);
+  const listeningIntervalId = useRef(null);
 
   const runFaceApi = async () => {
     const videoHeight = 315;
@@ -97,18 +100,19 @@ const Practice = () => {
           });
 
           if (expression === 'happy') {
-            countSmile.current = countSmile.current >= 0 ? countSmile.current + 1 : 0;
-            if (message === '좀 웃어보세요') {
-              setMessage('좋습니다');
+            console.log('웃음', compareMessage.current);
+            countSmile.current = 0;
+            if (compareMessage.current === `표정이 너무 굳어있네요! SMILE*^-^*`) {
+              compareMessage.current = '좋습니다! 자신감을 갖고 계속 진행하세요!';
+              setMessage('좋습니다! 자신감을 갖고 계속 진행하세요!');
             }
           }
           else {
-            countSmile.current--;
-            if (countSmile.current <= -5) {
-              setMessage('좀 웃어보세요');
-            }
-            else {
-              setMessage('');
+            console.log('웃지 않음', compareMessage.current);
+            countSmile.current++;
+            if (compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && compareMessage.current !== "긴장 풀고 다시 발표 내용을 떠올려보세요!" && countSmile.current >= 3) {
+              compareMessage.current = `표정이 너무 굳어있네요! SMILE*^-^*`;
+              setMessage(`표정이 너무 굳어있네요! SMILE*^-^*`);
             }
           }
         }
@@ -130,15 +134,17 @@ const Practice = () => {
         if (pauseStartTimeRef.current) {
           const pauseEndTime = Date.now();
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
-          setPauseDuration(pauseDuration);
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
   
-          if (pauseDuration > 5000) {
-            setMessage("무음 지속 시간이 5초를 초과했습니다!");
+          if (compareMessage.current !== "긴장 풀고 다시 발표 내용을 떠올려보세요!" && compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && pauseDuration > 5000) {
+            compareMessage.current = "긴장 풀고 다시 발표 내용을 떠올려보세요!";
+            setMessage("긴장 풀고 다시 발표 내용을 떠올려보세요!");
             console.log("렌더링됨");
             pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
-          } else {
-            setMessage("");
+          }
+          else if(pauseDuration < 5000){
+            compareMessage.current = '좋습니다! 자신감을 갖고 계속 진행하세요!';
+            setMessage('좋습니다! 자신감을 갖고 계속 진행하세요!');
           }
         }
       }, 1000);
@@ -148,9 +154,8 @@ const Practice = () => {
       clearInterval(intervalId);
       pauseStartTimeRef.current = null; // 컴포넌트가 언마운트되면 무음 시작 시간 초기화
     };
-  }, [listening]);  
+  }, [listening]); 
   
-
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
       const isSpeechRecognitionSupported =
@@ -501,6 +506,8 @@ const Practice = () => {
     setSeconds(0);
     setcurrentScriptIndex(0);
     setPageNumber(1);
+    compareMessage.current = `발표가 진행 중입니다.`;
+    setMessage(`발표가 진행 중입니다.`);
     handleStartStopListening();
     setPrevTime(Date.now());
     startRecording();
@@ -523,6 +530,14 @@ const Practice = () => {
     stopRecording();
     if (!isPractice) {
       socket.current.emit("stop-timer"); //socket으로 참관자들에게 타이머 종료 알리기
+    }
+    else {
+      clearInterval(faceIntervalId.current); //얼굴인식 멈춤
+      faceIntervalId.current = null;
+      clearInterval(listeningIntervalId.current); //음성인식 멈춤
+      listeningIntervalId.current = null;
+      compareMessage.current = `발표 시작 버튼을 눌러주세요!`;
+      setMessage(`발표 시작 버튼을 눌러주세요!`);
     }
     handleStartStopListening();
     const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/update`;
@@ -694,8 +709,12 @@ const Practice = () => {
     if (isPractice) {
       clearInterval(faceIntervalId.current); //얼굴인식 멈춤
       faceIntervalId.current = null;
-      setMessage("");
+      clearInterval(listeningIntervalId.current); //음성인식 멈춤
+      listeningIntervalId.current = null;
+      compareMessage.current = `발표 시작 버튼을 눌러주세요!`;
+      setMessage(`발표 시작 버튼을 눌러주세요!`);
     }
+    handleStartStopListening();
     stopRecording();
     setMinutes(0);
     setSeconds(0);
