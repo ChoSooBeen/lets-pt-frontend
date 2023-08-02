@@ -821,7 +821,7 @@ const Practice = () => {
   };
 
   const copyRoomName = () => {
-    navigator.clipboard.writeText(roomName);
+    navigator.clipboard.writeText(roomName2);
   }
 
 

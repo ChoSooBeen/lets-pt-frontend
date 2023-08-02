@@ -21,21 +21,37 @@ const Result = () => {
     fetchData();
   }, []);
 
+  function highlightWords(script, recommendedWords, forbiddenWords) {
+    return script.split(' ').map((word) => {
+      if (recommendedWords.includes(word)) {
+        return `<span class='highlight-recommended'>${word}</span>`;
+      } else if (forbiddenWords.includes(word)) {
+        return `<span class='highlight-forbidden'>${word}</span>`;
+      } else {
+        return word;
+      }
+    }).join(' ');
+  }
+
   return (
     <div className="detail-container">
       {data ? (
         <>
           <div className="left-column">
             <h1>녹화 영상</h1>
-            <video muted controls className='result-video'></video>
+            <video muted controls className='result-video' width={400}>
+              <source src={data.resultVideo} type='video/webm' />
+              {/* 이하에 필요한 다른 영상 포맷의 소스를 추가할 수 있습니다. */}
+            </video>
           </div>
           <div className="right-column">
             <div className='result-page-comment-container'>
               <h1 className='result-detail-page-title'>유저 코멘트</h1>
               <div className='result-comment-detail'>
-                {data.comment.map((user, index) => ( // 중괄호로 감싸기
+                {data.comment.map((user, index) => (
                   <div key={index} className="user-comment-card">
                     <div className='comment-name-time-container'>
+                      <GoDotFill className='comment-dot' size={30} />
                       <div className='comment-name-area'>{user.name}</div>
                       <div className='comment-time-area'>
                         <div>0{user.time.minute} : {user.time.second}</div>
@@ -48,7 +64,7 @@ const Result = () => {
                 ))}
               </div>
             </div>
-            <hr />
+
             <div className='result-page-timer-container'>
               <h1 className='result-detail-page-title'>상세 경과 시간</h1>
               <div className='total-time-area'><span>0{data.progressingTime.minute}:{data.progressingTime.second}</span> / <span>0{data.settingTime.minute}:{data.settingTime.second}</span></div>
@@ -66,7 +82,7 @@ const Result = () => {
 
               </div>
             </div>
-            <hr />
+
             <div className='result-page-eye-container'>
               <h1 className='result-detail-page-title'>시선 처리</h1>
               <div className='result-eye-detail'>
@@ -94,7 +110,7 @@ const Result = () => {
                 </div>
               </div>
             </div>
-            <hr />
+
             <div className='result-page-script-container'>
               <h1 className='result-detail-page-title'>음성 데이터</h1>
               <div>
@@ -117,9 +133,10 @@ const Result = () => {
                   </div>
                 ))}
               </div>
-              <div className='result-script-detail'>{data.sttScript}</div>
+              <h2 className='forbidden-word'>스크립트</h2>
+              <div className='result-script-detail' dangerouslySetInnerHTML={{ __html: highlightWords(data.sttScript, data.recommendedWord.map(word => word.word), data.forbiddenWord.map(word => word.word)) }}></div>
             </div>
-            <hr />
+
             <div className='result-page-question-container'>
               <h1 className='result-detail-page-title'>예상 질문 및 답변</h1>
               <div className='result-question-detail'>{data.qna}</div>
