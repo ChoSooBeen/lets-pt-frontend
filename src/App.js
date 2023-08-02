@@ -12,6 +12,8 @@ import Script from './pages/Script';
 import Test from './pages/Test';
 import MyPage from './pages/MyPage';
 import PdfTest from './pages/pdfTest';
+import Share from './pages/Share';
+import Record from './pages/Record';
 function App() {
   return (
     <div>
@@ -21,6 +23,8 @@ function App() {
         <Route path="/join" element={<Join />} />
         <Route path="/test" element={<Test />} />
         <Route path="/pdf" element={<PdfTest />} />
+        <Route path="/share" element={<Share />} />
+        <Route path="/record/SVOIEWOV53245vcxvnweiqwjsdiof" element={<Record />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<Home />} />

@@ -329,10 +329,22 @@ const Observe = () => {
     setComment('');
   };
 
+  useEffect(() => {
+    if (send === "코멘트 전송 완료!") {
+      const timeout = setTimeout(() => {
+        setSend(""); // 1초 뒤에 send 상태를 빈 문자열로 설정하여 메시지를 사라지게 함
+      }, 1000);
+
+      // 컴포넌트가 언마운트되면 타임아웃 클리어
+      return () => clearTimeout(timeout);
+    }
+  }, [send]);
+
   return (
     <div className="observe-page-container">
       <header>
         <h1 className="observe-title">발표 참관 중</h1>
+        {receiveData ? (<h2 className="presentator-name">{receiveData.userName} 님의 발표입니다</h2>) : (<h2></h2>)}
         <div className="practice-user-info">
           <FaUserCircle size={40} className="user-icon" />
           <div className="top-user-info">

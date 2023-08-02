@@ -2,36 +2,68 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 
 const MyPage = () => {
+  // 수정된 클라이언트 코드
   const [userId, setUserId] = useState(null);
+  const [pptTitle, setPptTitle] = useState([]);
 
   useEffect(() => {
-    // 로컬스토리지에서 토큰 가져오기
-    const token = localStorage.getItem('token');
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`, // 헤더에 토큰 추가
+          },
+        };
 
-    // Axios 요청 설정
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`, // 헤더에 토큰 추가
-      },
-    };
+        const apiUrlUser = `${process.env.REACT_APP_SITE_URL}/user/`;
+        const responseUser = await axios.get(apiUrlUser, config);
+        setUserId(responseUser.data.data.name);
 
-    // 서버로 데이터를 요청하는 예시 API 엔드포인트
-    const apiUrl = `${process.env.REACT_APP_SITE_URL}/user/`;
-
-    // Axios를 사용하여 요청 보내기
-    axios.get(apiUrl, config)
-      .then((response) => {
-        // 요청에 성공한 경우
-        console.log('서버 응답:', response.data);
-        // 서버에서 응답으로 받은 데이터를 처리하거나 상태를 업데이트할 수 있습니다.
-        setUserId(response.data.data.name);
-      })
-      .catch((error) => {
-        // 요청에 실패한 경우
+        const apiUrlPresentation = `${process.env.REACT_APP_SITE_URL}/presentation/get-title?userId=${responseUser.data.data.name}`;
+        const responsePresentation = await axios.get(apiUrlPresentation, config);
+        setPptTitle(responsePresentation.data);
+      } catch (error) {
         console.error('에러:', error);
         // 에러 처리 로직 추가 가능
-      });
+      }
+    };
+
+    fetchData();
   }, []);
+
+
+  const goToDetailPage = (title) => {
+    const width = 1000;
+    const height = 600;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    const sendTitle = title
+    const url = `/result?title=${sendTitle}`
+
+    window.open(
+      url,
+      "_blank",
+      `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
+    );
+  };
+
+  const goToSharePage = (title) => {
+    const width = 600;
+    const height = 200;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    const sendTitle = title
+    const url = `/share?title=${sendTitle}`
+
+    window.open(
+      url,
+      "_blank",
+      `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
+    );
+  };
 
   return (
     <div className='mypage-container'>
@@ -40,11 +72,13 @@ const MyPage = () => {
       </p>
       <div className='record-container'>
         <ul className='practice-record'>
-          <li><span>정글 중간 발표</span><button>영상보기</button><button>결과보기</button><button>영상공유</button></li>
-          <li><span>기획 최종 발표</span><button>영상보기</button><button>결과보기</button><button>영상공유</button></li>
-          <li><span>기획 2차 발표</span><button>영상보기</button><button>결과보기</button><button>영상공유</button></li>
-          <li><span>기획 1차 발표</span><button>영상보기</button><button>결과보기</button><button>영상공유</button></li>
-          <li><span>연습</span><button>영상보기</button><button>결과보기</button><button>영상공유</button></li>
+          {pptTitle.map((title, index) => (
+            <li key={index}>
+              <span>{title}</span>
+              <button onClick={() => goToDetailPage(title)}>결과보기</button>
+              <button onClick={() => goToSharePage(title)}>영상공유</button>
+            </li>
+          ))}
         </ul>
       </div>
     </div>

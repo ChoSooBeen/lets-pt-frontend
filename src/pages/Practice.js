@@ -481,7 +481,7 @@ const Practice = () => {
           file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
         >
-          <Page pageNumber={pageNumber} width="560" />
+          <Page pageNumber={pageNumber} width={isPractice ? "560" : "728"} />
         </Document>
       </div>
     ) : (
@@ -637,6 +637,12 @@ const Practice = () => {
   };
 
   const stopRecording = () => {
+    const currentTime = Date.now();
+    const timeDifference = currentTime - prevTime;
+    const lastMinutes = Math.floor((timeDifference / (1000 * 60)) % 60);
+    const lastSeconds = Math.ceil((timeDifference / 1000) % 60);
+    pageTimeArray.push({ minutes: lastMinutes, seconds: lastSeconds });
+
     if (screenMediaRecorderRef.current) {
       camMediaRecorderRef.current.stop();
       screenMediaRecorderRef.current.stop();
@@ -825,7 +831,7 @@ const Practice = () => {
   };
 
   const copyRoomName = () => {
-    navigator.clipboard.writeText(roomName);
+    navigator.clipboard.writeText(roomName2);
   }
 
 
