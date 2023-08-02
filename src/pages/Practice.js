@@ -174,13 +174,13 @@ const Practice = () => {
         setListening(true);
         console.log("음성 인식 시작");
       };
-  
+
       recognitionRef.current.onend = () => {
         setListening(false);
         console.log("음성 인식 종료");
         pauseStartTimeRef.current = null;
       };
-  
+
       recognitionRef.current.onresult = (event) => {
         const { transcript } = event.results[event.results.length - 1][0];
         setTranscript((prevTranscript) => prevTranscript + transcript + " ");
@@ -484,7 +484,7 @@ const Practice = () => {
           file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
         >
-          <Page pageNumber={pageNumber} width="560" />
+          <Page pageNumber={pageNumber} width={isPractice ? "560" : "728"} />
         </Document>
       </div>
     ) : (
@@ -640,6 +640,12 @@ const Practice = () => {
   };
 
   const stopRecording = () => {
+    const currentTime = Date.now();
+    const timeDifference = currentTime - prevTime;
+    const lastMinutes = Math.floor((timeDifference / (1000 * 60)) % 60);
+    const lastSeconds = Math.ceil((timeDifference / 1000) % 60);
+    pageTimeArray.push({ minutes: lastMinutes, seconds: lastSeconds });
+
     if (screenMediaRecorderRef.current) {
       camMediaRecorderRef.current.stop();
       screenMediaRecorderRef.current.stop();

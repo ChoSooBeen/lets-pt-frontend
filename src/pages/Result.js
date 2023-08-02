@@ -22,15 +22,20 @@ const Result = () => {
   }, []);
 
   function highlightWords(script, recommendedWords, forbiddenWords) {
-    return script.split(' ').map((word) => {
-      if (recommendedWords.includes(word)) {
-        return `<span class='highlight-recommended'>${word}</span>`;
-      } else if (forbiddenWords.includes(word)) {
-        return `<span class='highlight-forbidden'>${word}</span>`;
-      } else {
-        return word;
-      }
-    }).join(' ');
+    let resultScript = script;
+    for (const wordObj of recommendedWords) {
+      const word = wordObj.word;
+      const regExp = new RegExp(`${word}`, 'gi');
+      resultScript = resultScript.replace(regExp, `<span class='highlight-recommended'>${word}</span>`);
+    }
+
+    for (const wordObj of forbiddenWords) {
+      const word = wordObj.word;
+      const regExp = new RegExp(`${word}`, 'gi');
+      resultScript = resultScript.replace(regExp, `<span class='highlight-forbidden'>${word}</span>`);
+    }
+
+    return resultScript;
   }
 
   return (
@@ -39,7 +44,7 @@ const Result = () => {
         <>
           <div className="left-column">
             <h1>녹화 영상</h1>
-            <video muted controls className='result-video' width={400}>
+            <video muted controls className='result-video' width={350}>
               <source src={data.resultVideo} type='video/webm' />
               {/* 이하에 필요한 다른 영상 포맷의 소스를 추가할 수 있습니다. */}
             </video>
@@ -134,12 +139,12 @@ const Result = () => {
                 ))}
               </div>
               <h2 className='forbidden-word'>스크립트</h2>
-              <div className='result-script-detail' dangerouslySetInnerHTML={{ __html: highlightWords(data.sttScript, data.recommendedWord.map(word => word.word), data.forbiddenWord.map(word => word.word)) }}></div>
+              <div className='result-script-detail' dangerouslySetInnerHTML={{ __html: highlightWords(data.sttScript, data.recommendedWord, data.forbiddenWord) }}></div>
             </div>
 
             <div className='result-page-question-container'>
               <h1 className='result-detail-page-title'>예상 질문 및 답변</h1>
-              <div className='result-question-detail'>{data.qna}</div>
+              <div className='result-question-detail' style={{ whiteSpace: 'pre-wrap' }}>{data.qna}</div>
             </div>
           </div>
         </>) : (

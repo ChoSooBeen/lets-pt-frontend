@@ -1344,7 +1344,7 @@ border:2px solid #fff;
 
 .result-video{
   position:absolute;
-  top:50%;
+  top:55%;
   left:50%;
   transform: translate(-50%,-50%);
 }
@@ -1517,6 +1517,10 @@ border:2px solid #fff;
   padding:10px;
   border-radius:20px;
   background-color: #fff;
+}
+
+.result-question-detail{
+  font-size:20px;
 }
 
 /* ---------------------------- */
