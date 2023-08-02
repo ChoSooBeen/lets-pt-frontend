@@ -16,7 +16,7 @@ const MyPage = () => {
     };
 
     // 서버로 데이터를 요청하는 예시 API 엔드포인트
-    const apiUrl = 'http://localhost:3001/user/';
+    const apiUrl = `${process.env.REACT_APP_SITE_URL}/user/`;
 
     // Axios를 사용하여 요청 보내기
     axios.get(apiUrl, config)
