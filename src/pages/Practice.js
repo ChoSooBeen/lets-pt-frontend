@@ -54,7 +54,7 @@ const Practice = () => {
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [pauseDuration, setPauseDuration] = useState(0);
-  const [message, setMessage] = useState(`발표 시작 버튼을 눌러주세요!`); //메시지 띄우는 곳
+  const [message, setMessage] = useState(""); //메시지 띄우는 곳
 
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
@@ -62,7 +62,6 @@ const Practice = () => {
   const countSmile = useRef(0);
 
   const faceIntervalId = useRef(null);
-  const listeningFlag = useRef(false);
 
   const runFaceApi = async () => {
     const videoHeight = 315;
@@ -98,17 +97,12 @@ const Practice = () => {
           });
 
           if (expression === 'happy') {
-            console.log('웃음');
             countSmile.current = countSmile.current >= 0 ? countSmile.current + 1 : 0;
-            if (message !== '좋습니다') {
+            if (message === '좀 웃어보세요') {
               setMessage('좋습니다');
-            }
-            else {
-              setMessage('');
             }
           }
           else {
-            console.log('웃지 않음');
             countSmile.current--;
             if (countSmile.current <= -5) {
               setMessage('좀 웃어보세요');
@@ -130,7 +124,7 @@ const Practice = () => {
 
   useEffect(() => {
     let intervalId;
-
+  
     if (listening) {
       intervalId = setInterval(() => {
         if (pauseStartTimeRef.current) {
@@ -138,23 +132,24 @@ const Practice = () => {
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
           setPauseDuration(pauseDuration);
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
+  
+          if (pauseDuration > 5000) {
+            setMessage("무음 지속 시간이 5초를 초과했습니다!");
+            console.log("렌더링됨");
+            pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
+          } else {
+            setMessage("");
+          }
         }
       }, 1000);
-    } else {
+    }
+  
+    return () => {
       clearInterval(intervalId);
-    }
-
-    if (pauseDuration > 5000 && listeningFlag.current === false) {
-      listeningFlag.current = true;
-      setMessage("무음 지속 시간이 5초를 초과했습니다!");
-    }
-    else if (pauseDuration <= 5000) {
-      listeningFlag.current = false;
-      setMessage("");
-    }
-
-    return () => clearInterval(intervalId);
-  }, [listening, pauseDuration]);
+      pauseStartTimeRef.current = null; // 컴포넌트가 언마운트되면 무음 시작 시간 초기화
+    };
+  }, [listening]);  
+  
 
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
@@ -174,25 +169,27 @@ const Practice = () => {
         setListening(true);
         console.log("음성 인식 시작");
       };
-  
+
       recognitionRef.current.onend = () => {
         setListening(false);
         console.log("음성 인식 종료");
         pauseStartTimeRef.current = null;
       };
-  
+
       recognitionRef.current.onresult = (event) => {
         const { transcript } = event.results[event.results.length - 1][0];
         setTranscript((prevTranscript) => prevTranscript + transcript + " ");
         pauseStartTimeRef.current = Date.now();
       };
     }
+
     if (listening) {
       recognitionRef.current.stop();
     } else {
       recognitionRef.current.start();
     }
   };
+
 
   // --------------------------------------------------------------------------
   // 키워드 모달창 --------------------------------------------------------------
@@ -691,7 +688,7 @@ const Practice = () => {
     if (isPractice) {
       clearInterval(faceIntervalId.current); //얼굴인식 멈춤
       faceIntervalId.current = null;
-      setMessage("발표 시작 버튼을 눌러주세요!");
+      setMessage("");
     }
     stopRecording();
     setMinutes(0);
