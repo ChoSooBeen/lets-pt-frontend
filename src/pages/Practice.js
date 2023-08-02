@@ -103,14 +103,14 @@ const Practice = () => {
             console.log('웃음', compareMessage.current);
             countSmile.current = 0;
             if (compareMessage.current === `표정이 너무 굳어있네요! SMILE*^-^*`) {
-              compareMessage.current = '좋습니다! 자신감을 갖고 계속 진행하세요!';
-              setMessage('좋습니다! 자신감을 갖고 계속 진행하세요!');
+              compareMessage.current = '좋습니다! 계속 진행하세요!';
+              setMessage('좋습니다! 계속 진행하세요!');
             }
           }
           else {
             console.log('웃지 않음', compareMessage.current);
             countSmile.current++;
-            if (compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && compareMessage.current !== "긴장 풀고 다시 발표 내용을 떠올려보세요!" && countSmile.current >= 3) {
+            if (compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && compareMessage.current !== "긴장 풀고 발표 내용을 떠올려보세요!" && countSmile.current >= 3) {
               compareMessage.current = `표정이 너무 굳어있네요! SMILE*^-^*`;
               setMessage(`표정이 너무 굳어있네요! SMILE*^-^*`);
             }
@@ -136,15 +136,15 @@ const Practice = () => {
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
   
-          if (compareMessage.current !== "긴장 풀고 다시 발표 내용을 떠올려보세요!" && compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && pauseDuration > 5000) {
-            compareMessage.current = "긴장 풀고 다시 발표 내용을 떠올려보세요!";
-            setMessage("긴장 풀고 다시 발표 내용을 떠올려보세요!");
+          if (compareMessage.current !== "긴장 풀고 발표 내용을 떠올려보세요!" && compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && pauseDuration > 5000) {
+            compareMessage.current = "긴장 풀고 발표 내용을 떠올려보세요!";
+            setMessage("긴장 풀고 발표 내용을 떠올려보세요!");
             console.log("렌더링됨");
             pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
           }
           else if(pauseDuration < 5000){
-            compareMessage.current = '좋습니다! 자신감을 갖고 계속 진행하세요!';
-            setMessage('좋습니다! 자신감을 갖고 계속 진행하세요!');
+            compareMessage.current = '좋습니다! 계속 진행하세요!';
+            setMessage('좋습니다! 계속 진행하세요!');
           }
         }
       }, 1000);
