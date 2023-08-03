@@ -517,9 +517,6 @@ const Practice = () => {
     } else {
       runFaceApi();
     }
-    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/`;
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
-
   };
 
   const [resultMinutes, setResultMinutes] = useState();
@@ -541,8 +538,21 @@ const Practice = () => {
       setMessage(`발표 시작 버튼을 눌러주세요!`);
     }
     handleStartStopListening();
-    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/update`;
-    await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
+    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/`;
+    const transmissionData = {
+      "userId": userId,
+      "title": title,
+      "pdfURL": pdfFile,
+      "recommendedWord": recommendedWords,
+      "forbiddenWord": prohibitedWords,
+      "sttScript": transcript,
+      "pdfTime": pageTimeArray,
+      "settingTime": { "minute": inputMinutes, "second": inputSeconds },
+      "progressingTime": {
+        "minute": minutes, "second": seconds
+      },
+    };
+    await axios.post(apiUrl, transmissionData);
     setResultMinutes(minutes);
     setResultSeconds(seconds);
     setResultScript(transcript);
