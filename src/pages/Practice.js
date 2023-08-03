@@ -99,22 +99,26 @@ const Practice = () => {
             }
           });
 
-          // if (expression === 'happy') {
-          //   console.log('웃음', compareMessage.current);
-          //   countSmile.current = 0;
-          //   if (compareMessage.current === `표정이 너무 굳어있네요! SMILE*^-^*`) {
-          //     compareMessage.current = '좋습니다! 계속 진행하세요!';
-          //     setMessage('좋습니다! 계속 진행하세요!');
-          //   }
-          // }
-          // else {
-          //   console.log('웃지 않음', compareMessage.current);
-          //   countSmile.current++;
-          //   if (compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && compareMessage.current !== "긴장 풀고 발표 내용을 떠올려보세요!" && countSmile.current >= 3) {
-          //     compareMessage.current = `표정이 너무 굳어있네요! SMILE*^-^*`;
-          //     setMessage(`표정이 너무 굳어있네요! SMILE*^-^*`);
-          //   }
-          // }
+          if (expression === 'happy') {
+            console.log('웃음', compareMessage.current);
+            countSmile.current = countSmile.current > 0 ? 0 : countSmile.current - 1;
+            if (compareMessage.current === `표정이 너무 굳어있네요! SMILE*^-^*` || countSmile.current >= -3) {
+              compareMessage.current = '좋습니다! 계속 진행하세요!';
+              setMessage('좋습니다! 계속 진행하세요!');
+            }
+            else {
+              compareMessage.current = '발표가 진행 중입니다.';
+              setMessage('발표가 진행 중입니다.');
+            }
+          }
+          else {
+            console.log('웃지 않음', compareMessage.current);
+            countSmile.current = countSmile.current < 0 ? 0 : countSmile.current + 1;
+            if (compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && countSmile.current >= 5) {
+              compareMessage.current = `표정이 너무 굳어있네요! SMILE*^-^*`;
+              setMessage(`표정이 너무 굳어있네요! SMILE*^-^*`);
+            }
+          }
         }
       }, 1000);
     });
@@ -136,19 +140,10 @@ const Practice = () => {
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
   
-          if (
-            compareMessage.current !== "긴장 풀고 발표 내용을 떠올려보세요!" &&
-            compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` &&
-            pauseDuration > 5000
-          ) {
-            compareMessage.current = "긴장 풀고 발표 내용을 떠올려보세요!";
-            setMessage("긴장 풀고 발표 내용을 떠올려보세요!");
+          if (pauseDuration > 5000) {
             console.log("렌더링됨");
             pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
             pauseEndTime = null;
-          } else if (pauseDuration < 5000) {
-            compareMessage.current = "좋습니다! 계속 진행하세요!";
-            setMessage("좋습니다! 계속 진행하세요!");
           }
         }
       }, 1000);
