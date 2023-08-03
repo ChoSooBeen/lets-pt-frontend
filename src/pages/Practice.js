@@ -56,6 +56,11 @@ const Practice = () => {
   // const [pauseDuration, setPauseDuration] = useState(0);
   const [message, setMessage] = useState(`발표 시작 버튼을 눌러주세요!`); //메시지 띄우는 곳
 
+  const AudioContext = window.AudioContext || window.webkitAudioContext; // 데시벨 측정
+  const isAudioContextStartedRef = useRef(false);
+  const analyserRef = useRef(null);
+  const [averageVolume, setAverageVolume] = useState(0);
+
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
 
@@ -130,6 +135,7 @@ const Practice = () => {
     await faceapi.loadFaceExpressionModel(MODEL_URL);
   };
 
+  //무음 시간
   useEffect(() => {
     let intervalId;
   
@@ -154,7 +160,34 @@ const Practice = () => {
       pauseStartTimeRef.current = null; // 컴포넌트가 언마운트되면 무음 시작 시간 초기화
     };
   }, [listening]);
+
+  // 데시벨 측정
+  const startAudioContext = async () => {
+    try {
+      const audioContext = new AudioContext();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const source = audioContext.createMediaStreamSource(stream);
+
+      analyserRef.current = audioContext.createAnalyser();
+      analyserRef.current.fftSize = 2048; // 데시벨 정밀도 조절
+      const bufferLength = analyserRef.current.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      source.connect(analyserRef.current);
+
+      analyserRef.current.interval = setInterval(() => {
+        analyserRef.current.getByteFrequencyData(dataArray);
+        const averageVolume =
+          dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
+        setAverageVolume(averageVolume);
+        // console.log("평균 볼륨:", averageVolume);
+      }, 100); // 0.1초마다 데시벨을 측정하고 평균값을 setAverageVolume에 업데이트
+    } catch (error) {
+      console.error("오디오 초기화 오류:", error);
+    }
+  };
   
+  // 음성인식
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
       const isSpeechRecognitionSupported =
@@ -172,12 +205,28 @@ const Practice = () => {
       recognitionRef.current.onstart = () => {
         setListening(true);
         console.log("음성 인식 시작");
+        if (!isAudioContextStartedRef.current) {
+          isAudioContextStartedRef.current = true;
+          startAudioContext();
+        }
       };
 
       recognitionRef.current.onend = () => {
         setListening(false);
         console.log("음성 인식 종료");
         pauseStartTimeRef.current = null;
+        isAudioContextStartedRef.current = false;
+
+        // 데시벨 측정을 중지하거나 오디오 컨텍스트를 닫는 코드 추가
+        if (analyserRef.current) {
+          clearInterval(analyserRef.current.interval);
+        }
+        if (analyserRef.current && analyserRef.current.context.state !== "closed") {
+          analyserRef.current.context.close().then(() => {
+            analyserRef.current = null;
+            console.log("오디오 컨텍스트 종료");
+          });
+        }
       };
 
       recognitionRef.current.onresult = (event) => {
