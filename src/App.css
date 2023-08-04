@@ -802,7 +802,6 @@ border:2px solid #fff;
 
 .real-left {
   margin-left: 100px;
-  margin-right: 30px;
   text-align: center;
 }
 
@@ -828,7 +827,7 @@ border:2px solid #fff;
 
 .real-right {
   text-align: center;
-  margin-top: -100px;
+  margin-top: -180px;
 }
 
 .real-right div:first-child{
@@ -880,7 +879,7 @@ border:2px solid #fff;
 }
 
 .real-live-camera {
-  height: 200px;
+  height: 300px;
   margin-bottom: 20px;
 }
 
@@ -1297,7 +1296,7 @@ border:2px solid #fff;
 
 .comment-record{
   background-color: #fff;
-  width:200px;
+  width:250px;
   border:2px blue solid;
   border-radius:10px;
   line-height: 60px;
@@ -1310,6 +1309,12 @@ border:2px solid #fff;
   border:none;
   background: inherit;
   cursor:pointer;
+  margin-left: -30px;
+}
+
+.mute-button{
+  border:none;
+  cursor: pointer;
 }
 
 /* ----------------------------------- */
@@ -1334,7 +1339,7 @@ border:2px solid #fff;
   color: #007bff;
 }
 
-.record-container {
+.mypage-record-container {
   margin-top: 30px;
   display: flex;
   flex-direction: column;
@@ -1429,8 +1434,6 @@ border:2px solid #fff;
 }
 
 .left-column h1 {
-  margin-top: 30px;
-  margin-bottom: 20px;
   font-size: 28px;
   font-weight: bold;
   color: #333;
@@ -1438,7 +1441,7 @@ border:2px solid #fff;
 
 .result-video {
   position: absolute;
-  top: 50%;
+  top: 55%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 70%;
@@ -1721,8 +1724,6 @@ body {
 
 /* .record-detail 스타일 */
 .record-detail {
-  display: flex;
-  flex-direction: column;
   width: 600px; /* 적절한 너비로 조정하십시오 */
   border: 1px solid #ccc;
   padding: 20px;
@@ -1750,6 +1751,7 @@ body {
 .record-result-comment-detail {
   display: flex;
   flex-direction: column;
+  height: 500px;
 }
 
 /* .record-user-comment-card 스타일 */
@@ -1788,6 +1790,7 @@ body {
   border-radius: 5px;
   padding-left: 5px;
   padding-right: 5px;
+  cursor: pointer;
 }
 
 /* .record-comment-message-area 스타일 */

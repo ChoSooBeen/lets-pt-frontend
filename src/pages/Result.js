@@ -39,6 +39,13 @@ const Result = () => {
     return resultScript;
   }
 
+  const formatTime = (time) => {
+    const minutes = String(Math.floor(time / 60)).padStart(2, '0');
+    const seconds = String(Math.floor(time % 60)).padStart(2, '0');
+    return `${minutes}:${seconds}`;
+  };
+
+
   const handleVideoSeek = (time) => {
     videoRef.current.currentTime = time;
   };
@@ -64,7 +71,7 @@ const Result = () => {
                       <GoDotFill className='comment-dot' size={30} />
                       <div className='comment-name-area'>{user.name}</div>
                       <div className='comment-time-area' onClick={() => handleVideoSeek(user.time.minute * 60 + user.time.second)}>
-                        <div>0{user.time.minute} : {String(user.time.second).padStart(2, "0")}</div>
+                        <div>{formatTime(user.time.minute * 60 + user.time.second)}</div>
                       </div>
                     </div>
                     <div className='comment-message-area'>
@@ -77,19 +84,21 @@ const Result = () => {
 
             <div className='result-page-timer-container'>
               <h1 className='result-detail-page-title'>상세 경과 시간</h1>
-              <div className='total-time-area'><span>0{data.progressingTime.minute}:{data.progressingTime.second}</span> / <span>0{data.settingTime.minute}:{data.settingTime.second}</span></div>
+              <div className='total-time-area'>
+                <span>{formatTime(data.progressingTime.minute * 60 + data.progressingTime.second)}</span>
+                {' / '}
+                <span>{formatTime(data.settingTime.minute * 60 + data.settingTime.second)}</span>
+              </div>
               <div className='result-timer-detail'>
                 {data.pdfTime.map((time, index) => (
-                  <div className='detail-timer-card'>
+                  <div className='detail-timer-card' key={index}>
                     <GoDotFill className='dot' />
                     <div className='detail-page-area'>{index + 1} 페이지</div>
                     <div className='detail-time-area'>
-                      <span>0{time.minutes}</span>:
-                      <span>{time.seconds}</span>
+                      <span>{formatTime(time.minutes * 60 + time.seconds)}</span>
                     </div>
                   </div>
                 ))}
-
               </div>
             </div>
 

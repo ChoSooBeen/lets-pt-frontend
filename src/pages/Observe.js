@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import { useLocation } from "react-router-dom";
 import { IoIosSend } from "react-icons/io";
+import { BsFillMicFill, BsFillMicMuteFill } from "react-icons/bs";
 import { IoExit } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 import axios from "axios";
@@ -426,11 +427,11 @@ const Observe = () => {
           <div className="comment-record">
             {send}
           </div>
+          <button className="mute-button" onClick={handleToggleMute}>
+            {isMuted ? <BsFillMicMuteFill size={50} /> : <BsFillMicFill size={50} />}
+          </button>
           <button className="leave-observe-page-button" onClick={leavePage}>
             <IoExit size={60} />
-          </button>
-          <button className="mute-button" onClick={handleToggleMute}>
-            {isMuted ? "음소거" : "음소거 해제"}
           </button>
         </div>
       </main>
