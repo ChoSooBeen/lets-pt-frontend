@@ -1035,12 +1035,19 @@ const Practice = () => {
             )}
             {playing && (
               <div>
-                {showScript &&
-                  scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
-                    <div key={lineIndex} className="script-save">
-                      {line}
-                    </div>
-                  ))}
+                <div>
+                  {scriptArray[currentScriptIndex] ? (
+                    scriptArray[currentScriptIndex]
+                      .split("\n")
+                      .map((line, lineIndex) => (
+                        <div key={lineIndex} className="script-save">
+                          {line}
+                        </div>
+                      ))
+                  ) : (
+                    <div className="script-save">스크립트를 작성하지 않았습니다.</div>
+                  )}
+                </div>
               </div>
             )}
           </div>
