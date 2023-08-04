@@ -124,7 +124,7 @@ const Result = () => {
             <div className='result-page-script-container'>
               <h1 className='result-detail-page-title'>음성 데이터</h1>
               <div>
-                <h2 className='recommend-word'>권장단어</h2>
+                <h2 className='recommend-word'>강조단어</h2>
                 {data.recommendedWord.map((word, index) => (
                   <div key={index} className='recommend-word-card'>
                     <GoDotFill className='dot' />

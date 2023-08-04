@@ -134,14 +134,14 @@ const Practice = () => {
 
   useEffect(() => {
     let intervalId;
-  
+
     if (listening) {
       intervalId = setInterval(() => {
         if (pauseStartTimeRef.current) {
           let pauseEndTime = Date.now();
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
-  
+
           if (pauseDuration > 5000) {
             console.log("렌더링됨");
             pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
@@ -150,13 +150,13 @@ const Practice = () => {
         }
       }, 1000);
     }
-  
+
     return () => {
       clearInterval(intervalId);
       pauseStartTimeRef.current = null; // 컴포넌트가 언마운트되면 무음 시작 시간 초기화
     };
   }, [listening]);
-  
+
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
       const isSpeechRecognitionSupported =
@@ -870,6 +870,12 @@ const Practice = () => {
     navigator.clipboard.writeText(roomName2);
   }
 
+  //스크립트 숨기기 기능 추가
+  const [showScript, setShowScript] = useState(true);
+  const handleToggleScript = () => {
+    setShowScript((prevShowScript) => !prevShowScript); // 스크립트 보이기/숨기기 상태를 반전시킴
+  };
+
 
   return (
     <div className="practice-container">
@@ -938,7 +944,7 @@ const Practice = () => {
         <div className='keyword-container'>
           <h1 className='keyword-title'>키워드 등록</h1>
           <div className='yes-word-container'>
-            권장단어
+            강조단어
             <input
               className="yes-word-input"
               type="text"
@@ -1012,6 +1018,12 @@ const Practice = () => {
                   <GrLinkNext size={24} />
                 </button>
               )}
+              {playing ? (
+                <button onClick={handleToggleScript} className="script-show-button">
+                  {showScript ? "스크립트 숨기기" : "스크립트 보기"}
+                </button>
+              ) : null}
+
             </div>
             {!playing && (
               <textarea
@@ -1023,11 +1035,12 @@ const Practice = () => {
             )}
             {playing && (
               <div>
-                <div>
-                  {scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
-                    <div key={lineIndex} className="script-save">{line}</div>
+                {showScript &&
+                  scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
+                    <div key={lineIndex} className="script-save">
+                      {line}
+                    </div>
                   ))}
-                </div>
               </div>
             )}
           </div>
@@ -1102,11 +1115,6 @@ const Practice = () => {
                 className="real-live-camera"
                 muted
               ></video>
-              {/* <ul className="page-time-array">
-                {pageTimeArray.map((time, index) => (
-                  <li>페이지 {index + 1} : <span className="">{time.minutes} : {time.seconds} </span></li>
-                ))}
-              </ul> */}
               {playing ? (
                 <p className="real-title-save">{title}</p>
               ) : (
@@ -1118,7 +1126,6 @@ const Practice = () => {
                   onChange={(e) => titleChange(e)}
                 />
               )}
-              {/* <div className="message">{message}</div> */}
               <br />
               {playing ? (
                 <button onClick={quitPractice} className="practice-stop-button">
@@ -1141,7 +1148,7 @@ const Practice = () => {
             <div className="modal-keyword-container modal-result-summary">
               <h1>등록된 키워드</h1>
               <div className="modal-recommend-word-container">
-                <h2 className="modal-recommend-word-title">권장 단어</h2>
+                <h2 className="modal-recommend-word-title">강조 단어</h2>
                 <div className="modal-recommend-word">
                   {recommendedWords.map((word, index) => (
                     <div>
@@ -1170,7 +1177,7 @@ const Practice = () => {
             </div>
           </div>
           <div className="modal-middle">
-            <img src={logo} className="modal-logo" alt="logo" width={200} />
+            <img src={logo} className="modal-logo" alt="logo" width={250} />
             <h2 className="modal-title">{title}</h2>
             <video
               className="modal-video"

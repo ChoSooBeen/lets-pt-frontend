@@ -18,6 +18,7 @@ const Observe = () => {
   const peerFaceRef = useRef({}); //상대방 비디오 요소
   const myStream = useRef(null);
   const myPeerConnection = useRef({}); //피어 연결 객체
+  const [showModal, setShowModal] = useState(false);
 
   const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
@@ -215,7 +216,7 @@ const Observe = () => {
       console.log("stop-timer");
       //타이머 정지
       stopTimer();
-      //이때 발표 종료 알리면 될듯합니다!
+      setShowModal(true);
     });
   }, [visitorCode]);
 
@@ -413,6 +414,14 @@ const Observe = () => {
           </button>
         </div>
       </main>
+      {showModal && (
+        <div className="observe-modal">
+          <div className="observe-modal-content">
+            <p>발표가 종료되었습니다!</p>
+            <button onClick={() => setShowModal(false)}>확인</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
