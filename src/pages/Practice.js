@@ -28,7 +28,9 @@ const Practice = () => {
   const [playing, setPlaying] = useState(false);
   const [modal, setModal] = useState(false);
   const [pdfFile, setPdfFile] = useState(null);
+  const pdfFileRef = useRef(null);
   const [title, setTitle] = useState("");
+  const titleRef = useRef(null);
   const videoOutputRef = useRef(null);
   const screenRecordedVideoRef = useRef(null);
   const camRecordedVideoRef = useRef(null);
@@ -368,7 +370,9 @@ const Practice = () => {
     axios.post(`${process.env.REACT_APP_SITE_URL}/s3/pdf`, formData)
       .then(response => {
         setPdfFile(response.data);
+        pdfFileRef.current = response.data;
       });
+    console.log(pdfFile);
   }, []);
 
   const handleDragOver = useCallback((event) => {
@@ -500,6 +504,8 @@ const Practice = () => {
   const titleChange = (event) => {
     const newInputValue = event.target.value;
     setTitle(newInputValue);
+    titleRef.current = newInputValue;
+    console.log(title);
   };
 
   const startPractice = async () => {
@@ -517,9 +523,6 @@ const Practice = () => {
     } else {
       runFaceApi();
     }
-    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/`;
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
-
   };
 
   const [resultMinutes, setResultMinutes] = useState();
@@ -541,8 +544,21 @@ const Practice = () => {
       setMessage(`발표 시작 버튼을 눌러주세요!`);
     }
     handleStartStopListening();
-    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/update`;
-    await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
+    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/`;
+    const transmissionData = {
+      "userId": userId,
+      "title": title,
+      "pdfURL": pdfFile,
+      "recommendedWord": recommendedWords,
+      "forbiddenWord": prohibitedWords,
+      "sttScript": transcript,
+      "pdfTime": pageTimeArray,
+      "settingTime": { "minute": inputMinutes, "second": inputSeconds },
+      "progressingTime": {
+        "minute": minutes, "second": seconds
+      },
+    };
+    await axios.post(apiUrl, transmissionData);
     setResultMinutes(minutes);
     setResultSeconds(seconds);
     setResultScript(transcript);
@@ -788,9 +804,9 @@ const Practice = () => {
 
     //참관자 입장
     socket.current.on("user-join", async (data) => {
-      await socket.current.emit("title-url", { 'title': title, 'pdfURL': pdfFile, 'userName': userId });
+      await socket.current.emit("title-url", { 'title': titleRef.current, 'pdfURL': pdfFileRef.current, 'userName': userId });
       setJoinUser(data.filter((id) => id !== socket.current.id));
-      console.log("title-url", title, pdfFile);
+      console.log("title-url", titleRef.current, pdfFileRef.current);
     });
 
     const makeConnection = (id) => {
