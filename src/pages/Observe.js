@@ -130,6 +130,8 @@ const Observe = () => {
 
     socket.current.on("join-fail", (data) => {
       console.log("Fail join-Room : ", data);
+      alert("존재하지 않는 참관코드입니다.");
+      window.close();
     });
 
     //참관자 입장
@@ -213,6 +215,7 @@ const Observe = () => {
       console.log("stop-timer");
       //타이머 정지
       stopTimer();
+      //이때 발표 종료 알리면 될듯합니다!
     });
   }, [visitorCode]);
 
