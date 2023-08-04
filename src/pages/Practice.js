@@ -56,7 +56,7 @@ const Practice = () => {
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   // const [pauseDuration, setPauseDuration] = useState(0);
-  const [message, setMessage] = useState(`발표 시작 버튼을 눌러주세요!`); //메시지 띄우는 곳
+  const [message, setMessage] = useState(`PDF 파일을 업로드 해주세요!`); //메시지 띄우는 곳
 
   const AudioContext = window.AudioContext || window.webkitAudioContext; // 데시벨 측정
   const isAudioContextStartedRef = useRef(false);
@@ -524,6 +524,11 @@ const Practice = () => {
   };
 
   useEffect(() => {
+    if (pdfFile) { setMessage('발표 제목 입력 후 시작을 눌러주세요!'); }
+  }, [pdfFile])
+
+
+  useEffect(() => {
 
     window.addEventListener("keydown", handleArrowKey);
 
@@ -540,7 +545,7 @@ const Practice = () => {
           file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
         >
-          <Page pageNumber={pageNumber} width={isPractice ? "560" : "728"} />
+          <Page pageNumber={pageNumber} width={800} />
         </Document>
       </div>
     ) : (
@@ -940,17 +945,16 @@ const Practice = () => {
   }
 
   //스크립트 숨기기 기능 추가
-  const [showScript, setShowScript] = useState(true);
+  const [showScript, setShowScript] = useState(false);
   const handleToggleScript = () => {
     setShowScript((prevShowScript) => !prevShowScript); // 스크립트 보이기/숨기기 상태를 반전시킴
   };
 
-
   return (
     <div className="practice-container">
       <div className="practice-top">
-        <BsStopwatchFill className="timer-icon" size={30} />
         <div className="timer-container">
+          <BsStopwatchFill className="timer-icon" size={30} />
           <div className="timer-area">
             <span>{minutes < 10 ? `0${minutes}` : minutes}</span> :&nbsp;
             <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
@@ -974,11 +978,11 @@ const Practice = () => {
                 handleSecondsChange(e);
               }}
             />
+            <button className="stop-button" onClick={stopPractice}>
+              <BsStopCircleFill size={30} />
+            </button>
           </div>
         </div>
-        <button className="stop-button" onClick={stopPractice}>
-          <BsStopCircleFill size={30} />
-        </button>
         <div className="change-mode-button-container">
           <button className={`mode-button ${isPractice ? 'active-practice' : ''}`} onClick={() => setIsPractice(true)}>
             연습모드
@@ -1061,11 +1065,6 @@ const Practice = () => {
       {isPractice ? (
         <div className="practice-camera-pdf-container">
           <div className="practice-left">
-            <div className="observer-container">
-              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
-              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
-              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
-            </div>
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -1097,12 +1096,12 @@ const Practice = () => {
             {!playing && (
               <textarea
                 className="script-input"
-                placeholder="스크립트 작성"
+                placeholder="스크립트를 작성해주세요!"
                 value={scriptText}
                 onChange={handleChange}
               />
             )}
-            {playing && (
+            {playing && showScript ? (
               <div>
                 <div>
                   {scriptArray[currentScriptIndex] ? (
@@ -1118,7 +1117,7 @@ const Practice = () => {
                   )}
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
           <div className="practice-right">
             <div className="message">{message}</div>
@@ -1148,24 +1147,29 @@ const Practice = () => {
                 발표 시작
               </button>
             )}
+            <div>
+              파형
+            </div>
           </div>
         </div>
 
       ) : (
         <div>
           <div className="observe-camera-container">
+            {joinUser.length === 0 && (
+              <div>참관자 입장 시 참관자의 카메라가 표시됩니다</div>
+            )}
             {joinUser.map((user, index) => (
-              <video key={index}
+              <video
+                key={index}
                 ref={(el) => {
-                  peerFaceRef.current[user] = el
+                  peerFaceRef.current[user] = el;
                 }}
                 muted
                 autoPlay
                 width={200}
-              >
-              </video>
+              />
             ))}
-
           </div>
           <div className="real-camera-pdf-container">
             <div className="real-left">
@@ -1181,6 +1185,9 @@ const Practice = () => {
               </p>
             </div>
             <div className="real-right">
+              <div>
+                파형
+              </div>
               <h2 className="observe-code-title">참관코드</h2>
               <div className="observe-code">
                 <h2>{roomName2}</h2>
