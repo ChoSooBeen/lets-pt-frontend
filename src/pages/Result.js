@@ -93,34 +93,6 @@ const Result = () => {
               </div>
             </div>
 
-            <div className='result-page-eye-container'>
-              <h1 className='result-detail-page-title'>시선 처리</h1>
-              <div className='result-eye-detail'>
-                <div>
-                  <GoDotFill className='dot' />
-                  <div>
-                    청중 응시
-                  </div>
-                  <div className='detail-time-area'>
-                    <span>00</span>:
-                    <span>00</span>
-                  </div>
-                </div>
-              </div>
-              <div className='result-eye-detail'>
-                <div>
-                  <GoDotFill className='dot' />
-                  <div>
-                    자료 응시
-                  </div>
-                  <div className='detail-time-area'>
-                    <span>00</span>:
-                    <span>00</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className='result-page-script-container'>
               <h1 className='result-detail-page-title'>음성 데이터</h1>
               <div>
