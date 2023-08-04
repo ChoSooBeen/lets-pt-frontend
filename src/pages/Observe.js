@@ -19,6 +19,7 @@ const Observe = () => {
   const myStream = useRef(null);
   const myPeerConnection = useRef({}); //피어 연결 객체
   const [showModal, setShowModal] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
@@ -246,7 +247,7 @@ const Observe = () => {
 
     myPeerConnection.current[id].oniceconnectionstatechange = () => {
       console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
-      if(myPeerConnection.current[id].iceConnectionState === "disconnected"){
+      if (myPeerConnection.current[id].iceConnectionState === "disconnected") {
         myPeerConnection.current[id].close();
         delete myPeerConnection.current[id];
       }
@@ -352,6 +353,15 @@ const Observe = () => {
     }
   }, [send]);
 
+  const handleToggleMute = () => {
+    // 비디오의 음소거 상태를 토글 (반대값으로 변경)
+    myStream.current.getAudioTracks().forEach((track) => {
+      track.enabled = !isMuted;
+    });
+    setIsMuted((prevIsMuted) => !prevIsMuted);
+  };
+
+
   return (
     <div className="observe-page-container">
       <header>
@@ -384,7 +394,6 @@ const Observe = () => {
                     peerFaceRef.current[user] = el
                   }}
                   className="observe-camera"
-                  muted
                   autoPlay
                 >
                 </video>
@@ -394,7 +403,6 @@ const Observe = () => {
                 className="observe-camera"
                 autoPlay
                 playsInline
-                muted
               />
             </div>
           </div>
@@ -419,6 +427,9 @@ const Observe = () => {
           </div>
           <button className="leave-observe-page-button" onClick={leavePage}>
             <IoExit size={60} />
+          </button>
+          <button className="mute-button" onClick={handleToggleMute}>
+            {isMuted ? "음소거 해제" : "음소거"}
           </button>
         </div>
       </main>
