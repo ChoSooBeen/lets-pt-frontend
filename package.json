@@ -17,6 +17,7 @@
     "main": "^1000.0.1",
     "origin": "^0.8.6",
     "pdfjs-dist": "^3.8.162",
+    "pptxgenjs": "^3.12.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",
     "react-dom": "^18.2.0",

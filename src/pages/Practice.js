@@ -28,7 +28,9 @@ const Practice = () => {
   const [playing, setPlaying] = useState(false);
   const [modal, setModal] = useState(false);
   const [pdfFile, setPdfFile] = useState(null);
+  const pdfFileRef = useRef(null);
   const [title, setTitle] = useState("");
+  const titleRef = useRef(null);
   const videoOutputRef = useRef(null);
   const screenRecordedVideoRef = useRef(null);
   const camRecordedVideoRef = useRef(null);
@@ -138,14 +140,14 @@ const Practice = () => {
   //무음 시간
   useEffect(() => {
     let intervalId;
-  
+
     if (listening) {
       intervalId = setInterval(() => {
         if (pauseStartTimeRef.current) {
           let pauseEndTime = Date.now();
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
-  
+
           if (pauseDuration > 5000) {
             console.log("렌더링됨");
             pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
@@ -154,7 +156,7 @@ const Practice = () => {
         }
       }, 1000);
     }
-  
+
     return () => {
       clearInterval(intervalId);
       pauseStartTimeRef.current = null; // 컴포넌트가 언마운트되면 무음 시작 시간 초기화
@@ -417,7 +419,9 @@ const Practice = () => {
     axios.post(`${process.env.REACT_APP_SITE_URL}/s3/pdf`, formData)
       .then(response => {
         setPdfFile(response.data);
+        pdfFileRef.current = response.data;
       });
+    console.log(pdfFile);
   }, []);
 
   const handleDragOver = useCallback((event) => {
@@ -549,9 +553,15 @@ const Practice = () => {
   const titleChange = (event) => {
     const newInputValue = event.target.value;
     setTitle(newInputValue);
+    titleRef.current = newInputValue;
+    console.log(title);
   };
 
   const startPractice = async () => {
+    if (title === "") {
+      window.alert('발표 제목을 입력해주세요!');
+      return;
+    }
     setMinutes(0);
     setSeconds(0);
     setcurrentScriptIndex(0);
@@ -566,9 +576,6 @@ const Practice = () => {
     } else {
       runFaceApi();
     }
-    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/`;
-    await axios.post(apiUrl, { "userId": userId, "title": title, "pdfURL": pdfFile, "recommendedWord": recommendedWords, "forbiddenWord": prohibitedWords });
-
   };
 
   const [resultMinutes, setResultMinutes] = useState();
@@ -590,8 +597,21 @@ const Practice = () => {
       setMessage(`발표 시작 버튼을 눌러주세요!`);
     }
     handleStartStopListening();
-    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/update`;
-    await axios.post(apiUrl, { "title": title, "sttScript": transcript, "pdfTime": pageTimeArray, "settingTime": { "minute": inputMinutes, "second": inputSeconds }, "progressingTime": { "minute": minutes, "second": seconds } });
+    const apiUrl = `${process.env.REACT_APP_SITE_URL}/presentation/`;
+    const transmissionData = {
+      "userId": userId,
+      "title": title,
+      "pdfURL": pdfFile,
+      "recommendedWord": recommendedWords,
+      "forbiddenWord": prohibitedWords,
+      "sttScript": transcript,
+      "pdfTime": pageTimeArray,
+      "settingTime": { "minute": inputMinutes, "second": inputSeconds },
+      "progressingTime": {
+        "minute": minutes, "second": seconds
+      },
+    };
+    await axios.post(apiUrl, transmissionData);
     setResultMinutes(minutes);
     setResultSeconds(seconds);
     setResultScript(transcript);
@@ -721,10 +741,22 @@ const Practice = () => {
       const camBlob = new Blob(camRecordedChunksRef.current, {
         type: "video/webm",
       });
-      const camRecordedMediaURL = URL.createObjectURL(camBlob);
-      camRecordedVideoRef.current.src = camRecordedMediaURL;
+
+      // Blob 데이터를 Data URL로 인코딩
+      const camRecordedMediaDataUrl = await getBlobDataUrl(camBlob);
+      camRecordedVideoRef.current.src = camRecordedMediaDataUrl;
     }
   };
+
+  // Blob 데이터를 Data URL로 인코딩하는 함수
+  function getBlobDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
 
   const goToDetailPage = () => {
     const width = 1000;
@@ -837,9 +869,9 @@ const Practice = () => {
 
     //참관자 입장
     socket.current.on("user-join", async (data) => {
-      await socket.current.emit("title-url", { 'title': title, 'pdfURL': pdfFile, 'userName': userId });
+      await socket.current.emit("title-url", { 'title': titleRef.current, 'pdfURL': pdfFileRef.current, 'userName': userId });
       setJoinUser(data.filter((id) => id !== socket.current.id));
-      console.log("title-url", title, pdfFile);
+      console.log("title-url", titleRef.current, pdfFileRef.current);
     });
 
     const makeConnection = (id) => {
@@ -902,6 +934,12 @@ const Practice = () => {
   const copyRoomName = () => {
     navigator.clipboard.writeText(roomName2);
   }
+
+  //스크립트 숨기기 기능 추가
+  const [showScript, setShowScript] = useState(true);
+  const handleToggleScript = () => {
+    setShowScript((prevShowScript) => !prevShowScript); // 스크립트 보이기/숨기기 상태를 반전시킴
+  };
 
 
   return (
@@ -971,7 +1009,7 @@ const Practice = () => {
         <div className='keyword-container'>
           <h1 className='keyword-title'>키워드 등록</h1>
           <div className='yes-word-container'>
-            권장단어
+            강조단어
             <input
               className="yes-word-input"
               type="text"
@@ -1045,6 +1083,12 @@ const Practice = () => {
                   <GrLinkNext size={24} />
                 </button>
               )}
+              {playing ? (
+                <button onClick={handleToggleScript} className="script-show-button">
+                  {showScript ? "스크립트 숨기기" : "스크립트 보기"}
+                </button>
+              ) : null}
+
             </div>
             {!playing && (
               <textarea
@@ -1057,9 +1101,17 @@ const Practice = () => {
             {playing && (
               <div>
                 <div>
-                  {scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
-                    <div key={lineIndex} className="script-save">{line}</div>
-                  ))}
+                  {scriptArray[currentScriptIndex] ? (
+                    scriptArray[currentScriptIndex]
+                      .split("\n")
+                      .map((line, lineIndex) => (
+                        <div key={lineIndex} className="script-save">
+                          {line}
+                        </div>
+                      ))
+                  ) : (
+                    <div className="script-save">스크립트를 작성하지 않았습니다.</div>
+                  )}
                 </div>
               </div>
             )}
@@ -1135,11 +1187,6 @@ const Practice = () => {
                 className="real-live-camera"
                 muted
               ></video>
-              {/* <ul className="page-time-array">
-                {pageTimeArray.map((time, index) => (
-                  <li>페이지 {index + 1} : <span className="">{time.minutes} : {time.seconds} </span></li>
-                ))}
-              </ul> */}
               {playing ? (
                 <p className="real-title-save">{title}</p>
               ) : (
@@ -1151,7 +1198,6 @@ const Practice = () => {
                   onChange={(e) => titleChange(e)}
                 />
               )}
-              {/* <div className="message">{message}</div> */}
               <br />
               {playing ? (
                 <button onClick={quitPractice} className="practice-stop-button">
@@ -1174,7 +1220,7 @@ const Practice = () => {
             <div className="modal-keyword-container modal-result-summary">
               <h1>등록된 키워드</h1>
               <div className="modal-recommend-word-container">
-                <h2 className="modal-recommend-word-title">권장 단어</h2>
+                <h2 className="modal-recommend-word-title">강조 단어</h2>
                 <div className="modal-recommend-word">
                   {recommendedWords.map((word, index) => (
                     <div>
@@ -1203,7 +1249,7 @@ const Practice = () => {
             </div>
           </div>
           <div className="modal-middle">
-            <img src={logo} className="modal-logo" alt="logo" width={200} />
+            <img src={logo} className="modal-logo" alt="logo" width={250} />
             <h2 className="modal-title">{title}</h2>
             <video
               className="modal-video"
