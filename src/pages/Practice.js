@@ -509,6 +509,10 @@ const Practice = () => {
   };
 
   const startPractice = async () => {
+    if (title === "") {
+      window.alert('발표 제목을 입력해주세요!');
+      return;
+    }
     setMinutes(0);
     setSeconds(0);
     setcurrentScriptIndex(0);
@@ -688,10 +692,22 @@ const Practice = () => {
       const camBlob = new Blob(camRecordedChunksRef.current, {
         type: "video/webm",
       });
-      const camRecordedMediaURL = URL.createObjectURL(camBlob);
-      camRecordedVideoRef.current.src = camRecordedMediaURL;
+
+      // Blob 데이터를 Data URL로 인코딩
+      const camRecordedMediaDataUrl = await getBlobDataUrl(camBlob);
+      camRecordedVideoRef.current.src = camRecordedMediaDataUrl;
     }
   };
+
+  // Blob 데이터를 Data URL로 인코딩하는 함수
+  function getBlobDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
 
   const goToDetailPage = () => {
     const width = 1000;

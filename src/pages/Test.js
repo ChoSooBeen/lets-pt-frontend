@@ -1,87 +1,48 @@
-import React, { useEffect, useRef } from 'react';
-import * as faceapi from 'face-api.js';
-import { useState } from 'react';
+// import React, { useState } from "react";
+// import { useDropzone } from "react-dropzone";
+// import PptxGenJS from "pptxgenjs";
+// import extractNotes from "./extractNotes"; // Your custom function to extract notes
 
-const Test = () => {
-  const videoHeight = 420;
-  const videoWidth = 640;
-  const videoRef = useRef();
-  const canvasRef = useRef();
+// const Test = () => {
+//   const [pptxData, setPPTXData] = useState(null);
+//   const [notes, setNotes] = useState([]);
 
-  useEffect(() => {
-    startVideo();
-  }, []);
+//   const onDrop = (acceptedFiles) => {
+//     const reader = new FileReader();
+//     reader.onload = () => {
+//       setPPTXData(reader.result);
 
-  const runFaceApi = async () => {
-    await loadModels();
-    startVideo();
+//       // Extract notes from PPTX file
+//       const pptx = new PptxGenJS();
+//       pptx.load(reader.result);
+//       const notes = extractNotes(pptx); // Custom function to extract notes
+//       setNotes(notes);
+//     };
+//     reader.readAsArrayBuffer(acceptedFiles[0]);
+//   };
 
-    videoRef.current.addEventListener('play', () => {
-      const canvas = faceapi.createCanvasFromMedia(videoRef.current);
-      document.body.append(canvas);
-      const displaySize = { width: videoWidth, height: videoHeight };
-      faceapi.matchDimensions(canvas, displaySize);
+//   const { getRootProps, getInputProps } = useDropzone({
+//     onDrop,
+//     accept: ".pptx",
+//   });
 
-      setInterval(async () => {
-        const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
-        const resizedDetections = faceapi.resizeResults(detections, displaySize);
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+//   return (
+//     <div>
+//       <div {...getRootProps()} style={{ border: "2px dashed black", padding: "20px", textAlign: "center" }}>
+//         <input {...getInputProps()} />
+//         <p>드래그 & 드랍하거나 클릭하여 PPT 파일을 업로드하세요.</p>
+//       </div>
+//       {pptxData && <PPTXRenderer data={pptxData} />}
+//       <div>
+//         {notes.map((note, index) => (
+//           <div key={index}>
+//             <h3>Slide {index + 1} Notes:</h3>
+//             <p>{note}</p>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
 
-        // faceapi.draw.drawDetections(canvas, resizedDetections);
-        // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-
-        if (resizedDetections && resizedDetections.length > 0) {
-          let expressions = resizedDetections[0].expressions;
-          let max = 0.00;
-          let expression = 'neutral';
-
-          Object.keys(expressions).forEach(key => {
-            if (expressions[key] > max) {
-              max = expressions[key];
-              expression = key;
-            }
-          });
-
-          if (expression === 'happy') {
-            setMessage('좋습니다');
-          } else {
-            setMessage('좀 웃어보세요');
-          }
-        }
-      }, 100)
-
-    });
-  };
-
-  const loadModels = async () => {
-    const MODEL_URL = '/models';
-    await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
-    await faceapi.loadFaceExpressionModel(MODEL_URL);
-  };
-
-  const startVideo = () => {
-    navigator.getUserMedia(
-      { video: {} },
-      stream => (videoRef.current.srcObject = stream),
-      err => console.error(err)
-    );
-  };
-
-  const [message, setMessage] = useState('');
-
-  return (
-    <div className="App">
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        height={videoHeight}
-        width={videoWidth}
-      />
-      <div className="message">{message}</div>
-      <button onClick={runFaceApi}>시작</button>
-    </div>
-  );
-};
-
-export default Test;
+// export default Test;
