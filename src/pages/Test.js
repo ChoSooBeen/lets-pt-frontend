@@ -1,87 +1,49 @@
-import React, { useEffect, useRef } from 'react';
-import * as faceapi from 'face-api.js';
-import { useState } from 'react';
+import React, { useRef, useEffect } from 'react';
+import WaveSurfer from 'wavesurfer.js';
 
 const Test = () => {
-  const videoHeight = 420;
-  const videoWidth = 640;
-  const videoRef = useRef();
-  const canvasRef = useRef();
+  const wavesurfer = useRef(null);
+  const waveformRef = useRef(null);
+  let mediaRecorder = null;
 
   useEffect(() => {
-    startVideo();
+    wavesurfer.current = WaveSurfer.create({
+      container: waveformRef.current,
+      waveColor: 'violet',
+      progressColor: 'purple'
+    });
+    startRecording();
   }, []);
 
-  const runFaceApi = async () => {
-    await loadModels();
-    startVideo();
+  const startRecording = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(handleSuccess);
+  }
 
-    videoRef.current.addEventListener('play', () => {
-      const canvas = faceapi.createCanvasFromMedia(videoRef.current);
-      document.body.append(canvas);
-      const displaySize = { width: videoWidth, height: videoHeight };
-      faceapi.matchDimensions(canvas, displaySize);
+  const handleSuccess = (stream) => {
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
 
-      setInterval(async () => {
-        const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
-        const resizedDetections = faceapi.resizeResults(detections, displaySize);
-        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-
-        // faceapi.draw.drawDetections(canvas, resizedDetections);
-        // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-
-        if (resizedDetections && resizedDetections.length > 0) {
-          let expressions = resizedDetections[0].expressions;
-          let max = 0.00;
-          let expression = 'neutral';
-
-          Object.keys(expressions).forEach(key => {
-            if (expressions[key] > max) {
-              max = expressions[key];
-              expression = key;
-            }
-          });
-
-          if (expression === 'happy') {
-            setMessage('좋습니다');
-          } else {
-            setMessage('좀 웃어보세요');
-          }
-        }
-      }, 100)
-
+    const audioChunks = [];
+    mediaRecorder.addEventListener("dataavailable", event => {
+      audioChunks.push(event.data);
     });
-  };
 
-  const loadModels = async () => {
-    const MODEL_URL = '/models';
-    await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
-    await faceapi.loadFaceExpressionModel(MODEL_URL);
-  };
+    mediaRecorder.addEventListener("stop", () => {
+      const audioBlob = new Blob(audioChunks);
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
 
-  const startVideo = () => {
-    navigator.getUserMedia(
-      { video: {} },
-      stream => (videoRef.current.srcObject = stream),
-      err => console.error(err)
-    );
-  };
+      audio.onloadedmetadata = () => {
+        wavesurfer.current.loadBlob(audioBlob);
+      }
+    });
 
-  const [message, setMessage] = useState('');
+    setTimeout(() => {
+      mediaRecorder.stop();
+    }, 3000);  // Stop recording after 3 seconds
+  }
 
-  return (
-    <div className="App">
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        height={videoHeight}
-        width={videoWidth}
-      />
-      <div className="message">{message}</div>
-      <button onClick={runFaceApi}>시작</button>
-    </div>
-  );
-};
+  return <div ref={waveformRef} />;
+}
 
 export default Test;

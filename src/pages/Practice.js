@@ -5,6 +5,7 @@ import React, {
   useState,
 } from "react";
 import logo from "../img/logo.png";
+import logo2 from "../img/logo2.png";
 import observeIcon from "../img/observeicon.png";
 import axios from "axios";
 import * as faceapi from 'face-api.js';
@@ -56,7 +57,12 @@ const Practice = () => {
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   // const [pauseDuration, setPauseDuration] = useState(0);
-  const [message, setMessage] = useState(`발표 시작 버튼을 눌러주세요!`); //메시지 띄우는 곳
+  const [message, setMessage] = useState(`PDF 파일을 업로드 해주세요!`); //메시지 띄우는 곳
+
+  const AudioContext = window.AudioContext || window.webkitAudioContext; // 데시벨 측정
+  const isAudioContextStartedRef = useRef(false);
+  const analyserRef = useRef(null);
+  const [averageVolume, setAverageVolume] = useState(0);
 
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
@@ -132,6 +138,7 @@ const Practice = () => {
     await faceapi.loadFaceExpressionModel(MODEL_URL);
   };
 
+  //무음 시간
   useEffect(() => {
     let intervalId;
 
@@ -157,6 +164,33 @@ const Practice = () => {
     };
   }, [listening]);
 
+  // 데시벨 측정
+  const startAudioContext = async () => {
+    try {
+      const audioContext = new AudioContext();
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const source = audioContext.createMediaStreamSource(stream);
+
+      analyserRef.current = audioContext.createAnalyser();
+      analyserRef.current.fftSize = 2048; // 데시벨 정밀도 조절
+      const bufferLength = analyserRef.current.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      source.connect(analyserRef.current);
+
+      analyserRef.current.interval = setInterval(() => {
+        analyserRef.current.getByteFrequencyData(dataArray);
+        const averageVolume =
+          dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
+        setAverageVolume(averageVolume);
+        // console.log("평균 볼륨:", averageVolume);
+      }, 100); // 0.1초마다 데시벨을 측정하고 평균값을 setAverageVolume에 업데이트
+    } catch (error) {
+      console.error("오디오 초기화 오류:", error);
+    }
+  };
+
+  // 음성인식
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
       const isSpeechRecognitionSupported =
@@ -174,12 +208,28 @@ const Practice = () => {
       recognitionRef.current.onstart = () => {
         setListening(true);
         console.log("음성 인식 시작");
+        if (!isAudioContextStartedRef.current) {
+          isAudioContextStartedRef.current = true;
+          startAudioContext();
+        }
       };
 
       recognitionRef.current.onend = () => {
         setListening(false);
         console.log("음성 인식 종료");
         pauseStartTimeRef.current = null;
+        isAudioContextStartedRef.current = false;
+
+        // 데시벨 측정을 중지하거나 오디오 컨텍스트를 닫는 코드 추가
+        if (analyserRef.current) {
+          clearInterval(analyserRef.current.interval);
+        }
+        if (analyserRef.current && analyserRef.current.context.state !== "closed") {
+          analyserRef.current.context.close().then(() => {
+            analyserRef.current = null;
+            console.log("오디오 컨텍스트 종료");
+          });
+        }
       };
 
       recognitionRef.current.onresult = (event) => {
@@ -475,6 +525,11 @@ const Practice = () => {
   };
 
   useEffect(() => {
+    if (pdfFile) { setMessage('발표 제목 입력 후 시작을 눌러주세요!'); }
+  }, [pdfFile])
+
+
+  useEffect(() => {
 
     window.addEventListener("keydown", handleArrowKey);
 
@@ -491,7 +546,7 @@ const Practice = () => {
           file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
         >
-          <Page pageNumber={pageNumber} width={isPractice ? "560" : "728"} />
+          <Page pageNumber={pageNumber} width={800} />
         </Document>
       </div>
     ) : (
@@ -509,6 +564,10 @@ const Practice = () => {
   };
 
   const startPractice = async () => {
+    if (title === "") {
+      window.alert('발표 제목을 입력해주세요!');
+      return;
+    }
     setMinutes(0);
     setSeconds(0);
     setcurrentScriptIndex(0);
@@ -688,10 +747,22 @@ const Practice = () => {
       const camBlob = new Blob(camRecordedChunksRef.current, {
         type: "video/webm",
       });
-      const camRecordedMediaURL = URL.createObjectURL(camBlob);
-      camRecordedVideoRef.current.src = camRecordedMediaURL;
+
+      // Blob 데이터를 Data URL로 인코딩
+      const camRecordedMediaDataUrl = await getBlobDataUrl(camBlob);
+      camRecordedVideoRef.current.src = camRecordedMediaDataUrl;
     }
   };
+
+  // Blob 데이터를 Data URL로 인코딩하는 함수
+  function getBlobDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
 
   const goToDetailPage = () => {
     const width = 1000;
@@ -827,6 +898,10 @@ const Practice = () => {
 
       myPeerConnection.current[id].oniceconnectionstatechange = () => {
         console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
+        if (myPeerConnection.current[id].iceConnectionState === 'disconnected') {
+          myPeerConnection.current[id].close();
+          delete myPeerConnection.current[id];
+        }
       };
 
       myPeerConnection.current[id].ontrack = (event) => {
@@ -871,17 +946,16 @@ const Practice = () => {
   }
 
   //스크립트 숨기기 기능 추가
-  const [showScript, setShowScript] = useState(true);
+  const [showScript, setShowScript] = useState(false);
   const handleToggleScript = () => {
     setShowScript((prevShowScript) => !prevShowScript); // 스크립트 보이기/숨기기 상태를 반전시킴
   };
 
-
   return (
     <div className="practice-container">
       <div className="practice-top">
-        <BsStopwatchFill className="timer-icon" size={30} />
         <div className="timer-container">
+          <BsStopwatchFill className="timer-icon" size={30} />
           <div className="timer-area">
             <span>{minutes < 10 ? `0${minutes}` : minutes}</span> :&nbsp;
             <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
@@ -905,11 +979,11 @@ const Practice = () => {
                 handleSecondsChange(e);
               }}
             />
+            <button className="stop-button" onClick={stopPractice}>
+              <BsStopCircleFill size={30} />
+            </button>
           </div>
         </div>
-        <button className="stop-button" onClick={stopPractice}>
-          <BsStopCircleFill size={30} />
-        </button>
         <div className="change-mode-button-container">
           <button className={`mode-button ${isPractice ? 'active-practice' : ''}`} onClick={() => setIsPractice(true)}>
             연습모드
@@ -992,11 +1066,6 @@ const Practice = () => {
       {isPractice ? (
         <div className="practice-camera-pdf-container">
           <div className="practice-left">
-            <div className="observer-container">
-              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
-              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
-              <img src={observeIcon} className="observe-icon" alt="observer" width={180} />
-            </div>
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
@@ -1028,21 +1097,28 @@ const Practice = () => {
             {!playing && (
               <textarea
                 className="script-input"
-                placeholder="스크립트 작성"
+                placeholder="스크립트를 작성해주세요!"
                 value={scriptText}
                 onChange={handleChange}
               />
             )}
-            {playing && (
+            {playing && showScript ? (
               <div>
-                {showScript &&
-                  scriptArray[currentScriptIndex].split("\n").map((line, lineIndex) => (
-                    <div key={lineIndex} className="script-save">
-                      {line}
-                    </div>
-                  ))}
+                <div>
+                  {scriptArray[currentScriptIndex] ? (
+                    scriptArray[currentScriptIndex]
+                      .split("\n")
+                      .map((line, lineIndex) => (
+                        <div key={lineIndex} className="script-save">
+                          {line}
+                        </div>
+                      ))
+                  ) : (
+                    <div className="script-save">스크립트를 작성하지 않았습니다.</div>
+                  )}
+                </div>
               </div>
-            )}
+            ) : null}
           </div>
           <div className="practice-right">
             <div className="message">{message}</div>
@@ -1072,24 +1148,29 @@ const Practice = () => {
                 발표 시작
               </button>
             )}
+            <div>
+              파형
+            </div>
           </div>
         </div>
 
       ) : (
         <div>
           <div className="observe-camera-container">
+            {joinUser.length === 0 && (
+              <div>참관자 입장 시 참관자의 카메라가 표시됩니다</div>
+            )}
             {joinUser.map((user, index) => (
-              <video key={index}
+              <video
+                key={index}
                 ref={(el) => {
-                  peerFaceRef.current[user] = el
+                  peerFaceRef.current[user] = el;
                 }}
                 muted
                 autoPlay
                 width={200}
-              >
-              </video>
+              />
             ))}
-
           </div>
           <div className="real-camera-pdf-container">
             <div className="real-left">
@@ -1105,6 +1186,9 @@ const Practice = () => {
               </p>
             </div>
             <div className="real-right">
+              <div>
+                파형
+              </div>
               <h2 className="observe-code-title">참관코드</h2>
               <div className="observe-code">
                 <h2>{roomName2}</h2>
@@ -1177,7 +1261,7 @@ const Practice = () => {
             </div>
           </div>
           <div className="modal-middle">
-            <img src={logo} className="modal-logo" alt="logo" width={250} />
+            <img src={logo2} className="modal-logo" alt="logo" width={300} />
             <h2 className="modal-title">{title}</h2>
             <video
               className="modal-video"
@@ -1185,7 +1269,7 @@ const Practice = () => {
               autoPlay
               controls
               muted
-              width={300}
+              width={400}
             ></video>
             <div className="modal-button-container">
               <button className="modal-close" onClick={() => setModal(false)}>닫기</button>
@@ -1195,11 +1279,8 @@ const Practice = () => {
             </div>
           </div>
           <div className="modal-right">
-            <div className="modal-eye-container modal-result-summary">
-              <h1>시선 처리</h1>
-            </div>
             <div className="modal-question-container modal-result-summary">
-              <h1>음성 텍스트 변환</h1>
+              <h1>음성 텍스트 변환 결과</h1>
               <p>
                 {resultScript}
               </p>

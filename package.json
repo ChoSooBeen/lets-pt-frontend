@@ -17,6 +17,7 @@
     "main": "^1000.0.1",
     "origin": "^0.8.6",
     "pdfjs-dist": "^3.8.162",
+    "pptxgenjs": "^3.12.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",
     "react-dom": "^18.2.0",
@@ -31,6 +32,7 @@
     "react-spinners": "^0.13.8",
     "redux": "^4.2.1",
     "socket.io-client": "^4.7.1",
+    "wavesurfer.js": "^7.1.1",
     "web-vitals": "^2.1.4",
     "webgazer": "^3.1.2"
   },
