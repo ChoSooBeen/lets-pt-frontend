@@ -34,7 +34,6 @@ const Observe = () => {
   const [comment, setComment] = useState(""); // 코멘트 상태 변수 추가
   const [send, setSend] = useState('');
 
-
   const leavePage = () => {
     window.close();
   };
@@ -94,7 +93,6 @@ const Observe = () => {
     socket.current.on("connect", async () => {
       console.log("connect");
       await getMedia(); //비디오, 오디오 스트림 가져오기
-
       console.log("joinRoom : ", visitorCode, userId);
       await socket.current.emit("joinRoom", {
         visitorcode: visitorCode,
@@ -131,7 +129,7 @@ const Observe = () => {
 
     socket.current.on("join-fail", (data) => {
       console.log("Fail join-Room : ", data);
-      alert("존재하지 않는 참관코드입니다.");
+      alert(data);
       window.close();
     });
 
@@ -208,18 +206,25 @@ const Observe = () => {
 
     socket.current.on("start-timer", () => {
       console.log("start-timer");
+      socket.current.emit("is-running", {
+        visitorcode: visitorCode,
+        isRunning: true,
+      });
       //타이머 시작
       startTimer();
     });
 
     socket.current.on("stop-timer", () => {
       console.log("stop-timer");
+      socket.current.emit("is-running", {
+        visitorcode: visitorCode,
+        isRunning: false,
+      });
       //타이머 정지
       stopTimer();
       setShowModal(true);
     });
   }, [visitorCode]);
-
 
   //RTCPeerConnection 객체 생성-----------------------------------------------
   const makeConnection = (id) => {
@@ -241,12 +246,15 @@ const Observe = () => {
 
     myPeerConnection.current[id].oniceconnectionstatechange = () => {
       console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
+      if(myPeerConnection.current[id].iceConnectionState === "disconnected"){
+        myPeerConnection.current[id].close();
+        delete myPeerConnection.current[id];
+      }
     };
 
     myPeerConnection.current[id].ontrack = (event) => {
       console.log("got an stream from my peer", id, event.streams[0]);
       peerFaceRef.current[id].srcObject = event.streams[0];
-      // tmpStream.current = event.streams[0];
     };
     console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
 

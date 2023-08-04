@@ -892,6 +892,10 @@ const Practice = () => {
 
       myPeerConnection.current[id].oniceconnectionstatechange = () => {
         console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
+        if(myPeerConnection.current[id].iceConnectionState === 'disconnected') {
+          myPeerConnection.current[id].close();
+          delete myPeerConnection.current[id];
+        }
       };
 
       myPeerConnection.current[id].ontrack = (event) => {
