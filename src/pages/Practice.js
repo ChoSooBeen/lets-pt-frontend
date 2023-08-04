@@ -1166,7 +1166,6 @@ const Practice = () => {
                 ref={(el) => {
                   peerFaceRef.current[user] = el;
                 }}
-                muted
                 autoPlay
                 width={200}
               />

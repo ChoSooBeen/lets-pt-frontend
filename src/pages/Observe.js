@@ -19,7 +19,7 @@ const Observe = () => {
   const myStream = useRef(null);
   const myPeerConnection = useRef({}); //피어 연결 객체
   const [showModal, setShowModal] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
@@ -402,6 +402,7 @@ const Observe = () => {
                 ref={myFaceRef}
                 className="observe-camera"
                 autoPlay
+                muted={isMuted}
                 playsInline
               />
             </div>
@@ -429,7 +430,7 @@ const Observe = () => {
             <IoExit size={60} />
           </button>
           <button className="mute-button" onClick={handleToggleMute}>
-            {isMuted ? "음소거 해제" : "음소거"}
+            {isMuted ? "음소거" : "음소거 해제"}
           </button>
         </div>
       </main>
