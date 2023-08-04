@@ -5,6 +5,7 @@ import React, {
   useState,
 } from "react";
 import logo from "../img/logo.png";
+import logo2 from "../img/logo2.png";
 import observeIcon from "../img/observeicon.png";
 import axios from "axios";
 import * as faceapi from 'face-api.js';
@@ -188,7 +189,7 @@ const Practice = () => {
       console.error("오디오 초기화 오류:", error);
     }
   };
-  
+
   // 음성인식
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
@@ -897,7 +898,7 @@ const Practice = () => {
 
       myPeerConnection.current[id].oniceconnectionstatechange = () => {
         console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
-        if(myPeerConnection.current[id].iceConnectionState === 'disconnected') {
+        if (myPeerConnection.current[id].iceConnectionState === 'disconnected') {
           myPeerConnection.current[id].close();
           delete myPeerConnection.current[id];
         }
@@ -1260,7 +1261,7 @@ const Practice = () => {
             </div>
           </div>
           <div className="modal-middle">
-            <img src={logo} className="modal-logo" alt="logo" width={250} />
+            <img src={logo2} className="modal-logo" alt="logo" width={300} />
             <h2 className="modal-title">{title}</h2>
             <video
               className="modal-video"
@@ -1268,7 +1269,7 @@ const Practice = () => {
               autoPlay
               controls
               muted
-              width={300}
+              width={400}
             ></video>
             <div className="modal-button-container">
               <button className="modal-close" onClick={() => setModal(false)}>닫기</button>
@@ -1278,11 +1279,8 @@ const Practice = () => {
             </div>
           </div>
           <div className="modal-right">
-            <div className="modal-eye-container modal-result-summary">
-              <h1>시선 처리</h1>
-            </div>
             <div className="modal-question-container modal-result-summary">
-              <h1>음성 텍스트 변환</h1>
+              <h1>음성 텍스트 변환 결과</h1>
               <p>
                 {resultScript}
               </p>

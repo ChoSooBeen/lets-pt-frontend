@@ -1090,10 +1090,13 @@ border:2px solid #fff;
   border: 2px solid #fff;
   box-shadow: inset 0 0 0 120px #333;
 }
+.modal-question-container{
+  height:570px;
+}
 
 .modal-question-container > p {
   overflow-y: auto;
-  height: 190px;
+  height: 570px;
   text-align: start;
   padding: 2px;
   font-size: 20px;
@@ -1452,7 +1455,6 @@ border:2px solid #fff;
 
 .result-page-comment-container h1,
 .result-page-timer-container h1,
-.result-page-eye-container h1,
 .result-page-script-container h1,
 .result-page-question-container h1 {
   font-size: 30px;
@@ -1463,7 +1465,6 @@ border:2px solid #fff;
 
 /* 수정된 부분 */
 .result-page-timer-container,
-.result-page-eye-container,
 .result-page-script-container,
 .result-page-question-container {
   border: 1px solid #ccc;
@@ -1586,14 +1587,6 @@ border:2px solid #fff;
   color: #555;
 }
 
-.result-eye-detail > div {
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  line-height: 35px;
-  margin-bottom: 10px;
-  color: #333;
-}
 
 .result-page-script-container {
   padding: 20px;
@@ -1644,6 +1637,8 @@ border:2px solid #fff;
   white-space: pre-wrap;
   line-height: 1.6;
 }
+
+
 
 /* ---------------------------- */
 .textLayer{
