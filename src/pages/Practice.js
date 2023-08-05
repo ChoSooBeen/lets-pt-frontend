@@ -64,6 +64,8 @@ const Practice = () => {
   const analyserRef = useRef(null);
   const [averageVolume, setAverageVolume] = useState(0);
 
+  const canvasRef = useRef(null); // 파형 그리기
+
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
 
@@ -137,6 +139,16 @@ const Practice = () => {
     await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
     await faceapi.loadFaceExpressionModel(MODEL_URL);
   };
+  //모달창
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
 
   //무음 시간
   useEffect(() => {
@@ -148,8 +160,10 @@ const Practice = () => {
           let pauseEndTime = Date.now();
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
+          closeModal();
 
           if (pauseDuration > 5000) {
+            openModal();
             console.log("렌더링됨");
             pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
             pauseEndTime = null;
@@ -164,31 +178,74 @@ const Practice = () => {
     };
   }, [listening]);
 
+  // 파형 그리기 함수
+  const drawWaveform = () => {
+    if (!analyserRef.current || !analyserRef.current.frequencyBinCount) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    const bufferLength = analyserRef.current.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    analyserRef.current.getByteTimeDomainData(dataArray);
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.beginPath();
+    const sliceWidth = (canvas.width * 1.0) / bufferLength;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+      const v = dataArray[i] / 128.0;
+      const y = (v * canvas.height) / 2;
+
+      if (i === 0) {
+        context.moveTo(x, y);
+      } else {
+        context.lineTo(x, y);
+      }
+
+      x += sliceWidth;
+    }
+
+    context.lineTo(canvas.width, canvas.height / 2);
+    context.stroke();
+  };
+
   // 데시벨 측정
-  const startAudioContext = async () => {
+  const startAudioContext = async (audioContext) => {
     try {
-      const audioContext = new AudioContext();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const source = audioContext.createMediaStreamSource(stream);
-
+  
       analyserRef.current = audioContext.createAnalyser();
-      analyserRef.current.fftSize = 2048; // 데시벨 정밀도 조절
-      const bufferLength = analyserRef.current.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
-
+      analyserRef.current.fftSize = 2048;
+  
       source.connect(analyserRef.current);
-
+  
       analyserRef.current.interval = setInterval(() => {
+        if (!analyserRef.current) return;
+  
+        const bufferLength = analyserRef.current.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+  
         analyserRef.current.getByteFrequencyData(dataArray);
         const averageVolume =
           dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
         setAverageVolume(averageVolume);
-        // console.log("평균 볼륨:", averageVolume);
-      }, 100); // 0.1초마다 데시벨을 측정하고 평균값을 setAverageVolume에 업데이트
+  
+        drawWaveform(); // 파형 그리기 함수 호출
+      }, 100);
     } catch (error) {
       console.error("오디오 초기화 오류:", error);
     }
   };
+  
+  useEffect(() => {
+    const audioContext = new AudioContext();
+    startAudioContext(audioContext); // 데시벨 측정 및 파형 그리기 시작
+  }, []);
 
   // 음성인식
   const handleStartStopListening = () => {
@@ -1120,6 +1177,17 @@ const Practice = () => {
               </div>
             ) : null}
           </div>
+          <div>
+            <Modal
+              isOpen={modalIsOpen}
+              onRequestClose={closeModal}
+              contentLabel="알림"
+            >
+              <h2>알림</h2>
+              <p>무음 시간이 5초를 초과했습니다.</p>
+              <button onClick={closeModal}>닫기</button>
+            </Modal>
+          </div>
           <div className="practice-right">
             <div className="message">{message}</div>
             <video
@@ -1149,7 +1217,7 @@ const Practice = () => {
               </button>
             )}
             <div>
-              파형
+            <canvas ref={canvasRef} width={400} height={200}></canvas>
             </div>
           </div>
         </div>
@@ -1186,7 +1254,7 @@ const Practice = () => {
             </div>
             <div className="real-right">
               <div>
-                파형
+                <canvas ref={canvasRef} width={400} height={200}></canvas>
               </div>
               <h2 className="observe-code-title">참관코드</h2>
               <div className="observe-code">
