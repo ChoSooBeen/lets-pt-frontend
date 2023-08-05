@@ -234,6 +234,7 @@ const Practice = () => {
         const averageVolume =
           dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
         setAverageVolume(averageVolume);
+        console.log(averageVolume);
   
         drawWaveform(); // 파형 그리기 함수 호출
       }, 100);
@@ -267,7 +268,8 @@ const Practice = () => {
         console.log("음성 인식 시작");
         if (!isAudioContextStartedRef.current) {
           isAudioContextStartedRef.current = true;
-          startAudioContext();
+          const audioContext = new AudioContext(); // 새로운 오디오 컨텍스트 생성
+          startAudioContext(audioContext); // 수정된 부분: 오디오 컨텍스트 전달
         }
       };
 
