@@ -625,6 +625,13 @@ const Practice = () => {
       window.alert('발표 제목을 입력해주세요!');
       return;
     }
+    const isExist = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/is-title-exist?title=${title}&userId=${userId}`);
+    console.log("발표 제목 여부: ", isExist);
+    if (isExist.data) {
+      window.alert('이미 존재하는 발표 제목입니다!');
+      return;
+    }
+
     setMinutes(0);
     setSeconds(0);
     setcurrentScriptIndex(0);
@@ -828,7 +835,7 @@ const Practice = () => {
     const top = window.screen.height / 2 - height / 2;
 
     const sendTitle = title
-    const url = `/result?title=${sendTitle}`
+    const url = `/result?title=${sendTitle}&userId=${userId}`
 
     window.open(
       url,

@@ -43,7 +43,7 @@ const Record = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${presentationTitle}`);
+        const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${presentationTitle}&userId=${userId}`);
         setData(response.data);
         console.log(response);
       } catch (error) {
@@ -51,7 +51,7 @@ const Record = () => {
       }
     };
     fetchData();
-  }, [presentationTitle]);
+  }, [presentationTitle, userId]);
 
   const formatTime = useCallback((timeInSeconds) => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -62,6 +62,7 @@ const Record = () => {
   const handleCommentSubmit = async (comment) => {
     const dataToSend = {
       title: presentationTitle,
+      userId: userId,
       userComment: {
         name: userId,
         time: {

@@ -318,6 +318,7 @@ const Observe = () => {
     // 데이터를 서버에 보낼 형식으로 가공
     const dataToSend = {
       title: receiveData.title,
+      userId: userId,
       userComment: {
         name: userId,
         time: {

@@ -8,11 +8,12 @@ const Result = () => {
 
   const params = new URLSearchParams(window.location.search);
   const title = params.get('title');
+  const userId = params.get('userId');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${title}`);
+        const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${title}&userId=${userId}`);
         setData(response.data);
         console.log(response);
       } catch (error) {
@@ -20,7 +21,7 @@ const Result = () => {
       }
     };
     fetchData();
-  }, [title]);
+  }, [title, userId]);
 
   function highlightWords(script, recommendedWords, forbiddenWords) {
     let resultScript = script;
