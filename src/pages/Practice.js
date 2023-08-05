@@ -828,7 +828,7 @@ const Practice = () => {
     const top = window.screen.height / 2 - height / 2;
 
     const sendTitle = title
-    const url = `/result?title=${sendTitle}`
+    const url = `/result?title=${sendTitle}&userId=${userId}`
 
     window.open(
       url,
