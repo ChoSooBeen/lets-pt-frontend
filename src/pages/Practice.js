@@ -64,7 +64,7 @@ const Practice = () => {
   const [transcript, setTranscript] = useState("");
 
   // const [pauseDuration, setPauseDuration] = useState(0);
-  const [message, setMessage] = useState(`PDF 파일을 업로드 해주세요!`); //메시지 띄우는 곳
+  const [message, setMessage] = useState(`PDF와 스크립트를 작성해주세요!`); //메시지 띄우는 곳
 
   const AudioContext = window.AudioContext || window.webkitAudioContext; // 데시벨 측정
   const isAudioContextStartedRef = useRef(false);
@@ -226,20 +226,21 @@ const Practice = () => {
           console.log("평균 볼륨:", currentAverageVolume);
           closeModal();
 
-          if (currentAverageVolume > 20) {
+          if (currentAverageVolume > 10) {
             console.log("데시벨로 초기화");
+            closeModal();
             pauseStartTimeRef.current = null;
             pauseEndTime = null;
           }
 
-          if (pauseDuration > 5000) {
+          if (pauseDuration > 3000) {
             openModal();
             console.log("렌더링됨");
             pauseStartTimeRef.current = null;
             pauseEndTime = null;
           }
         }
-      }, 500);
+      }, 100);
     } catch (error) {
       console.error("오디오 초기화 오류:", error);
     }
