@@ -118,7 +118,7 @@ const Practice = () => {
           if (expression === 'happy') {
             console.log('웃음', compareMessage.current);
             countSmile.current = countSmile.current > 0 ? 0 : countSmile.current - 1;
-            if (compareMessage.current === `표정이 너무 굳어있네요! SMILE*^-^*` || countSmile.current >= -3) {
+            if (compareMessage.current === `긴장을 풀고 좀 웃어보세요!` || countSmile.current >= -3) {
               compareMessage.current = '좋습니다! 계속 진행하세요!';
               setMessage('좋습니다! 계속 진행하세요!');
             }
@@ -130,9 +130,9 @@ const Practice = () => {
           else {
             console.log('웃지 않음', compareMessage.current);
             countSmile.current = countSmile.current < 0 ? 0 : countSmile.current + 1;
-            if (compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && countSmile.current >= 5) {
-              compareMessage.current = `표정이 너무 굳어있네요! SMILE*^-^*`;
-              setMessage(`표정이 너무 굳어있네요! SMILE*^-^*`);
+            if (compareMessage.current !== `긴장을 풀고 좀 웃어보세요!` && countSmile.current >= 5) {
+              compareMessage.current = `긴장을 풀고 좀 웃어보세요!`;
+              setMessage(`긴장을 풀고 좀 웃어보세요!`);
             }
           }
         }
@@ -732,11 +732,11 @@ const Practice = () => {
     canvasMediaRecorderRef.current.onstart = function () {
       console.log("Recording started");
     };
-    
+
     canvasMediaRecorderRef.current.onstop = function () {
       console.log("Recording stopped");
     };
-    
+
     canvasMediaRecorderRef.current.onerror = function (event) {
       console.error("Recording error:", event);
     };
@@ -1238,7 +1238,7 @@ const Practice = () => {
             ) : null}
           </div>
           <div>
-            {modalIsOpen && (
+            {isPractice && modalIsOpen && (
               <div className="voice-modal-overlay">
                 <div className="voice-modal-content">
                   <h2>알림</h2>
