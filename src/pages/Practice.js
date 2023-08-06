@@ -213,101 +213,101 @@ const Practice = () => {
     context.stroke();
   };
 
-// 데시벨 측정
-const startAudioContext = async (audioContext) => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const source = audioContext.createMediaStreamSource(stream);
+  // 데시벨 측정
+  const startAudioContext = async (audioContext) => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const source = audioContext.createMediaStreamSource(stream);
 
-    analyserRef.current = audioContext.createAnalyser();
-    analyserRef.current.fftSize = 2048;
+      analyserRef.current = audioContext.createAnalyser();
+      analyserRef.current.fftSize = 2048;
 
-    source.connect(analyserRef.current);
+      source.connect(analyserRef.current);
 
-    analyserRef.current.interval = setInterval(() => {
-      if (!analyserRef.current) return;
+      analyserRef.current.interval = setInterval(() => {
+        if (!analyserRef.current) return;
 
-      const bufferLength = analyserRef.current.frequencyBinCount;
-      const dataArray = new Uint8Array(bufferLength);
+        const bufferLength = analyserRef.current.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
 
-      analyserRef.current.getByteFrequencyData(dataArray);
-      const averageVolume =
-        dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
-      setAverageVolume(averageVolume);
+        analyserRef.current.getByteFrequencyData(dataArray);
+        const averageVolume =
+          dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
+        setAverageVolume(averageVolume);
 
-      // 수정된 부분: 음성 인식이 시작되었을 때만 파형을 그립니다.
-      if (isAudioContextStartedRef.current) {
-        drawWaveform(); // 파형 그리기 함수 호출
+        // 수정된 부분: 음성 인식이 시작되었을 때만 파형을 그립니다.
+        if (isAudioContextStartedRef.current) {
+          drawWaveform(); // 파형 그리기 함수 호출
+        }
+      }, 100);
+    } catch (error) {
+      console.error("오디오 초기화 오류:", error);
+    }
+  };
+
+  useEffect(() => {
+    const audioContext = new AudioContext();
+    startAudioContext(audioContext); // 데시벨 측정 및 파형 그리기 시작
+  }, []);
+
+  // 음성인식
+  const handleStartStopListening = () => {
+    if (!recognitionRef.current) {
+      const isSpeechRecognitionSupported =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!isSpeechRecognitionSupported) {
+        console.log("현재 브라우저에서 SpeechRecognition API를 지원하지 않습니다.");
+        return;
       }
-    }, 100);
-  } catch (error) {
-    console.error("오디오 초기화 오류:", error);
-  }
-};
 
-useEffect(() => {
-  const audioContext = new AudioContext();
-  startAudioContext(audioContext); // 데시벨 측정 및 파형 그리기 시작
-}, []);
+      recognitionRef.current = new isSpeechRecognitionSupported();
+      recognitionRef.current.lang = "ko-KR";
+      recognitionRef.current.continuous = true;
 
-// 음성인식
-const handleStartStopListening = () => {
-  if (!recognitionRef.current) {
-    const isSpeechRecognitionSupported =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current.onstart = () => {
+        setListening(true);
+        console.log("음성 인식 시작");
+        if (!isAudioContextStartedRef.current) {
+          isAudioContextStartedRef.current = true;
+          const audioContext = new AudioContext(); // 새로운 오디오 컨텍스트 생성
+          startAudioContext(audioContext); // 수정된 부분: 오디오 컨텍스트 전달
+        }
+      };
 
-    if (!isSpeechRecognitionSupported) {
-      console.log("현재 브라우저에서 SpeechRecognition API를 지원하지 않습니다.");
-      return;
+      recognitionRef.current.onend = () => {
+        setListening(false);
+        console.log("음성 인식 종료");
+        pauseStartTimeRef.current = null;
+        isAudioContextStartedRef.current = false;
+
+        // 데시벨 측정을 중지하거나 오디오 컨텍스트를 닫는 코드 추가
+        if (analyserRef.current) {
+          clearInterval(analyserRef.current.interval);
+        }
+        if (analyserRef.current && analyserRef.current.context.state !== "closed") {
+          analyserRef.current.context.close().then(() => {
+            analyserRef.current = null;
+            console.log("오디오 컨텍스트 종료");
+          });
+        }
+      };
+
+      recognitionRef.current.onresult = (event) => {
+        const { transcript } = event.results[event.results.length - 1][0];
+        setTranscript((prevTranscript) => prevTranscript + transcript + " ");
+        pauseStartTimeRef.current = Date.now();
+      };
     }
 
-    recognitionRef.current = new isSpeechRecognitionSupported();
-    recognitionRef.current.lang = "ko-KR";
-    recognitionRef.current.continuous = true;
-
-    recognitionRef.current.onstart = () => {
-      setListening(true);
-      console.log("음성 인식 시작");
-      if (!isAudioContextStartedRef.current) {
-        isAudioContextStartedRef.current = true;
-        const audioContext = new AudioContext(); // 새로운 오디오 컨텍스트 생성
-        startAudioContext(audioContext); // 수정된 부분: 오디오 컨텍스트 전달
-      }
-    };
-
-    recognitionRef.current.onend = () => {
-      setListening(false);
-      console.log("음성 인식 종료");
-      pauseStartTimeRef.current = null;
-      isAudioContextStartedRef.current = false;
-
-      // 데시벨 측정을 중지하거나 오디오 컨텍스트를 닫는 코드 추가
-      if (analyserRef.current) {
-        clearInterval(analyserRef.current.interval);
-      }
-      if (analyserRef.current && analyserRef.current.context.state !== "closed") {
-        analyserRef.current.context.close().then(() => {
-          analyserRef.current = null;
-          console.log("오디오 컨텍스트 종료");
-        });
-      }
-    };
-
-    recognitionRef.current.onresult = (event) => {
-      const { transcript } = event.results[event.results.length - 1][0];
-      setTranscript((prevTranscript) => prevTranscript + transcript + " ");
-      pauseStartTimeRef.current = Date.now();
-    };
-  }
-
-  if (listening) {
-    recognitionRef.current.stop();
-    pauseStartTimeRef.current = null; // 음성이 인식이 종료되면 무음 시작 시간 초기화
-  } else {
-    recognitionRef.current.start();
-    pauseStartTimeRef.current = Date.now(); // 음성이 인식되면 무음 시작 시간 초기화
-  }
-};
+    if (listening) {
+      recognitionRef.current.stop();
+      pauseStartTimeRef.current = null; // 음성이 인식이 종료되면 무음 시작 시간 초기화
+    } else {
+      recognitionRef.current.start();
+      pauseStartTimeRef.current = Date.now(); // 음성이 인식되면 무음 시작 시간 초기화
+    }
+  };
 
 
 
@@ -1190,16 +1190,17 @@ const handleStartStopListening = () => {
             ) : null}
           </div>
           <div>
-            <Modal
-              isOpen={modalIsOpen}
-              onRequestClose={closeModal}
-              contentLabel="알림"
-            >
-              <h2>알림</h2>
-              <p>무음 시간이 5초를 초과했습니다.</p>
-              <button onClick={closeModal}>닫기</button>
-            </Modal>
+            {modalIsOpen && (
+              <div className="voice-modal-overlay">
+                <div className="voice-modal-content">
+                  <h2>알림</h2>
+                  <p>스크립트 보기 버튼을 눌러 스크립트를 확인해보세요!</p>
+                  <button onClick={closeModal}>닫기</button>
+                </div>
+              </div>
+            )}
           </div>
+
           <div className="practice-right">
             <div className="message">{message}</div>
             <video
@@ -1228,8 +1229,8 @@ const handleStartStopListening = () => {
                 발표 시작
               </button>
             )}
-            <div>
-            <canvas ref={canvasRef} width={400} height={200}></canvas>
+            <div className="practice-voice">
+              <canvas ref={canvasRef} width={400} height={200}></canvas>
             </div>
           </div>
         </div>
@@ -1265,7 +1266,7 @@ const handleStartStopListening = () => {
               </p>
             </div>
             <div className="real-right">
-              <div>
+              <div className="real-voice">
                 <canvas ref={canvasRef} width={400} height={200}></canvas>
               </div>
               <h2 className="observe-code-title">참관코드</h2>

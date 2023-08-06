@@ -381,7 +381,7 @@ const Observe = () => {
           {receiveData ? (
             <div className="pdf-area">
               <Document file={receiveData.pdfURL} onLoadSuccess={onDocumentLoadSuccess}>
-                <Page pageNumber={pageNumber} width="560" />
+                <Page pageNumber={pageNumber} width="800" />
               </Document>
               <h2 className="presentation-title">{receiveData.title}</h2>
             </div>

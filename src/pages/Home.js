@@ -70,17 +70,12 @@ const Home = () => {
   }
 
   const goToObservePage = () => {
-    const width = 1200;
-    const height = 800;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-
     const url = `/observe?visitorcode=${encodeURIComponent(visitorcode)}`;
 
     window.open(
       url,
       '_blank',
-      `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
+      `resizable=no, scrollbars=yes`
     );
   }
   return (
