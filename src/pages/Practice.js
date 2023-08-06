@@ -64,6 +64,8 @@ const Practice = () => {
   const analyserRef = useRef(null);
   const [averageVolume, setAverageVolume] = useState(0);
 
+  const canvasRef = useRef(null); // 파형 그리기
+
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
 
@@ -137,6 +139,16 @@ const Practice = () => {
     await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
     await faceapi.loadFaceExpressionModel(MODEL_URL);
   };
+  //모달창
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
 
   //무음 시간
   useEffect(() => {
@@ -148,8 +160,10 @@ const Practice = () => {
           let pauseEndTime = Date.now();
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
           console.log("무음 지속 시간 (밀리초):", pauseDuration);
+          closeModal();
 
           if (pauseDuration > 5000) {
+            openModal();
             console.log("렌더링됨");
             pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
             pauseEndTime = null;
@@ -164,89 +178,137 @@ const Practice = () => {
     };
   }, [listening]);
 
-  // 데시벨 측정
-  const startAudioContext = async () => {
-    try {
-      const audioContext = new AudioContext();
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const source = audioContext.createMediaStreamSource(stream);
+  // 파형 그리기 함수
+  const drawWaveform = () => {
+    if (!analyserRef.current || !analyserRef.current.frequencyBinCount) return;
 
-      analyserRef.current = audioContext.createAnalyser();
-      analyserRef.current.fftSize = 2048; // 데시벨 정밀도 조절
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    const bufferLength = analyserRef.current.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    analyserRef.current.getByteTimeDomainData(dataArray);
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.beginPath();
+    const sliceWidth = (canvas.width * 1.0) / bufferLength;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+      const v = dataArray[i] / 128.0;
+      const y = (v * canvas.height) / 2;
+
+      if (i === 0) {
+        context.moveTo(x, y);
+      } else {
+        context.lineTo(x, y);
+      }
+
+      x += sliceWidth;
+    }
+
+    context.lineTo(canvas.width, canvas.height / 2);
+    context.stroke();
+  };
+
+// 데시벨 측정
+const startAudioContext = async (audioContext) => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const source = audioContext.createMediaStreamSource(stream);
+
+    analyserRef.current = audioContext.createAnalyser();
+    analyserRef.current.fftSize = 2048;
+
+    source.connect(analyserRef.current);
+
+    analyserRef.current.interval = setInterval(() => {
+      if (!analyserRef.current) return;
+
       const bufferLength = analyserRef.current.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
 
-      source.connect(analyserRef.current);
+      analyserRef.current.getByteFrequencyData(dataArray);
+      const averageVolume =
+        dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
+      setAverageVolume(averageVolume);
 
-      analyserRef.current.interval = setInterval(() => {
-        analyserRef.current.getByteFrequencyData(dataArray);
-        const averageVolume =
-          dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
-        setAverageVolume(averageVolume);
-        // console.log("평균 볼륨:", averageVolume);
-      }, 100); // 0.1초마다 데시벨을 측정하고 평균값을 setAverageVolume에 업데이트
-    } catch (error) {
-      console.error("오디오 초기화 오류:", error);
-    }
-  };
-
-  // 음성인식
-  const handleStartStopListening = () => {
-    if (!recognitionRef.current) {
-      const isSpeechRecognitionSupported =
-        window.SpeechRecognition || window.webkitSpeechRecognition;
-
-      if (!isSpeechRecognitionSupported) {
-        console.log("현재 브라우저에서 SpeechRecognition API를 지원하지 않습니다.");
-        return;
+      // 수정된 부분: 음성 인식이 시작되었을 때만 파형을 그립니다.
+      if (isAudioContextStartedRef.current) {
+        drawWaveform(); // 파형 그리기 함수 호출
       }
+    }, 100);
+  } catch (error) {
+    console.error("오디오 초기화 오류:", error);
+  }
+};
 
-      recognitionRef.current = new isSpeechRecognitionSupported();
-      recognitionRef.current.lang = "ko-KR";
-      recognitionRef.current.continuous = true;
+useEffect(() => {
+  const audioContext = new AudioContext();
+  startAudioContext(audioContext); // 데시벨 측정 및 파형 그리기 시작
+}, []);
 
-      recognitionRef.current.onstart = () => {
-        setListening(true);
-        console.log("음성 인식 시작");
-        if (!isAudioContextStartedRef.current) {
-          isAudioContextStartedRef.current = true;
-          startAudioContext();
-        }
-      };
+// 음성인식
+const handleStartStopListening = () => {
+  if (!recognitionRef.current) {
+    const isSpeechRecognitionSupported =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
 
-      recognitionRef.current.onend = () => {
-        setListening(false);
-        console.log("음성 인식 종료");
-        pauseStartTimeRef.current = null;
-        isAudioContextStartedRef.current = false;
-
-        // 데시벨 측정을 중지하거나 오디오 컨텍스트를 닫는 코드 추가
-        if (analyserRef.current) {
-          clearInterval(analyserRef.current.interval);
-        }
-        if (analyserRef.current && analyserRef.current.context.state !== "closed") {
-          analyserRef.current.context.close().then(() => {
-            analyserRef.current = null;
-            console.log("오디오 컨텍스트 종료");
-          });
-        }
-      };
-
-      recognitionRef.current.onresult = (event) => {
-        const { transcript } = event.results[event.results.length - 1][0];
-        setTranscript((prevTranscript) => prevTranscript + transcript + " ");
-        pauseStartTimeRef.current = Date.now();
-      };
+    if (!isSpeechRecognitionSupported) {
+      console.log("현재 브라우저에서 SpeechRecognition API를 지원하지 않습니다.");
+      return;
     }
 
-    if (listening) {
-      recognitionRef.current.stop();
-      pauseStartTimeRef.current = null; // 음성이 인식이 종료되면 무음 시작 시간 초기화
-    } else {
-      recognitionRef.current.start();
-      pauseStartTimeRef.current = Date.now(); // 음성이 인식되면 무음 시작 시간 초기화
-    }
-  };
+    recognitionRef.current = new isSpeechRecognitionSupported();
+    recognitionRef.current.lang = "ko-KR";
+    recognitionRef.current.continuous = true;
+
+    recognitionRef.current.onstart = () => {
+      setListening(true);
+      console.log("음성 인식 시작");
+      if (!isAudioContextStartedRef.current) {
+        isAudioContextStartedRef.current = true;
+        const audioContext = new AudioContext(); // 새로운 오디오 컨텍스트 생성
+        startAudioContext(audioContext); // 수정된 부분: 오디오 컨텍스트 전달
+      }
+    };
+
+    recognitionRef.current.onend = () => {
+      setListening(false);
+      console.log("음성 인식 종료");
+      pauseStartTimeRef.current = null;
+      isAudioContextStartedRef.current = false;
+
+      // 데시벨 측정을 중지하거나 오디오 컨텍스트를 닫는 코드 추가
+      if (analyserRef.current) {
+        clearInterval(analyserRef.current.interval);
+      }
+      if (analyserRef.current && analyserRef.current.context.state !== "closed") {
+        analyserRef.current.context.close().then(() => {
+          analyserRef.current = null;
+          console.log("오디오 컨텍스트 종료");
+        });
+      }
+    };
+
+    recognitionRef.current.onresult = (event) => {
+      const { transcript } = event.results[event.results.length - 1][0];
+      setTranscript((prevTranscript) => prevTranscript + transcript + " ");
+      pauseStartTimeRef.current = Date.now();
+    };
+  }
+
+  if (listening) {
+    recognitionRef.current.stop();
+    pauseStartTimeRef.current = null; // 음성이 인식이 종료되면 무음 시작 시간 초기화
+  } else {
+    recognitionRef.current.start();
+    pauseStartTimeRef.current = Date.now(); // 음성이 인식되면 무음 시작 시간 초기화
+  }
+};
+
 
 
   // --------------------------------------------------------------------------
@@ -568,6 +630,13 @@ const Practice = () => {
       window.alert('발표 제목을 입력해주세요!');
       return;
     }
+    const isExist = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/is-title-exist?title=${title}&userId=${userId}`);
+    console.log("발표 제목 여부: ", isExist);
+    if (isExist.data) {
+      window.alert('이미 존재하는 발표 제목입니다!');
+      return;
+    }
+
     setMinutes(0);
     setSeconds(0);
     setcurrentScriptIndex(0);
@@ -771,7 +840,7 @@ const Practice = () => {
     const top = window.screen.height / 2 - height / 2;
 
     const sendTitle = title
-    const url = `/result?title=${sendTitle}`
+    const url = `/result?title=${sendTitle}&userId=${userId}`
 
     window.open(
       url,
@@ -1120,6 +1189,17 @@ const Practice = () => {
               </div>
             ) : null}
           </div>
+          <div>
+            <Modal
+              isOpen={modalIsOpen}
+              onRequestClose={closeModal}
+              contentLabel="알림"
+            >
+              <h2>알림</h2>
+              <p>무음 시간이 5초를 초과했습니다.</p>
+              <button onClick={closeModal}>닫기</button>
+            </Modal>
+          </div>
           <div className="practice-right">
             <div className="message">{message}</div>
             <video
@@ -1149,7 +1229,7 @@ const Practice = () => {
               </button>
             )}
             <div>
-              파형
+            <canvas ref={canvasRef} width={400} height={200}></canvas>
             </div>
           </div>
         </div>
@@ -1186,7 +1266,7 @@ const Practice = () => {
             </div>
             <div className="real-right">
               <div>
-                파형
+                <canvas ref={canvasRef} width={400} height={200}></canvas>
               </div>
               <h2 className="observe-code-title">참관코드</h2>
               <div className="observe-code">
