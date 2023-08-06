@@ -6,7 +6,6 @@ import React, {
 } from "react";
 import logo from "../img/logo.png";
 import logo2 from "../img/logo2.png";
-import observeIcon from "../img/observeicon.png";
 import axios from "axios";
 import * as faceapi from 'face-api.js';
 import Modal from "react-modal";
@@ -42,6 +41,13 @@ const Practice = () => {
   const screenRecordedChunksRef = useRef([]);
   const camRecordedChunksRef = useRef([]);
   const quitFlag = useRef(null); //녹화 종료 버튼 클릭 여부 확인
+
+  //pdf 녹화
+  const canvasRecordedVideoRef = useRef(null);
+  const canvasMediaStreamRef = useRef(null);
+  const canvasMediaRecorderRef = useRef(null);
+  const canvasRecordedChunksRef = useRef([]);
+  const pdfCanvasRef = useRef(null);
 
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
@@ -608,7 +614,7 @@ const Practice = () => {
           file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
         >
-          <Page pageNumber={pageNumber} width={800} />
+          <Page pageNumber={pageNumber} width={800} canvasRef={pdfCanvasRef} />
         </Document>
       </div>
     ) : (
@@ -702,6 +708,13 @@ const Practice = () => {
     setIsTimerRunning(true);
     screenRecordedChunksRef.current = [];
     camRecordedChunksRef.current = [];
+    camRecordedChunksRef.current = [];
+
+    canvasMediaStreamRef.current = pdfCanvasRef.current.captureStream();
+    console.log("pdfCanvasRef: ", pdfCanvasRef);
+    console.log("canvasMediaStreamRef: ", canvasMediaStreamRef);
+    console.log("canvasMediaStreamRef.current: ", canvasMediaStreamRef.current);
+
     screenMediaRecorderRef.current = new MediaRecorder(
       screenMediaStreamRef.current,
       {
@@ -711,6 +724,23 @@ const Practice = () => {
     camMediaRecorderRef.current = new MediaRecorder(camMediaStreamRef.current, {
       mimetype: "video/webm",
     });
+    canvasMediaRecorderRef.current = new MediaRecorder(canvasMediaStreamRef.current, {
+      mimetype: "video/webm",
+    });
+
+    //canvas test------------------------------------------
+    canvasMediaRecorderRef.current.onstart = function () {
+      console.log("Recording started");
+    };
+    
+    canvasMediaRecorderRef.current.onstop = function () {
+      console.log("Recording stopped");
+    };
+    
+    canvasMediaRecorderRef.current.onerror = function (event) {
+      console.error("Recording error:", event);
+    };
+    //------------------------------------------------------    
 
     screenMediaRecorderRef.current.ondataavailable = function (event) {
       if (event.data && event.data.size > 0) {
@@ -726,6 +756,13 @@ const Practice = () => {
         console.log("camMediaRecorderRef: ", camRecordedChunksRef);
       }
     };
+    canvasMediaRecorderRef.current.ondataavailable = function (event) {
+      if (event.data && event.data.size > 0) {
+        console.log("ondataavailable");
+        canvasRecordedChunksRef.current.push(event.data);
+        console.log("camMediaRecorderRef: ", canvasRecordedChunksRef);
+      }
+    };
 
     screenMediaRecorderRef.current.onstop = function () {
       if (screenRecordedChunksRef.current.length > 0) {
@@ -737,12 +774,20 @@ const Practice = () => {
           type: "video/webm",
         });
         console.log("camRecordedChunksRef.stop blob: ", camBlob);
+        const canvasBlob = new Blob(canvasRecordedChunksRef.current, {
+          type: "video/webm",
+        });
+        console.log("canvasRecordedChunksRef.stop blob: ", canvasBlob);
+
         const screenRecordedMediaURL = URL.createObjectURL(screenBlob);
         const camRecordedMediaURL = URL.createObjectURL(camBlob);
-        if (screenRecordedVideoRef.current && camRecordedVideoRef.current) {
+        const canvasRecordedMediaURL = URL.createObjectURL(canvasBlob);
+
+        if (screenRecordedVideoRef.current && camRecordedVideoRef.current && canvasRecordedVideoRef.current) {
           //아무 값도 없을 때 참조 금지
           screenRecordedVideoRef.current.src = screenRecordedMediaURL;
           camRecordedVideoRef.current.src = camRecordedMediaURL;
+          canvasRecordedVideoRef.current.src = canvasRecordedMediaURL;
         }
 
         console.log(quitFlag);
@@ -760,7 +805,7 @@ const Practice = () => {
           formData.append(
             //화면 녹화 추가
             "screen",
-            screenBlob,
+            canvasBlob,
             `screen_userID_${nowDate.getFullYear()}.${nowDate.getMonth() + 1
             }.${nowDate.getDate()}_${nowDate.getHours()}:${nowDate.getMinutes()}.webm`
           );
@@ -788,11 +833,13 @@ const Practice = () => {
         }
         screenMediaRecorderRef.current = null;
         camMediaRecorderRef.current = null;
+        canvasMediaRecorderRef.current = null;
       }
     };
     console.log("Recording Start!");
     camMediaRecorderRef.current.start();
     screenMediaRecorderRef.current.start();
+    canvasMediaRecorderRef.current.start();
     setPlaying(true);
   };
 
@@ -805,6 +852,7 @@ const Practice = () => {
 
     if (screenMediaRecorderRef.current) {
       camMediaRecorderRef.current.stop();
+      canvasMediaRecorderRef.current.stop();
       screenMediaRecorderRef.current.stop();
       setPlaying(false);
       setIsTimerRunning(false);
