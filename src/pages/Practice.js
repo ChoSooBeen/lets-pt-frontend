@@ -62,6 +62,7 @@ const Practice = () => {
   // stt, 표정인식-----------------------------------------------------------------
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
+
   // const [pauseDuration, setPauseDuration] = useState(0);
   const [message, setMessage] = useState(`PDF 파일을 업로드 해주세요!`); //메시지 띄우는 곳
 
@@ -156,34 +157,6 @@ const Practice = () => {
     setModalIsOpen(false);
   };
 
-  //무음 시간
-  useEffect(() => {
-    let intervalId;
-
-    if (listening) {
-      intervalId = setInterval(() => {
-        if (pauseStartTimeRef.current) {
-          let pauseEndTime = Date.now();
-          const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
-          console.log("무음 지속 시간 (밀리초):", pauseDuration);
-          closeModal();
-
-          if (pauseDuration > 5000) {
-            openModal();
-            console.log("렌더링됨");
-            pauseStartTimeRef.current = null; // 무음 시작 시간 초기화
-            pauseEndTime = null;
-          }
-        }
-      }, 1000);
-    }
-
-    return () => {
-      clearInterval(intervalId);
-      pauseStartTimeRef.current = null; // 컴포넌트가 언마운트되면 무음 시작 시간 초기화
-    };
-  }, [listening]);
-
   // 파형 그리기 함수
   const drawWaveform = () => {
     if (!analyserRef.current || !analyserRef.current.frequencyBinCount) return;
@@ -217,9 +190,14 @@ const Practice = () => {
 
     context.lineTo(canvas.width, canvas.height / 2);
     context.stroke();
+
+    // 파형 그리기 호출 후에 화면을 업데이트합니다.
+    setTimeout(() => {
+      requestAnimationFrame(drawWaveform);
+    }, 50); // 파형 속도 조절
   };
 
-  // 데시벨 측정
+  // 데시벨 측정, 무음 감지
   const startAudioContext = async (audioContext) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -237,24 +215,47 @@ const Practice = () => {
         const dataArray = new Uint8Array(bufferLength);
 
         analyserRef.current.getByteFrequencyData(dataArray);
-        const averageVolume =
+        const currentAverageVolume =
           dataArray.reduce((acc, value) => acc + value, 0) / bufferLength;
-        setAverageVolume(averageVolume);
+        setAverageVolume(currentAverageVolume);
 
-        // 수정된 부분: 음성 인식이 시작되었을 때만 파형을 그립니다.
-        if (isAudioContextStartedRef.current) {
-          drawWaveform(); // 파형 그리기 함수 호출
+        if (pauseStartTimeRef.current) {
+          let pauseEndTime = Date.now();
+          const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
+          console.log("무음 지속 시간 (밀리초):", pauseDuration);
+          console.log("평균 볼륨:", currentAverageVolume);
+          closeModal();
+
+          if (currentAverageVolume > 20) {
+            console.log("데시벨로 초기화");
+            pauseStartTimeRef.current = null;
+            pauseEndTime = null;
+          }
+
+          if (pauseDuration > 5000) {
+            openModal();
+            console.log("렌더링됨");
+            pauseStartTimeRef.current = null;
+            pauseEndTime = null;
+          }
         }
-      }, 100);
+      }, 500);
     } catch (error) {
       console.error("오디오 초기화 오류:", error);
     }
   };
 
   useEffect(() => {
-    const audioContext = new AudioContext();
-    startAudioContext(audioContext); // 데시벨 측정 및 파형 그리기 시작
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    startAudioContext(audioContext);
+
+    return () => {
+      if (analyserRef.current) {
+        clearInterval(analyserRef.current.interval);
+      }
+    };
   }, []);
+
 
   // 음성인식
   const handleStartStopListening = () => {
@@ -278,6 +279,7 @@ const Practice = () => {
           isAudioContextStartedRef.current = true;
           const audioContext = new AudioContext(); // 새로운 오디오 컨텍스트 생성
           startAudioContext(audioContext); // 수정된 부분: 오디오 컨텍스트 전달
+          drawWaveform(); // 파형 그리기 호출
         }
       };
 
