@@ -70,7 +70,7 @@ const MyPage = () => {
       <p className='mypage-title'>
         <span className='mypage-user-nickname'>{userId}</span> 님의 발표기록
       </p>
-      <div className='record-container'>
+      <div className='mypage-record-container'>
         <ul className='practice-record'>
           {pptTitle.map((title, index) => (
             <li key={index}>
