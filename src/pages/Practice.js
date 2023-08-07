@@ -17,6 +17,8 @@ import { FaUserCircle } from "react-icons/fa";
 import { BiMessageAdd } from "react-icons/bi";
 import { PiCopyBold } from "react-icons/pi";
 import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -222,8 +224,8 @@ const Practice = () => {
         if (pauseStartTimeRef.current) {
           let pauseEndTime = Date.now();
           const pauseDuration = pauseEndTime - pauseStartTimeRef.current;
-          console.log("무음 지속 시간 (밀리초):", pauseDuration);
-          console.log("평균 볼륨:", currentAverageVolume);
+          // console.log("무음 지속 시간 (밀리초):", pauseDuration);
+          // console.log("평균 볼륨:", currentAverageVolume);
           closeModal();
 
           if (currentAverageVolume > 20) {
@@ -885,24 +887,19 @@ const Practice = () => {
   }
 
   const goToDetailPage = () => {
-    const width = 1000;
-    const height = 600;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-
     const sendTitle = title
     const url = `/result?title=${sendTitle}&userId=${userId}`
 
     window.open(
       url,
       "_blank",
-      `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
+      `scrollbars=yes`
     );
   };
 
   const goToScriptPage = () => {
     const width = 1000;
-    const height = 600;
+    const height = 650;
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
@@ -1245,7 +1242,7 @@ const Practice = () => {
               <div className="voice-modal-overlay">
                 <div className="voice-modal-content">
                   <h2>알림</h2>
-                  <p>스크립트 보기 버튼을 눌러 스크립트를 확인해보세요!</p>
+                  <p>스크립트 보기 버튼을 눌러보세요!</p>
                   <button onClick={closeModal}>닫기</button>
                 </div>
               </div>

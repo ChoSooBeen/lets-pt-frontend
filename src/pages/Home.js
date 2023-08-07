@@ -3,11 +3,35 @@ import logo from '../img/logo.png';
 import { CgEnter } from "react-icons/cg";
 import axios from 'axios';
 import madeBy from '../img/madeBy.png'
+import clapSound from '../img/clap.mp3'
 
 const Home = () => {
   const [visitorcode, setVisitorCode] = useState("");
   const [userId, setUserId] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  const [isPlayed, setIsPlayed] = useState(false);
+
+  // 소리 재생을 위한 useEffect 훅
+  useEffect(() => {
+    const audio = new Audio(clapSound);
+
+    // 소리 재생 함수
+    const playClapSound = () => {
+      if (!isPlayed) {
+        audio.play();
+        setIsPlayed(true);
+      }
+    };
+
+    // 클릭 이벤트가 발생하면 소리 재생
+    document.addEventListener('click', playClapSound);
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      document.removeEventListener('click', playClapSound);
+    };
+  }, [isPlayed]);
 
   useEffect(() => {
     // 로컬스토리지에서 토큰 가져오기
@@ -61,8 +85,8 @@ const Home = () => {
   }
 
   const goToMyPage = () => {
-    const width = 800;
-    const height = 600;
+    const width = 1200;
+    const height = 800;
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 

@@ -52,7 +52,7 @@ const Record = () => {
       }
     };
     fetchData();
-  }, [presentationTitle, userId]);
+  }, [presentationTitle, presentationUser]);
 
   const formatTime = useCallback((timeInSeconds) => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -63,7 +63,7 @@ const Record = () => {
   const handleCommentSubmit = async (comment) => {
     const dataToSend = {
       title: presentationTitle,
-      userId: userId,
+      userId: presentationUser,
       userComment: {
         name: userId,
         time: {
@@ -137,7 +137,7 @@ const Record = () => {
 
       {data ? (
         <div className="record-detail">
-          <h1 className='record-result-detail-page-title'>코멘트 기록</h1>
+          <h1 className='record-result-detail-page-title'>유저 코멘트 기록</h1>
           <div className='record-result-page-comment-container'>
             <div className='record-result-comment-detail'>
 
@@ -147,7 +147,7 @@ const Record = () => {
                     <GoDotFill className='record-comment-dot' size={30} />
                     <div className='record-comment-name-area'>{user.name}</div>
                     <div className='record-comment-time-area'>
-                      <div>{`0${Math.floor(user.time.minute)} : ${String(Math.floor(user.time.second)).padStart(2, "0")}`}</div>
+                      <div>{`0${Math.floor(user.time.minute)}:${String(Math.floor(user.time.second)).padStart(2, "0")}`}</div>
                     </div>
                   </div>
                   <div className='record-comment-message-area'>
