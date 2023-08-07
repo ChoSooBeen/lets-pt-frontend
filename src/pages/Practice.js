@@ -131,7 +131,7 @@ const Practice = () => {
           else {
             console.log('웃지 않음', compareMessage.current);
             countSmile.current = countSmile.current < 0 ? 0 : countSmile.current + 1;
-            if (compareMessage.current !== `긴장을 풀고 좀 웃어보세요!` && countSmile.current >= 5) {
+            if (compareMessage.current !== `긴장을 풀고 좀 웃어보세요!` && countSmile.current >= 15) {
               compareMessage.current = `긴장을 풀고 좀 웃어보세요!`;
               setMessage(`긴장을 풀고 좀 웃어보세요!`);
             }
@@ -226,14 +226,14 @@ const Practice = () => {
           console.log("평균 볼륨:", currentAverageVolume);
           closeModal();
 
-          if (currentAverageVolume > 10) {
+          if (currentAverageVolume > 20) {
             console.log("데시벨로 초기화");
             closeModal();
             pauseStartTimeRef.current = null;
             pauseEndTime = null;
           }
 
-          if (pauseDuration > 3000) {
+          if (pauseDuration > 2000) {
             openModal();
             console.log("렌더링됨");
             pauseStartTimeRef.current = null;
@@ -808,7 +808,7 @@ const Practice = () => {
           formData.append(
             //화면 녹화 추가
             "screen",
-            canvasBlob,
+            screenBlob,
             `screen_userID_${nowDate.getFullYear()}.${nowDate.getMonth() + 1
             }.${nowDate.getDate()}_${nowDate.getHours()}:${nowDate.getMinutes()}.webm`
           );
