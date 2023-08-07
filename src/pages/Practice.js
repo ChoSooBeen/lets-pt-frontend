@@ -569,7 +569,7 @@ const Practice = () => {
         if (!isPractice) {
           //socket으로 참관자들에게 왼쪽 이벤트 발생 알리기
           console.log("leftArrow");
-          socket.current.emit("leftArrow");
+          socket.current.emit("leftArrow", roomName.current);
         }
         prevPage();
       } else if (event.key === "ArrowRight") {
@@ -577,7 +577,7 @@ const Practice = () => {
         if (!isPractice) {
           //socket으로 참관자들에게 오른쪽 이벤트 발생 알리기
           console.log("rightArrow");
-          socket.current.emit("rightArrow");
+          socket.current.emit("rightArrow", roomName.current);
         }
         if (pageNumber < numPages) {
           nextPage();
@@ -656,7 +656,7 @@ const Practice = () => {
     setPrevTime(Date.now());
     startRecording();
     if (!isPractice) {
-      socket.current.emit("start-timer"); //socket으로 참관자들에게 타이머 시작 알리기
+      socket.current.emit("start-timer", roomName.current); //socket으로 참관자들에게 타이머 시작 알리기
     } else {
       runFaceApi();
     }
@@ -670,7 +670,7 @@ const Practice = () => {
     quitFlag.current = true;
     stopRecording();
     if (!isPractice) {
-      socket.current.emit("stop-timer"); //socket으로 참관자들에게 타이머 종료 알리기
+      socket.current.emit("stop-timer", roomName.current); //socket으로 참관자들에게 타이머 종료 알리기
     }
     else {
       clearInterval(faceIntervalId.current); //얼굴인식 멈춤
@@ -995,7 +995,7 @@ const Practice = () => {
 
     //참관자 입장
     socket.current.on("user-join", async (data) => {
-      await socket.current.emit("title-url", { 'title': titleRef.current, 'pdfURL': pdfFileRef.current, 'userName': userId });
+      await socket.current.emit("title-url", { 'title': titleRef.current, 'pdfURL': pdfFileRef.current, 'userName': userId, visitorcode: roomName.current });
       setJoinUser(data.filter((id) => id !== socket.current.id));
       console.log("title-url", titleRef.current, pdfFileRef.current);
     });
