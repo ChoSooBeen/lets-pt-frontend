@@ -600,9 +600,9 @@ border:2px solid #fff;
   margin-left: 10px
 }
 
-/* .my-3{
+.my-3{
   display: none;
-} */
+}
 
 .pdf-file-drag-drop{
   font-weight:bold;
@@ -659,7 +659,7 @@ border:2px solid #fff;
  border: 1.5px solid black;
  border-radius: 5px;
  cursor: pointer;
- width:120px;
+ width:140px;
 }
 
 .script-show-button:hover {
@@ -761,9 +761,11 @@ border:2px solid #fff;
 .script-save{
   border:1px solid black;
   height: 200px;
+  width: 800px;
   padding:5px;
   font-size: 20px;
   background-color: #fff;
+  box-sizing: border-box;
 }
 
 .practice-title{
@@ -1397,7 +1399,7 @@ right:100px;
 .practice-record li {
   margin-bottom: 20px;
   display: grid;
-  grid-template-columns: auto 1fr 1fr;
+  grid-template-columns: auto 1fr 1fr 0.5fr;
   gap: 10px;
   align-items: center;
 }
@@ -1450,6 +1452,19 @@ border:2px solid #fff;
 .practice-record li button:hover{
   box-shadow:inset 120px 0 0 0 #333;
 }
+
+#delete-button{
+  border:none;
+  outline: none;
+  background-color: inherit;
+  width:30px;
+}
+
+#delete-button:hover{
+  color:#000;
+  box-shadow: none;
+}
+
 
 /* 각 줄 구분 스타일 */
 .practice-record li:not(:last-child) {
@@ -1923,4 +1938,65 @@ body {
 
 .observe-modal button:hover {
   background-color: #0056b3;
+}
+
+.made-button{
+  position:absolute;
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 100px;;
+  height:40px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:20px;
+  font-weight:bold;
+  z-index:2;
+  right:20px;
+  bottom:20px;
+}
+
+.made-button:hover{
+  color:#fff;
+  border:2px solid #fff;
+  box-shadow:inset 0 0 0 50px #222;
+}
+
+.made-modal-overlay{
+  position: fixed;
+  top:60%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width:1200px;
+  height:500px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url(../src/img/madeBy.png);
+  background-size: contain;
+}
+
+.made-close{
+  position:absolute;
+  border:2px solid #333;
+  color:#333;
+  background:#fff;
+  width: 100px;;
+  height:40px;
+  cursor:pointer;
+  outline:none;
+  transition:all 0.5s;
+  font-size:20px;
+  font-weight:bold;
+  z-index:2;
+  right:20px;
+  bottom:20px;
+}
+
+.made-close:hover{
+  color:#fff;
+  border:2px solid #fff;
+  box-shadow:inset 0 0 0 50px #222;
 }

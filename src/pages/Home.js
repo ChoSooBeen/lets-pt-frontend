@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react'
 import logo from '../img/logo.png';
 import { CgEnter } from "react-icons/cg";
 import axios from 'axios';
-
-
+import madeBy from '../img/madeBy.png'
 
 const Home = () => {
   const [visitorcode, setVisitorCode] = useState("");
   const [userId, setUserId] = useState(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   useEffect(() => {
     // 로컬스토리지에서 토큰 가져오기
@@ -56,6 +56,10 @@ const Home = () => {
     );
   }
 
+  const closeModal = () => {
+    setModalIsOpen(false);
+  }
+
   const goToMyPage = () => {
     const width = 800;
     const height = 600;
@@ -97,6 +101,16 @@ const Home = () => {
         <p className='user-info'><span className='user-nickname'>{userId}</span> 님 환영합니다! </p>
         <button className='mypage-button' onClick={goToMyPage}>마이 페이지</button>
         <button className='logout-button' onClick={logout}>로그아웃</button>
+      </div>
+      <div>
+        <button className='made-button' onClick={() => setModalIsOpen(true)}>제작</button>
+      </div>
+      <div>
+        {modalIsOpen && (
+          <div className="made-modal-overlay">
+            <button onClick={closeModal} className='made-close'>닫기</button>
+          </div>
+        )}
       </div>
     </div >
   )

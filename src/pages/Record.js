@@ -20,6 +20,7 @@ const Record = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const presentationTitle = searchParams.get("title");
+  const presentationUser = searchParams.get("userId");
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -43,7 +44,7 @@ const Record = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${presentationTitle}&userId=${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${presentationTitle}&userId=${presentationUser}`);
         setData(response.data);
         console.log(response);
       } catch (error) {

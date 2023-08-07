@@ -64,7 +64,7 @@ const Practice = () => {
   const [transcript, setTranscript] = useState("");
 
   // const [pauseDuration, setPauseDuration] = useState(0);
-  const [message, setMessage] = useState(`PDF 파일을 업로드 해주세요!`); //메시지 띄우는 곳
+  const [message, setMessage] = useState(`PDF와 스크립트를 작성해주세요!`); //메시지 띄우는 곳
 
   const AudioContext = window.AudioContext || window.webkitAudioContext; // 데시벨 측정
   const isAudioContextStartedRef = useRef(false);
@@ -116,26 +116,26 @@ const Practice = () => {
             }
           });
 
-          // if (expression === 'happy') {
-          //   console.log('웃음', compareMessage.current);
-          //   countSmile.current = countSmile.current > 0 ? 0 : countSmile.current - 1;
-          //   if (compareMessage.current === `표정이 너무 굳어있네요! SMILE*^-^*` || countSmile.current >= -3) {
-          //     compareMessage.current = '좋습니다! 계속 진행하세요!';
-          //     setMessage('좋습니다! 계속 진행하세요!');
-          //   }
-          //   else {
-          //     compareMessage.current = '발표가 진행 중입니다.';
-          //     setMessage('발표가 진행 중입니다.');
-          //   }
-          // }
-          // else {
-          //   console.log('웃지 않음', compareMessage.current);
-          //   countSmile.current = countSmile.current < 0 ? 0 : countSmile.current + 1;
-          //   if (compareMessage.current !== `표정이 너무 굳어있네요! SMILE*^-^*` && countSmile.current >= 5) {
-          //     compareMessage.current = `표정이 너무 굳어있네요! SMILE*^-^*`;
-          //     setMessage(`표정이 너무 굳어있네요! SMILE*^-^*`);
-          //   }
-          // }
+          if (expression === 'happy') {
+            console.log('웃음', compareMessage.current);
+            countSmile.current = countSmile.current > 0 ? 0 : countSmile.current - 1;
+            if (compareMessage.current === `긴장을 풀고 좀 웃어보세요!` || countSmile.current >= -3) {
+              compareMessage.current = '좋습니다! 계속 진행하세요!';
+              setMessage('좋습니다! 계속 진행하세요!');
+            }
+            else {
+              compareMessage.current = '발표가 진행 중입니다.';
+              setMessage('발표가 진행 중입니다.');
+            }
+          }
+          else {
+            console.log('웃지 않음', compareMessage.current);
+            countSmile.current = countSmile.current < 0 ? 0 : countSmile.current + 1;
+            if (compareMessage.current !== `긴장을 풀고 좀 웃어보세요!` && countSmile.current >= 15) {
+              compareMessage.current = `긴장을 풀고 좀 웃어보세요!`;
+              setMessage(`긴장을 풀고 좀 웃어보세요!`);
+            }
+          }
         }
       }, 1000);
     });
@@ -160,37 +160,37 @@ const Practice = () => {
   // 파형 그리기 함수
   const drawWaveform = () => {
     if (!analyserRef.current || !analyserRef.current.frequencyBinCount) return;
-  
+
     const canvas = canvasRef.current;
     if (!canvas) return;
-  
+
     const context = canvas.getContext("2d");
     const bufferLength = analyserRef.current.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
-  
+
     analyserRef.current.getByteTimeDomainData(dataArray);
-  
+
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.beginPath();
     const sliceWidth = (canvas.width * 1.0) / bufferLength;
     let x = 0;
-  
+
     for (let i = 0; i < bufferLength; i++) {
       const v = dataArray[i] / 128.0;
       const y = (v * canvas.height) / 2;
-  
+
       if (i === 0) {
         context.moveTo(x, y);
       } else {
         context.lineTo(x, y);
       }
-  
+
       x += sliceWidth;
     }
-  
+
     context.lineTo(canvas.width, canvas.height / 2);
     context.stroke();
-  
+
     // 파형 그리기 호출 후에 화면을 업데이트합니다.
     setTimeout(() => {
       requestAnimationFrame(drawWaveform);
@@ -228,18 +228,19 @@ const Practice = () => {
 
           if (currentAverageVolume > 20) {
             console.log("데시벨로 초기화");
+            closeModal();
             pauseStartTimeRef.current = null;
             pauseEndTime = null;
           }
 
-          if (pauseDuration > 5000) {
+          if (pauseDuration > 2000) {
             openModal();
             console.log("렌더링됨");
             pauseStartTimeRef.current = null;
             pauseEndTime = null;
           }
         }
-      }, 500);
+      }, 100);
     } catch (error) {
       console.error("오디오 초기화 오류:", error);
     }
@@ -255,7 +256,7 @@ const Practice = () => {
       }
     };
   }, []);
-    
+
 
   // 음성인식
   const handleStartStopListening = () => {
@@ -289,33 +290,33 @@ const Practice = () => {
         pauseStartTimeRef.current = null;
         isAudioContextStartedRef.current = false;
 
-      // 데시벨 측정을 중지하거나 오디오 컨텍스트를 닫는 코드 추가
-      if (analyserRef.current) {
-        clearInterval(analyserRef.current.interval);
-      }
-      if (analyserRef.current && analyserRef.current.context.state !== "closed") {
-        analyserRef.current.context.close().then(() => {
-          analyserRef.current = null;
-          console.log("오디오 컨텍스트 종료");
-        });
-      }
-    };
+        // 데시벨 측정을 중지하거나 오디오 컨텍스트를 닫는 코드 추가
+        if (analyserRef.current) {
+          clearInterval(analyserRef.current.interval);
+        }
+        if (analyserRef.current && analyserRef.current.context.state !== "closed") {
+          analyserRef.current.context.close().then(() => {
+            analyserRef.current = null;
+            console.log("오디오 컨텍스트 종료");
+          });
+        }
+      };
 
-    recognitionRef.current.onresult = (event) => {
-      const { transcript } = event.results[event.results.length - 1][0];
-      setTranscript((prevTranscript) => prevTranscript + transcript + " ");
-      pauseStartTimeRef.current = Date.now();
-    };
-  }
+      recognitionRef.current.onresult = (event) => {
+        const { transcript } = event.results[event.results.length - 1][0];
+        setTranscript((prevTranscript) => prevTranscript + transcript + " ");
+        pauseStartTimeRef.current = Date.now();
+      };
+    }
 
-  if (listening) {
-    recognitionRef.current.stop();
-    pauseStartTimeRef.current = null; // 음성이 인식이 종료되면 무음 시작 시간 초기화
-  } else {
-    recognitionRef.current.start();
-    pauseStartTimeRef.current = Date.now(); // 음성이 인식되면 무음 시작 시간 초기화
-  }
-};
+    if (listening) {
+      recognitionRef.current.stop();
+      pauseStartTimeRef.current = null; // 음성이 인식이 종료되면 무음 시작 시간 초기화
+    } else {
+      recognitionRef.current.start();
+      pauseStartTimeRef.current = Date.now(); // 음성이 인식되면 무음 시작 시간 초기화
+    }
+  };
 
 
 
@@ -734,11 +735,11 @@ const Practice = () => {
     canvasMediaRecorderRef.current.onstart = function () {
       console.log("Recording started");
     };
-    
+
     canvasMediaRecorderRef.current.onstop = function () {
       console.log("Recording stopped");
     };
-    
+
     canvasMediaRecorderRef.current.onerror = function (event) {
       console.error("Recording error:", event);
     };
@@ -807,7 +808,7 @@ const Practice = () => {
           formData.append(
             //화면 녹화 추가
             "screen",
-            canvasBlob,
+            screenBlob,
             `screen_userID_${nowDate.getFullYear()}.${nowDate.getMonth() + 1
             }.${nowDate.getDate()}_${nowDate.getHours()}:${nowDate.getMinutes()}.webm`
           );
@@ -1240,7 +1241,7 @@ const Practice = () => {
             ) : null}
           </div>
           <div>
-            {modalIsOpen && (
+            {isPractice && modalIsOpen && (
               <div className="voice-modal-overlay">
                 <div className="voice-modal-content">
                   <h2>알림</h2>

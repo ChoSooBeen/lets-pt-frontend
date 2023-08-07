@@ -2,7 +2,7 @@
   "name": "frontend_rebuild",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3001",
+  "proxy": "http://15.165.41.221:3001",
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -17,7 +17,7 @@
     "html2canvas": "^1.4.1",
     "main": "^1000.0.1",
     "origin": "^0.8.6",
-    "pdfjs-dist": "^3.8.162",
+    "pdfjs-dist": "^3.9.179",
     "pptxgenjs": "^3.12.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",

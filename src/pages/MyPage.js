@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
+import { MdDelete } from "react-icons/md";
 
 const MyPage = () => {
   // 수정된 클라이언트 코드
@@ -65,6 +66,21 @@ const MyPage = () => {
     );
   };
 
+  const deleteResult = async (title) => {
+    try {
+      // 실제 데이터베이스에서 타이틀을 삭제하는 API 엔드포인트 URL로 대체해주세요.
+      const apiUrlDelete = `${process.env.REACT_APP_SITE_URL}/presentation/delete`;
+
+      // 해당 타이틀을 페이로드로 전송하여 삭제 요청을 보냅니다.
+      const response = await axios.post(apiUrlDelete, { title, userId });
+      alert("발표 연습 기록이 삭제됐습니다.")
+      window.location.reload();
+      // 삭제가 성공적으로 이루어졌을 경우, pptTitle 상태에서 삭제된 타이틀을 제거합니다.
+    } catch (error) {
+      console.error('에러:', error);
+    }
+  };
+
   return (
     <div className='mypage-container'>
       <p className='mypage-title'>
@@ -77,6 +93,7 @@ const MyPage = () => {
               <span>{title}</span>
               <button onClick={() => goToDetailPage(title)}>결과보기</button>
               <button onClick={() => goToSharePage(title)}>영상공유</button>
+              <button id='delete-button' onClick={() => deleteResult(title)}><MdDelete size={40} /></button>
             </li>
           ))}
         </ul>
