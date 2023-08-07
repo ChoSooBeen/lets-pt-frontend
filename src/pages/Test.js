@@ -1,111 +1,144 @@
-import React, { useRef, useState } from 'react';
-import { Page, pdfjs } from 'react-pdf';
+import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react'
+import { GoDotFill } from "react-icons/go";
 
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-
-function Test() {
-  const pdfUrl = 'https://green-2team-bucket.s3.ap-northeast-2.amazonaws.com/TCP_IP.pdf';
-  const canvasRef = useRef(null);
+const Result = () => {
+  const [data, setData] = useState(null);
   const videoRef = useRef(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pdfInstance, setPdfInstance] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const recordedChunksRef = useRef([]);
 
-  const loadPdf = async () => {
-    try {
-      const pdf = await pdfjs.getDocument(pdfUrl).promise;
-      setPdfInstance(pdf);
-      return renderPdfToCanvas(pdf, currentPage);
-    } catch (error) {
-      console.error('PDF 로드 중 오류 발생:', error);
-    }
-  };
+  const params = new URLSearchParams(window.location.search);
+  const title = params.get('title');
+  const userId = params.get('userId');
 
-  const renderPdfToCanvas = async (pdf, pageNumber) => {
-    const page = await pdf.getPage(pageNumber);
-    const viewport = page.getViewport({ scale: 1 });
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-
-    await page.render({
-      canvasContext: context,
-      viewport: viewport,
-      background: 'transparent',
-    }).promise;
-  };
-
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
-      renderPdfToCanvas(pdfInstance, currentPage - 1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (pdfInstance && currentPage < pdfInstance.numPages) {
-      setCurrentPage((prevPage) => prevPage + 1);
-      renderPdfToCanvas(pdfInstance, currentPage + 1);
-    }
-  };
-
-  const startRecording = async () => {
-    recordedChunksRef.current = [];
-    const stream = canvasRef.current.captureStream(30);
-    mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'video/webm' });
-    mediaRecorderRef.current.ondataavailable = handleDataAvailable;
-    mediaRecorderRef.current.onstop = handleStop;
-    mediaRecorderRef.current.start();
-    setIsRecording(true);
-    // Re-load the PDF and render the first page
-    await loadPdf();
-  };
-
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
-
-  const handleStop = () => {
-    const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
-    const url = URL.createObjectURL(blob);
-    videoRef.current.src = url;
-    videoRef.current.onload = () => {
-      videoRef.current.play();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${title}&userId=${userId}`);
+        setData(response.data);
+        console.log(response);
+      } catch (error) {
+        console.log('An error occurred:', error);
+      }
     };
+    fetchData();
+  }, [title, userId]);
+
+  function highlightWords(script, recommendedWords, forbiddenWords) {
+    let resultScript = script;
+    for (const wordObj of recommendedWords) {
+      const word = wordObj.word;
+      const regExp = new RegExp(`${word}`, 'gi');
+      resultScript = resultScript.replace(regExp, `<span class='highlight-recommended'>${word}</span>`);
+    }
+
+    for (const wordObj of forbiddenWords) {
+      const word = wordObj.word;
+      const regExp = new RegExp(`${word}`, 'gi');
+      resultScript = resultScript.replace(regExp, `<span class='highlight-forbidden'>${word}</span>`);
+    }
+
+    return resultScript;
+  }
+
+  const formatTime = (time) => {
+    const minutes = String(Math.floor(time / 60)).padStart(2, '0');
+    const seconds = String(Math.floor(time % 60)).padStart(2, '0');
+    return `${minutes}:${seconds}`;
   };
 
 
-  const handleDataAvailable = (event) => {
-    if (event.data.size > 0) {
-      recordedChunksRef.current.push(event.data);
-    }
+  const handleVideoSeek = (time) => {
+    videoRef.current.currentTime = time;
   };
 
   return (
-    <div>
-      <canvas ref={canvasRef} width={800} height={450} style={{ border: '1px solid black' }} />
-      <br /><br />
-      <button onClick={handlePrevPage}>이전 페이지</button>
-      <button onClick={handleNextPage}>다음 페이지</button>
-      <br /><br />
-      {currentPage} / {pdfInstance ? pdfInstance.numPages : '-'}
-      <br />
-      <button onClick={loadPdf}>Load PDF</button>
-      <button onClick={startRecording} disabled={isRecording}>녹화 시작</button>
-      <button onClick={stopRecording} disabled={!isRecording}>녹화 중지</button>
-      <br /><br />
-      <video ref={videoRef} width={300} controls style={{ border: '1px solid black' }}></video>
-    </div>
-  );
+    <div className="detail-container">
+      {data ? (
+        <>
+          <div className="left-column">
+            <h1>녹화 영상</h1>
+            <video ref={videoRef} muted controls className='result-video' width={550}>
+              <source src={data.resultVideo} type='video/webm' />
+              {/* 이하에 필요한 다른 영상 포맷의 소스를 추가할 수 있습니다. */}
+            </video>
+          </div>
+          <div className="right-column">
+            <div className='result-page-comment-container'>
+              <h1 className='result-detail-page-title'>유저 코멘트</h1>
+              <div className='result-comment-detail'>
+                {data.comment.map((user, index) => (
+                  <div key={index} className="user-comment-card">
+                    <div className='comment-name-time-container'>
+                      <GoDotFill className='comment-dot' size={50} />
+                      <div className='comment-name-area'>{user.name}</div>
+                      <div className='comment-time-area' onClick={() => handleVideoSeek(user.time.minute * 60 + user.time.second)}>
+                        <div>{formatTime(user.time.minute * 60 + user.time.second)}</div>
+                      </div>
+                    </div>
+                    <div className='comment-message-area'>
+                      {user.message}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className='result-page-timer-container'>
+              <h1 className='result-detail-page-title'>상세 경과 시간</h1>
+              <div className='total-time-bar' style={{ display: 'flex', flexDirection: 'column' }}>
+                <div className='total-time' style={{ width: '100%', backgroundColor: 'blue', color: 'white' }}>
+                  <span>{formatTime(data.progressingTime.minute * 60 + data.progressingTime.second)}</span>
+                </div>
+                <div className='result-timer-detail' style={{ overflowY: 'scroll', flex: 1 }}>
+                  {data.pdfTime.map((time, index) => (
+                    <div className='detail-timer-card' key={index} style={{ marginBottom: '10px' }}>
+                      <GoDotFill className='dot' />
+                      <div className='detail-page-area'>{index + 1} 페이지</div>
+                      <div className='detail-time-area' style={{ height: '20px', backgroundColor: 'blue', color: 'white' }}>
+                        <span>{formatTime(time.minutes * 60 + time.seconds)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className='result-page-script-container'>
+              <h1 className='result-detail-page-title'>음성 데이터</h1>
+              <div>
+                <h2 className='recommend-word'>강조단어</h2>
+                {data.recommendedWord.map((word, index) => (
+                  <div key={index} className='recommend-word-card'>
+                    <GoDotFill className='dot' />
+                    <span className='recommend-word-detail'>{word.word}</span> :
+                    <span className='recommend-word-count'>{word.count}회</span>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <h2 className='forbidden-word'>금지단어</h2>
+                {data.forbiddenWord.map((word, index) => (
+                  <div key={index} className='forbidden-word-card'>
+                    <GoDotFill className='dot' />
+                    <span className='forbidden-word-detail'>{word.word}</span> :
+                    <span className='forbidden-word-count'>{word.count}회</span>
+                  </div>
+                ))}
+              </div>
+              <h2 className='voice-change-result'>음성 텍스트 변환 결과</h2>
+              <div className='result-script-detail' dangerouslySetInnerHTML={{ __html: highlightWords(data.sttScript, data.recommendedWord, data.forbiddenWord) }}></div>
+            </div>
+
+            <div className='result-page-question-container'>
+              <h1 className='result-detail-page-title'>예상 질문 및 답변</h1>
+              <div className='result-question-detail' style={{ whiteSpace: 'pre-wrap' }}>{data.qna}</div>
+            </div>
+          </div>
+        </>) : (
+        <div>로딩 중...</div>
+      )
+      }
+    </div >
+  )
 }
 
-export default Test;
+export default Result

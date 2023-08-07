@@ -380,13 +380,13 @@ const Observe = () => {
         <div className="observe-page-middle">
           {receiveData ? (
             <div className="pdf-area">
-              <Document file={receiveData.pdfURL} onLoadSuccess={onDocumentLoadSuccess}>
-                <Page pageNumber={pageNumber} width="800" />
+              <Document className="observe-document" file={receiveData.pdfURL} onLoadSuccess={onDocumentLoadSuccess}>
+                <Page pageNumber={pageNumber} width="800" height="450" />
               </Document>
               <h2 className="presentation-title">{receiveData.title}</h2>
             </div>
           ) : (
-            <div>Loading...</div>
+            <div className="loading-pdf">Loading...</div>
           )}
           <div id="call">
             <div id="myStream">

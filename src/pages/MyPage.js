@@ -35,18 +35,13 @@ const MyPage = () => {
 
 
   const goToDetailPage = (title) => {
-    const width = 1000;
-    const height = 600;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-
     const sendTitle = title
     const url = `/result?title=${sendTitle}&userId=${userId}`
 
     window.open(
       url,
       "_blank",
-      `width=${width}, height=${height}, left=${left}, top=${top}, resizable=no, scrollbars=yes`
+      `scrollbars=yes`
     );
   };
 
@@ -93,7 +88,7 @@ const MyPage = () => {
               <span>{title}</span>
               <button onClick={() => goToDetailPage(title)}>결과보기</button>
               <button onClick={() => goToSharePage(title)}>영상공유</button>
-              <button id='delete-button' onClick={() => deleteResult(title)}><MdDelete size={40} /></button>
+              <button id='delete-button' onClick={() => deleteResult(title)}><MdDelete size={50} /></button>
             </li>
           ))}
         </ul>

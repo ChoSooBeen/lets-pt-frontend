@@ -504,10 +504,6 @@ border:2px solid #fff;
   margin-bottom: 20px;
 }
 
-.timer-container{
-
-}
-
 .timer-icon{
  vertical-align: -6px;
  margin-right: 10px;
@@ -694,8 +690,8 @@ border:2px solid #fff;
 
 .voice-modal-overlay {
   position: fixed;
-  top:30%;
-  left: 20%;
+  top:28%;
+  left: 21%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -704,25 +700,29 @@ border:2px solid #fff;
 .voice-modal-content {
   background-color: white;
   padding: 20px;
+  border:2px red solid;
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .voice-modal-content h2 {
   margin-top: 0;
+  font-size:30px;
 }
 
 .voice-modal-content p {
   margin: 10px 0;
+  font-size:24px;
 }
 
 .voice-modal-content button {
-  background-color: #007bff;
+  background-color: red;
   color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+  font-size:20px;
 }
 
 .practice-right{
@@ -969,7 +969,7 @@ right:100px;
   text-align: center;
   margin-bottom:20px;
   font-weight: bold;
-  font-size:24px;
+  font-size:30px;
 }
 
 .script-text{
@@ -978,7 +978,7 @@ right:100px;
   margin:30px;
   margin-top:0;
   padding:10px;
-  font-size:16px;
+  font-size:18px;
 }
 
 .script-change{
@@ -1150,17 +1150,19 @@ right:100px;
 .keyword-container{
   text-align:center;
   padding-top:10px;
-  height:250px;
+  height:300px;
+  width:400px;
 }
 
 .keyword-title{
-  font-size:24px;
+  font-size:30px;
   font-weight:bold;
   margin-bottom: 15px;
 }
 
 .yes-word-container{
-  font-size:20px;
+  display: inline-block;
+  font-size:24px;
   font-weight:bold;
   text-align: start;
   padding-left: 20px;
@@ -1169,24 +1171,24 @@ right:100px;
 }
 
 .yes-word-input, .no-word-input{
-  height:24px;
+  height:30px;
   width:130px;
   margin-left: 10px;
-
-  font-size:18px;
+  font-size:24px;
 }
 
 .no-word-container{
-  font-size:20px;
+  font-size:24px;
   font-weight:bold;
   text-align: start;
   padding-left: 20px;
+  display: inline-block;
 }
 
 .yes-word-button, .no-word-button{
   width:50px;
   height:30px;
-  font-size:16px;
+  margin-bottom: 20px;
   background-color:inherit;
   border:none;
   cursor:pointer;
@@ -1194,12 +1196,9 @@ right:100px;
 
 .word-list {
   display: flex;
-  flex-wrap: wrap;
 }
 
 .word-item {
-  display: flex;
-  align-items: center;
   background-color: #f2f2f2;
   border-radius: 4px;
   padding: 3px;
@@ -1272,6 +1271,10 @@ right:100px;
   margin-bottom: 50px;
 }
 
+.observe-document{
+  height:450px;
+}
+
 .presentation-title{
   display: inline-block;
   font-weight:bold;
@@ -1283,6 +1286,9 @@ right:100px;
   margin-top: 20px;
 }
 
+.loading-pdf{
+  height:450px;
+}
 
 #myStream{
   text-align: center;
@@ -1373,7 +1379,7 @@ right:100px;
 }
 
 .mypage-title {
-  font-size: 36px;
+  font-size: 48px;
   margin-bottom: 20px;
   color: #333;
   text-align: center;
@@ -1409,7 +1415,7 @@ right:100px;
   border: 2px solid #007bff;
   border-radius: 8px;
   background-color: #fff;
-  font-size: 24px;
+  font-size: 30px;
   color: #333;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s, color 0.3s;
@@ -1417,7 +1423,7 @@ right:100px;
   white-space: nowrap;
   text-overflow: ellipsis;
   font-weight:bold;
-  width:150px;
+  width:250px;
   height:30px;
   line-height: 30px;
 }
@@ -1431,12 +1437,12 @@ right:100px;
   border:2px solid #333;
   color:#333;
   background:#fff;
-  width: 100px;;
+  width: 150px;;
   height:50px;
   cursor:pointer;
   outline:none;
   transition:all 0.5s;
-  font-size:1.2em;
+  font-size:30px;
   font-weight:bold;
 }
 
@@ -1461,7 +1467,7 @@ border:2px solid #fff;
 }
 
 #delete-button:hover{
-  color:#000;
+  color:#666;
   box-shadow: none;
 }
 
@@ -1477,8 +1483,7 @@ border:2px solid #fff;
 
 .detail-container {
   display: flex;
-  width: 1000px;
-  height: 600px;
+  height: 100vh;
   background-color: #FFFFFF;
   border-radius: 20px;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
@@ -1492,7 +1497,7 @@ border:2px solid #fff;
 }
 
 .left-column h1 {
-  font-size: 28px;
+  font-size: 40px;
   font-weight: bold;
   color: #333;
 }
@@ -1502,7 +1507,6 @@ border:2px solid #fff;
   top: 55%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 70%;
   height: auto;
   border-radius: 10px;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
@@ -1518,13 +1522,14 @@ border:2px solid #fff;
 .result-page-timer-container h1,
 .result-page-script-container h1,
 .result-page-question-container h1 {
-  font-size: 30px;
+  font-size: 40px;
   font-weight: bold;
   margin-bottom: 20px;
   color: #333;
 }
 
 /* 수정된 부분 */
+.result-page-comment-container,
 .result-page-timer-container,
 .result-page-script-container,
 .result-page-question-container {
@@ -1537,6 +1542,7 @@ border:2px solid #fff;
 }
 
 .user-comment-card {
+  background-color: #fff;
   margin-bottom: 15px;
   padding: 15px;
   border-radius: 10px;
@@ -1563,23 +1569,24 @@ border:2px solid #fff;
   height: 40px;
   line-height: 40px;
   margin-right: 30px;
-  font-size: 18px;
+  font-size: 28px;
   font-weight: bold;
   color: #333;
 }
 
 .comment-time-area {
   border: 1px solid #ccc;
-  width: 100px;
+  width: 120px;
   height: 40px;
   line-height: 40px;
   border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 16px;
+  font-size: 28px;
   color: #555;
   cursor: pointer;
+  font-weight:bold;
   transition: background-color 0.2s ease;
 }
 
@@ -1592,35 +1599,41 @@ border:2px solid #fff;
   padding: 10px;
   border: 1.5px solid #ccc;
   border-radius: 10px;
-  font-size: 16px;
+  font-size: 24px;
   color: #555;
   white-space: pre-wrap;
   line-height: 1.6;
 }
 
 .total-time-area {
-  font-size: 24px;
   margin-bottom: 20px;
   text-align: center;
+  font-size:28px;
+  font-weight: bold;
+  background-color: #fff;
+  padding:20px;
+  border-radius:10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .total-time-area span {
   display: inline-block;
-  width: 100px;
-  height: 35px;
-  line-height: 35px;
+  width: 120px;
+  height: 40px;
+  line-height: 40px;
   border: 1px solid #ccc;
   border-radius: 10px;
-  font-size: 18px;
+  font-size: 28px;
+  font-weight: bold;
   text-align: center;
-  margin: 0 5px;
+  margin: 5px 5px;
   color: #333;
 }
 
 .detail-timer-card {
   display: flex;
   align-items: center;
-  font-size: 18px;
+  font-size: 24px;
   line-height: 35px;
   margin-bottom: 10px;
   color: #333;
@@ -1637,14 +1650,14 @@ border:2px solid #fff;
 
 .detail-time-area {
   border: 1px solid #ccc;
-  width: 100px;
+  width: 120px;
   height: 35px;
   line-height: 35px;
   border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 16px;
+  font-size: 24px;
   color: #555;
 }
 
@@ -1656,28 +1669,56 @@ border:2px solid #fff;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
 }
 
+.result-page-script-container > div{
+  background-color: #fff;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  padding:20px;
+  margin-bottom:20px;
+  border-radius: 10px;
+}
+
 .recommend-word, .forbidden-word {
-  font-size: 22px;
+  font-size: 30px;
   font-weight: bold;
   margin-bottom: 10px;
   color: #333;
 }
 
 .recommend-word-detail, .forbidden-word-detail {
-  font-size: 18px;
-  color: #555;
+  font-size: 26px;
+  font-weight: bold;
+  color: #fff;
+  display: inline-block;
+  padding-left:5px;
+  padding-right:5px;
+  border-radius:5px;
+}
+
+.recommend-word-detail{
+  background-color: #1F6FE6;
+}
+
+.forbidden-word-detail{
+  background-color: tomato;
 }
 
 .recommend-word-count, .forbidden-word-count {
   display: inline-block;
-  font-size: 18px;
+  font-size: 26px;
+  font-weight: bold;
   margin-bottom: 10px;
-  color: #555;
+  color: #333;
+  padding-left:10px;
+}
+
+.voice-change-result{
+  margin-top: 30px;
+  font-size:30px;
 }
 
 .result-script-detail {
   padding: 10px;
-  font-size: 16px;
+  font-size: 24px;
   color: #555;
   white-space: pre-wrap;
   line-height: 1.6;
@@ -1693,10 +1734,11 @@ border:2px solid #fff;
 }
 
 .result-question-detail {
-  font-size: 16px;
+  font-size: 24px;
   color: #333;
   white-space: pre-wrap;
   line-height: 1.6;
+  font-weight:bold;
 }
 
 /* ---------------------------- */
@@ -1717,7 +1759,7 @@ border:2px solid #fff;
 .share-title{
   margin-top:30px;
   font-weight: bold;
-  font-size:24px;
+  font-size:36px;
 }
 
 .share-url-container{
@@ -1727,14 +1769,14 @@ border:2px solid #fff;
   width:500px;
   margin-left: 50px;
   margin-top: 20px;
-  height:40px;
+  height:50px;
   border:1px solid #CACACA;
   border-radius:5px;
 }
 
 .share-url-area{
-  font-size:20px;
-  line-height: 40px;
+  font-size:24px;
+  line-height: 50px;
   text-indent:10px;
   overflow: hidden;
 }
@@ -1800,7 +1842,7 @@ body {
 
 /* .record-result-detail-page-title 스타일 */
 .record-result-detail-page-title {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
   margin-bottom: 20px;
 }
@@ -1810,11 +1852,11 @@ body {
   display: flex;
   flex-direction: column;
   height: 500px;
+  font-size:24px;
 }
 
 /* .record-user-comment-card 스타일 */
 .record-user-comment-card {
-  display: flex;
   margin-bottom: 10px;
   padding: 10px;
   border: 1px solid #ccc;
@@ -1831,30 +1873,33 @@ body {
 /* .record-comment-dot 스타일 */
 .record-comment-dot {
   margin-right: 5px;
+  margin-top: 5px;
 }
 
 .record-comment-name-area{
   margin-right: 10px;
-  line-height: 30px;
+  line-height: 40px;
+  font-weight: bold;
   border: 1px solid #ccc;
   border-radius: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .record-comment-time-area{
-  line-height: 30px;
+  line-height: 40px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
   cursor: pointer;
 }
 
 /* .record-comment-message-area 스타일 */
 .record-comment-message-area {
-  flex: 1;
   line-height: 30px;
+  margin-top: 10px;
+  text-indent:35px;
 }
 
 /* .record-comment-write 스타일 */
@@ -1869,9 +1914,9 @@ body {
 /* .record-timer 스타일 */
 .record-timer {
   margin-right: 10px;
-  font-size: 16px;
+  font-size: 24px;
   color: #333;
-  padding: 10px;
+  padding: 5px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -1884,8 +1929,8 @@ body {
   margin-right: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  font-size:16px;
-  height: 25px;
+  font-size:24px;
+  height: 28px;
 }
 
 /* .record-comment-submit 스타일 */
@@ -1999,4 +2044,38 @@ body {
   color:#fff;
   border:2px solid #fff;
   box-shadow:inset 0 0 0 50px #222;
+}
+
+
+/* Result 컴포넌트 내의 예상 질문 및 답변 스타일 */
+
+.result-detail-page-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333; /* 제목 텍스트 색상 */
+}
+
+.result-question-detail {
+  margin-top: 10px;
+}
+
+.question-answer {
+  margin-bottom: 20px;
+  padding: 10px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.question {
+  margin-bottom: 10px;
+  font-size: 26px;
+  font-weight: bold;
+  color: #333; /* 질문 텍스트 색상 */
+}
+
+.answer {
+  font-size: 22px;
+  color: #555; /* 답변 텍스트 색상 */
 }
