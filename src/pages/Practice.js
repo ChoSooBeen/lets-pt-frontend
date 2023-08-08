@@ -19,6 +19,7 @@ import { PiCopyBold } from "react-icons/pi";
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
+import clapSound from '../img/clap.mp3'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -43,6 +44,13 @@ const Practice = () => {
   const screenRecordedChunksRef = useRef([]);
   const camRecordedChunksRef = useRef([]);
   const quitFlag = useRef(null);
+
+  const audio = new Audio(clapSound);
+
+  // 소리 재생 함수
+  const playClapSound = () => {
+    audio.play();
+  };
 
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
@@ -662,6 +670,7 @@ const Practice = () => {
     setResultSeconds(seconds);
     setResultScript(transcript);
     setModal(true);
+    playClapSound();
     setMinutes(0);
     setSeconds(0);
     setTranscript("");

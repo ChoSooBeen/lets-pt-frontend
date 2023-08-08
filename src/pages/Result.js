@@ -28,7 +28,7 @@ const Result = () => {
           setVideoData(response.data.resultVideo);
           setVideoLoading(false);
         } else {
-          if (!qnaData) {
+          if (!response.data.qna) {
             let attempts = 0;
             const maxAttempts = 20; // 최대 시도 횟수
             let qnaResponse = null;
@@ -43,7 +43,7 @@ const Result = () => {
             }
           }
 
-          if (!videoData) {
+          if (!response.data.resultVideo) {
             let attempts = 0;
             const maxAttempts = 20; // 최대 시도 횟수
             let videoResponse = null;
