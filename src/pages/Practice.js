@@ -42,21 +42,13 @@ const Practice = () => {
   const camMediaRecorderRef = useRef(null);
   const screenRecordedChunksRef = useRef([]);
   const camRecordedChunksRef = useRef([]);
-  const quitFlag = useRef(null); //녹화 종료 버튼 클릭 여부 확인
-
-  //pdf 녹화
-  const canvasRecordedVideoRef = useRef(null);
-  const canvasMediaStreamRef = useRef(null);
-  const canvasMediaRecorderRef = useRef(null);
-  const canvasRecordedChunksRef = useRef([]);
-  const pdfCanvasRef = useRef(null);
+  const quitFlag = useRef(null);
 
   // 실시간 통신을 위한 변수 선언-----------------------------------------------
   const socket = useRef(); //소켓 객체
   const peerFaceRef = useRef([]); //상대방 비디오 요소
   const [roomName2, setRoomName2] = useState(""); //참관코드 - 화면에 바로 띄우기 위해 사용
   const myPeerConnection = useRef({}); //피어 연결 객체
-
   const roomName = useRef(); //참관코드 - RTC 연결에 사용되는 변수
   const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
   // ----------------------------------------------------------------------
@@ -64,24 +56,16 @@ const Practice = () => {
   // stt, 표정인식-----------------------------------------------------------------
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
-
-  // const [pauseDuration, setPauseDuration] = useState(0);
   const [message, setMessage] = useState(`PDF와 스크립트를 작성해주세요!`); //메시지 띄우는 곳
-
   const AudioContext = window.AudioContext || window.webkitAudioContext; // 데시벨 측정
   const isAudioContextStartedRef = useRef(false);
   const analyserRef = useRef(null);
   const [averageVolume, setAverageVolume] = useState(0);
-
   const canvasRef = useRef(null); // 파형 그리기
-
   const recognitionRef = useRef(null);
   const pauseStartTimeRef = useRef(null);
-
   const countSmile = useRef(0);
-
   const compareMessage = useRef(`발표 시작 버튼을 눌러주세요!`); //메시지 비교를 위한 변수
-
   const faceIntervalId = useRef(null);
   const listeningIntervalId = useRef(null);
 
@@ -103,9 +87,6 @@ const Practice = () => {
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
 
-        // faceapi.draw.drawDetections(canvas, resizedDetections);
-        // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-
         if (resizedDetections && resizedDetections.length > 0) {
           let expressions = resizedDetections[0].expressions;
           let max = 0.00;
@@ -119,7 +100,7 @@ const Practice = () => {
           });
 
           if (expression === 'happy') {
-            console.log('웃음', compareMessage.current);
+            // console.log('웃음', compareMessage.current);
             countSmile.current = countSmile.current > 0 ? 0 : countSmile.current - 1;
             if (compareMessage.current === `긴장을 풀고 좀 웃어보세요!` || countSmile.current >= -3) {
               compareMessage.current = '좋습니다! 계속 진행하세요!';
@@ -131,7 +112,7 @@ const Practice = () => {
             }
           }
           else {
-            console.log('웃지 않음', compareMessage.current);
+            // console.log('웃지 않음', compareMessage.current);
             countSmile.current = countSmile.current < 0 ? 0 : countSmile.current + 1;
             if (compareMessage.current !== `긴장을 풀고 좀 웃어보세요!` && countSmile.current >= 10) {
               compareMessage.current = `긴장을 풀고 좀 웃어보세요!`;
@@ -229,7 +210,7 @@ const Practice = () => {
           closeModal();
 
           if (currentAverageVolume > 20) {
-            console.log("데시벨로 초기화");
+            // console.log("데시벨로 초기화");
             closeModal();
             pauseStartTimeRef.current = null;
             pauseEndTime = null;
@@ -237,7 +218,7 @@ const Practice = () => {
 
           if (pauseDuration > 3000) {
             openModal();
-            console.log("렌더링됨");
+            // console.log("렌더링됨");
             pauseStartTimeRef.current = null;
             pauseEndTime = null;
           }
@@ -259,7 +240,6 @@ const Practice = () => {
     };
   }, []);
 
-
   // 음성인식
   const handleStartStopListening = () => {
     if (!recognitionRef.current) {
@@ -267,7 +247,7 @@ const Practice = () => {
         window.SpeechRecognition || window.webkitSpeechRecognition;
 
       if (!isSpeechRecognitionSupported) {
-        console.log("현재 브라우저에서 SpeechRecognition API를 지원하지 않습니다.");
+        // console.log("현재 브라우저에서 SpeechRecognition API를 지원하지 않습니다.");
         return;
       }
 
@@ -277,7 +257,7 @@ const Practice = () => {
 
       recognitionRef.current.onstart = () => {
         setListening(true);
-        console.log("음성 인식 시작");
+        // console.log("음성 인식 시작");
         if (!isAudioContextStartedRef.current) {
           isAudioContextStartedRef.current = true;
           const audioContext = new AudioContext(); // 새로운 오디오 컨텍스트 생성
@@ -288,7 +268,7 @@ const Practice = () => {
 
       recognitionRef.current.onend = () => {
         setListening(false);
-        console.log("음성 인식 종료");
+        // console.log("음성 인식 종료");
         pauseStartTimeRef.current = null;
         isAudioContextStartedRef.current = false;
 
@@ -299,7 +279,7 @@ const Practice = () => {
         if (analyserRef.current && analyserRef.current.context.state !== "closed") {
           analyserRef.current.context.close().then(() => {
             analyserRef.current = null;
-            console.log("오디오 컨텍스트 종료");
+            // console.log("오디오 컨텍스트 종료");
           });
         }
       };
@@ -319,12 +299,9 @@ const Practice = () => {
       pauseStartTimeRef.current = Date.now(); // 음성이 인식되면 무음 시작 시간 초기화
     }
   };
-
-
-
   // --------------------------------------------------------------------------
-  // 키워드 모달창 --------------------------------------------------------------
 
+  // 키워드 모달창 ---------------------------------------------------------------
   const [recommendedWords, setRecommendedWords] = useState([]);
   const [prohibitedWords, setProhibitedWords] = useState([]);
   const [recommendedWord, setRecommendedWord] = useState('');
@@ -383,7 +360,6 @@ const Practice = () => {
   };
 
   Modal.setAppElement("#root");
-
   // --------------------------------------------------------------------------
 
   const [userId, setUserId] = useState(null);
@@ -406,14 +382,12 @@ const Practice = () => {
     axios.get(apiUrl, config)
       .then((response) => {
         // 요청에 성공한 경우
-        console.log('서버 응답:', response.data);
-        // 서버에서 응답으로 받은 데이터를 처리하거나 상태를 업데이트할 수 있습니다.
+        // console.log('서버 응답:', response.data);
         setUserId(response.data.data.name);
       })
       .catch((error) => {
         // 요청에 실패한 경우
         console.error('에러:', error);
-        // 에러 처리 로직 추가 가능
       });
   }, []);
 
@@ -463,7 +437,6 @@ const Practice = () => {
         camMediaStreamRef.current = newMediaStream;
         // 카메라의 입력을 실시간으로 비디오 태그에
         setVideoOutput();
-
         // 이 함수 두 번 쓰지 말고 아예 지우고 하는 법 알아보기!!
       })
   }, []);
@@ -481,11 +454,10 @@ const Practice = () => {
   const [pageTimeArray, setPageTimeArray] = useState([]);
   const [prevTime, setPrevTime] = useState(null);
 
-
   const handleDrop = useCallback((event) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    console.log(file);
+    // console.log(file);
 
     let formData = new FormData();
     formData.append('pdf', file);
@@ -495,7 +467,7 @@ const Practice = () => {
         setPdfFile(response.data);
         pdfFileRef.current = response.data;
       });
-    console.log(pdfFile);
+    // console.log(pdfFile);
   }, []);
 
   const handleDragOver = useCallback((event) => {
@@ -506,17 +478,6 @@ const Practice = () => {
     setNumPages(numPages);
     setPageNumber(1);
   }
-
-
-  // function msToTime(duration) {
-  //   let minutes = Math.floor((duration / (1000 * 60)) % 60),
-  //     seconds = Math.ceil((duration / 1000) % 60);
-
-  //   minutes = (minutes < 10) ? "0" + minutes : minutes;
-  //   seconds = (seconds < 10) ? "0" + seconds : seconds;
-
-  //   return minutes + ":" + seconds;
-  // }
 
   function nextPage() {
     if (playing && prevTime && pageNumber < numPages) {
@@ -570,7 +531,7 @@ const Practice = () => {
         setcurrentScriptIndex((prevIndex) => Math.max(prevIndex - 1, 0));
         if (!isPractice) {
           //socket으로 참관자들에게 왼쪽 이벤트 발생 알리기
-          console.log("leftArrow", roomName.current);
+          // console.log("leftArrow", roomName.current);
           socket.current.emit("leftArrow", { visitorcode: roomName.current });
         }
         prevPage();
@@ -578,7 +539,7 @@ const Practice = () => {
         setcurrentScriptIndex((prevIndex) => Math.min(prevIndex + 1, scriptArray.length - 1));
         if (!isPractice) {
           //socket으로 참관자들에게 오른쪽 이벤트 발생 알리기
-          console.log("rightArrow");
+          // console.log("rightArrow");
           socket.current.emit("rightArrow", { visitorcode: roomName.current });
         }
         if (pageNumber < numPages) {
@@ -601,7 +562,6 @@ const Practice = () => {
     if (pdfFile) { setMessage('발표 제목 입력 후 시작을 눌러주세요!'); }
   }, [pdfFile])
 
-
   useEffect(() => {
 
     window.addEventListener("keydown", handleArrowKey);
@@ -619,7 +579,7 @@ const Practice = () => {
           file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
         >
-          <Page pageNumber={pageNumber} width={800} canvasRef={pdfCanvasRef} />
+          <Page pageNumber={pageNumber} width={800} />
         </Document>
       </div>
     ) : (
@@ -633,7 +593,7 @@ const Practice = () => {
     const newInputValue = event.target.value;
     setTitle(newInputValue);
     titleRef.current = newInputValue;
-    console.log(title);
+    // console.log(title);
   };
 
   const startPractice = async () => {
@@ -642,7 +602,7 @@ const Practice = () => {
       return;
     }
     const isExist = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/is-title-exist?title=${title}&userId=${userId}`);
-    console.log("발표 제목 여부: ", isExist);
+    // console.log("발표 제목 여부: ", isExist);
     if (isExist.data) {
       window.alert('이미 존재하는 발표 제목입니다!');
       return;
@@ -715,57 +675,27 @@ const Practice = () => {
     camRecordedChunksRef.current = [];
     camRecordedChunksRef.current = [];
 
-    canvasMediaStreamRef.current = pdfCanvasRef.current.captureStream();
-    console.log("pdfCanvasRef: ", pdfCanvasRef);
-    console.log("canvasMediaStreamRef: ", canvasMediaStreamRef);
-    console.log("canvasMediaStreamRef.current: ", canvasMediaStreamRef.current);
-
-    screenMediaRecorderRef.current = new MediaRecorder(
-      screenMediaStreamRef.current,
-      {
-        mimetype: "video/webm",
-      }
+    screenMediaRecorderRef.current = new MediaRecorder(screenMediaStreamRef.current, {
+      mimetype: "video/webm",
+    }
     );
     camMediaRecorderRef.current = new MediaRecorder(camMediaStreamRef.current, {
       mimetype: "video/webm",
-    });
-    canvasMediaRecorderRef.current = new MediaRecorder(canvasMediaStreamRef.current, {
-      mimetype: "video/webm",
-    });
-
-    //canvas test------------------------------------------
-    canvasMediaRecorderRef.current.onstart = function () {
-      console.log("Recording started");
-    };
-
-    canvasMediaRecorderRef.current.onstop = function () {
-      console.log("Recording stopped");
-    };
-
-    canvasMediaRecorderRef.current.onerror = function (event) {
-      console.error("Recording error:", event);
-    };
-    //------------------------------------------------------    
+    }
+    );
 
     screenMediaRecorderRef.current.ondataavailable = function (event) {
       if (event.data && event.data.size > 0) {
-        console.log("ondataavailable");
+        // console.log("ondataavailable");
         screenRecordedChunksRef.current.push(event.data);
-        console.log("screenMediaRecorderRef: ", screenRecordedChunksRef);
+        // console.log("screenMediaRecorderRef: ", screenRecordedChunksRef);
       }
     };
     camMediaRecorderRef.current.ondataavailable = function (event) {
       if (event.data && event.data.size > 0) {
-        console.log("ondataavailable");
+        // console.log("ondataavailable");
         camRecordedChunksRef.current.push(event.data);
-        console.log("camMediaRecorderRef: ", camRecordedChunksRef);
-      }
-    };
-    canvasMediaRecorderRef.current.ondataavailable = function (event) {
-      if (event.data && event.data.size > 0) {
-        console.log("ondataavailable");
-        canvasRecordedChunksRef.current.push(event.data);
-        console.log("camMediaRecorderRef: ", canvasRecordedChunksRef);
+        // console.log("camMediaRecorderRef: ", camRecordedChunksRef);
       }
     };
 
@@ -774,28 +704,21 @@ const Practice = () => {
         const screenBlob = new Blob(screenRecordedChunksRef.current, {
           type: "video/webm",
         });
-        console.log("screenMediaRecorderRef.stop blob: ", screenBlob);
+        // console.log("screenMediaRecorderRef.stop blob: ", screenBlob);
         const camBlob = new Blob(camRecordedChunksRef.current, {
           type: "video/webm",
         });
-        console.log("camRecordedChunksRef.stop blob: ", camBlob);
-        const canvasBlob = new Blob(canvasRecordedChunksRef.current, {
-          type: "video/webm",
-        });
-        console.log("canvasRecordedChunksRef.stop blob: ", canvasBlob);
-
+        // console.log("camRecordedChunksRef.stop blob: ", camBlob);
         const screenRecordedMediaURL = URL.createObjectURL(screenBlob);
         const camRecordedMediaURL = URL.createObjectURL(camBlob);
-        const canvasRecordedMediaURL = URL.createObjectURL(canvasBlob);
 
-        if (screenRecordedVideoRef.current && camRecordedVideoRef.current && canvasRecordedVideoRef.current) {
+        if (screenRecordedVideoRef.current && camRecordedVideoRef.current) {
           //아무 값도 없을 때 참조 금지
           screenRecordedVideoRef.current.src = screenRecordedMediaURL;
           camRecordedVideoRef.current.src = camRecordedMediaURL;
-          canvasRecordedVideoRef.current.src = canvasRecordedMediaURL;
         }
 
-        console.log(quitFlag);
+        // console.log(quitFlag);
         if (quitFlag.current === true) {
           //녹화 종료 버튼이 눌렸을 때만 서버에 데이터 전송
           const formData = new FormData();
@@ -822,7 +745,7 @@ const Practice = () => {
             `cam_userID_${nowDate.getFullYear()}.${nowDate.getMonth() + 1
             }.${nowDate.getDate()}_${nowDate.getHours()}:${nowDate.getMinutes()}.webm`
           );
-          console.log(formData);
+          // console.log(formData);
           formData.append("title", title);
           formData.append("userId", userId);
 
@@ -830,21 +753,19 @@ const Practice = () => {
           axios
             .post(`${process.env.REACT_APP_SITE_URL}/ffmpeg/`, formData, config)
             .then((response) => {
-              console.log("영상 전송 완료", response.data); // 서버 응답 처리
+              // console.log("영상 전송 완료", response.data); // 서버 응답 처리
             })
             .catch((error) => {
-              console.error("영상 전송 실패:", error); // 서버 응답 처리
+              // console.error("영상 전송 실패:", error); // 서버 응답 처리
             });
         }
         screenMediaRecorderRef.current = null;
         camMediaRecorderRef.current = null;
-        canvasMediaRecorderRef.current = null;
       }
     };
-    console.log("Recording Start!");
+    // console.log("Recording Start!");
     camMediaRecorderRef.current.start();
     screenMediaRecorderRef.current.start();
-    canvasMediaRecorderRef.current.start();
     setPlaying(true);
   };
 
@@ -857,7 +778,6 @@ const Practice = () => {
 
     if (screenMediaRecorderRef.current) {
       camMediaRecorderRef.current.stop();
-      canvasMediaRecorderRef.current.stop();
       screenMediaRecorderRef.current.stop();
       setPlaying(false);
       setIsTimerRunning(false);
@@ -933,30 +853,30 @@ const Practice = () => {
     socket.current = io(`${process.env.REACT_APP_SITE_URL}/room`, { //소켓 연결
       withCredentials: true,
     });
-    console.log(socket.current);
+    // console.log(socket.current);
 
     socket.current.on("connect", () => {
-      console.log("connect : ", socket.current.id);
+      // console.log("connect : ", socket.current.id);
       //방 생성
       socket.current.emit("createRoom", { userId: userId });
     });
 
     //방 생성 성공 - 참관코드 부여
     socket.current.on("create-succ", async (roomCode) => {
-      console.log("create-succ", roomCode);
+      // console.log("create-succ", roomCode);
       setRoomName2(roomCode);
       roomName.current = roomCode;
     });
 
     //offer를 받는 쪽
     socket.current.on("offer", async (data) => {
-      console.log(`from ${data.from} received the offer : `, data);
+      // console.log(`from ${data.from} received the offer : `, data);
       if (!myPeerConnection.current[data.from]) {
         makeConnection(data.from);
       }
 
       if (myPeerConnection.current[data.from].connectionState === "stable") {
-        console.log("Ignoring offer, connection already established.");
+        // console.log("Ignoring offer, connection already established.");
         return;
       }
 
@@ -970,19 +890,19 @@ const Practice = () => {
         answer: answer,
         to: data.from,
       });
-      console.log(`${data.from} sent the answer : `, answer);
+      // console.log(`${data.from} sent the answer : `, answer);
     });
 
     //answer 받기
     socket.current.on("answer", async (data) => {
-      console.log(`${data.from} received the answer : `, data.answer);
+      // console.log(`${data.from} received the answer : `, data.answer);
 
       await myPeerConnection.current[data.from].setRemoteDescription(new RTCSessionDescription(data.answer));
     });
 
     //ice를 받는 쪽
     socket.current.on("ice", async (data) => {
-      console.log("received candidate", data);
+      // console.log("received candidate", data);
       if (myPeerConnection.current[data.from]) {
         await myPeerConnection.current[data.from].addIceCandidate(
           data.icecandidate
@@ -994,7 +914,7 @@ const Practice = () => {
     socket.current.on("user-join", async (data) => {
       await socket.current.emit("title-url", { 'title': titleRef.current, 'pdfURL': pdfFileRef.current, 'userName': userId, visitorcode: roomName.current });
       setJoinUser(data.filter((id) => id !== socket.current.id));
-      console.log("title-url", titleRef.current, pdfFileRef.current);
+      // console.log("title-url", titleRef.current, pdfFileRef.current);
     });
 
     const makeConnection = (id) => {
@@ -1014,7 +934,7 @@ const Practice = () => {
       myPeerConnection.current[id].addEventListener("icecandidate", (data) => handleIce(data, id));
 
       myPeerConnection.current[id].oniceconnectionstatechange = () => {
-        console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
+        // console.log("ICE connection state change:", myPeerConnection.current[id].iceConnectionState);
         if (myPeerConnection.current[id].iceConnectionState === 'disconnected') {
           myPeerConnection.current[id].close();
           delete myPeerConnection.current[id];
@@ -1022,10 +942,10 @@ const Practice = () => {
       };
 
       myPeerConnection.current[id].ontrack = (event) => {
-        console.log("got an stream from my peer", id, event.streams[0]);
+        // console.log("got an stream from my peer", id, event.streams[0]);
         peerFaceRef.current[id].srcObject = event.streams[0];
       };
-      console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
+      // console.log(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
 
       if (camMediaStreamRef.current) {
         camMediaStreamRef.current
@@ -1037,7 +957,7 @@ const Practice = () => {
     };
 
     const handleIce = (data, id) => {
-      console.log(`sent candidate : ${data}`);
+      // console.log(`sent candidate : ${data}`);
       socket.current.emit("ice", {
         visitorcode: roomName.current,
         icecandidate: data.candidate,
