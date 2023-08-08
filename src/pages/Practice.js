@@ -133,7 +133,7 @@ const Practice = () => {
           else {
             console.log('웃지 않음', compareMessage.current);
             countSmile.current = countSmile.current < 0 ? 0 : countSmile.current + 1;
-            if (compareMessage.current !== `긴장을 풀고 좀 웃어보세요!` && countSmile.current >= 15) {
+            if (compareMessage.current !== `긴장을 풀고 좀 웃어보세요!` && countSmile.current >= 10) {
               compareMessage.current = `긴장을 풀고 좀 웃어보세요!`;
               setMessage(`긴장을 풀고 좀 웃어보세요!`);
             }
@@ -235,7 +235,7 @@ const Practice = () => {
             pauseEndTime = null;
           }
 
-          if (pauseDuration > 2000) {
+          if (pauseDuration > 3000) {
             openModal();
             console.log("렌더링됨");
             pauseStartTimeRef.current = null;
@@ -570,8 +570,8 @@ const Practice = () => {
         setcurrentScriptIndex((prevIndex) => Math.max(prevIndex - 1, 0));
         if (!isPractice) {
           //socket으로 참관자들에게 왼쪽 이벤트 발생 알리기
-          console.log("leftArrow");
-          socket.current.emit("leftArrow", roomName.current);
+          console.log("leftArrow", roomName.current);
+          socket.current.emit("leftArrow", { visitorcode: roomName.current });
         }
         prevPage();
       } else if (event.key === "ArrowRight") {
@@ -579,7 +579,7 @@ const Practice = () => {
         if (!isPractice) {
           //socket으로 참관자들에게 오른쪽 이벤트 발생 알리기
           console.log("rightArrow");
-          socket.current.emit("rightArrow", roomName.current);
+          socket.current.emit("rightArrow", { visitorcode: roomName.current });
         }
         if (pageNumber < numPages) {
           nextPage();
@@ -658,7 +658,7 @@ const Practice = () => {
     setPrevTime(Date.now());
     startRecording();
     if (!isPractice) {
-      socket.current.emit("start-timer", roomName.current); //socket으로 참관자들에게 타이머 시작 알리기
+      socket.current.emit("start-timer", { visitorcode: roomName.current }); //socket으로 참관자들에게 타이머 시작 알리기
     } else {
       runFaceApi();
     }
@@ -672,7 +672,7 @@ const Practice = () => {
     quitFlag.current = true;
     stopRecording();
     if (!isPractice) {
-      socket.current.emit("stop-timer", roomName.current); //socket으로 참관자들에게 타이머 종료 알리기
+      socket.current.emit("stop-timer", { visitorcode: roomName.current }); //socket으로 참관자들에게 타이머 종료 알리기
     }
     else {
       clearInterval(faceIntervalId.current); //얼굴인식 멈춤
