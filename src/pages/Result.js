@@ -2,10 +2,16 @@ import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react'
 import { GoDotFill } from "react-icons/go";
 import Chart from 'chart.js/auto';
+import { ClipLoader } from "react-spinners";
+
 
 const Result = () => {
   const [data, setData] = useState(null);
+  const [qnaData, setQnaData] = useState(null);
+  const [videoData, setVideoData] = useState(null);
   const videoRef = useRef(null);
+  const [qnaLoading, setQnaLoading] = useState(true);
+  const [videoLoading, setVideoLoading] = useState(true);
 
   const params = new URLSearchParams(window.location.search);
   const title = params.get('title');
@@ -16,13 +22,49 @@ const Result = () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/?title=${title}&userId=${userId}`);
         setData(response.data);
+        if (response.data.qna && response.data.resultVideo) {
+          setQnaData(response.data.qna);
+          setQnaLoading(false);
+          setVideoData(response.data.resultVideo);
+          setVideoLoading(false);
+        } else {
+          if (!response.data.qna) {
+            let attempts = 0;
+            const maxAttempts = 20; // 최대 시도 횟수
+            let qnaResponse = null;
+            while (attempts < maxAttempts && (!qnaResponse || !qnaResponse.data)) {
+              qnaResponse = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/getQnaData?title=${title}&userId=${userId}`);
+              attempts++;
+              await new Promise(resolve => setTimeout(resolve, 1500)); // 1초 간격으로 요청
+            }
+            if (qnaResponse && qnaResponse.data) {
+              setQnaData(qnaResponse.data);
+              setQnaLoading(false);
+            }
+          }
+
+          if (!response.data.resultVideo) {
+            let attempts = 0;
+            const maxAttempts = 20; // 최대 시도 횟수
+            let videoResponse = null;
+            while (attempts < maxAttempts && (!videoResponse || !videoResponse.data)) {
+              videoResponse = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/getVideoData?title=${title}&userId=${userId}`);
+              attempts++;
+              await new Promise(resolve => setTimeout(resolve, 1500)); // 1초 간격으로 요청
+            }
+            if (videoResponse && videoResponse.data) {
+              setVideoData(videoResponse.data);
+              setVideoLoading(false);
+            }
+          }
+        }
         console.log(response);
       } catch (error) {
         console.log('An error occurred:', error);
       }
     };
     fetchData();
-  }, [title, userId]);
+  }, [title, userId, videoData, qnaData]);
 
   const parseQna = (qnaStr) => {
     const qnaArray = qnaStr.split('\n'); // 예상 질문과 답변을 줄바꿈을 기준으로 분리
@@ -163,7 +205,6 @@ const Result = () => {
 
     return (
       <div className='result-timer-detail'>
-        {/* 그래프 크기를 원하는 대로 조정합니다. */}
         <canvas ref={canvasRef} style={{ width: '100%', height: '300px' }} />
       </div>
     );
@@ -175,10 +216,18 @@ const Result = () => {
         <>
           <div className="left-column">
             <h1>녹화 영상</h1>
-            <video ref={videoRef} muted controls className='result-video' width={580}>
-              <source src={data.resultVideo} type='video/webm' />
-              {/* 이하에 필요한 다른 영상 포맷의 소스를 추가할 수 있습니다. */}
-            </video>
+            {videoData ? (<video ref={videoRef} muted controls className='result-video' width={580}>
+              <source src={videoData} type='video/webm' />
+
+            </video>) : (
+              <div className="result-video-loading">
+                <p>
+                  영상을 편집 중입니다.
+                </p>
+                <br />
+                <ClipLoader loading={videoLoading} color="#f88c68" size={150} className='result-video-spinner'></ClipLoader>
+              </div>
+            )}
           </div>
           <div className="right-column">
             <div className='result-page-comment-container'>
@@ -239,19 +288,30 @@ const Result = () => {
 
             <div className='result-page-question-container'>
               <h1 className='result-detail-page-title'>예상 질문 및 답변</h1>
-              <div className='result-question-detail' style={{ whiteSpace: 'pre-wrap' }}>
-                {parseQna(data.qna).map((qa, index) => (
-                  <div key={index} className="question-answer">
-                    <div className="question">{qa.question}</div>
-                    <div className="answer">{qa.answer}</div>
-                  </div>
-                ))}
-              </div>
+              {qnaData ? (
+                <div className='result-question-detail' style={{ whiteSpace: 'pre-wrap' }}>
+                  {qnaData && (
+                    parseQna(qnaData).map((qa, index) => (
+                      <div key={index} className="question-answer">
+                        <div className="question">{qa.question}</div>
+                        <div className="answer">{qa.answer}</div>
+                      </div>
+                    ))
+                  )}
+                </div>) : (
+                <div className="result-qna-loading">
+                  <p>
+                    질문과 답변을 생성 중입니다.
+                  </p>
+                  <br />
+                  <ClipLoader className="result-qna-spinner" loading={qnaLoading} color="#f88c68" size={150}></ClipLoader>
+                </div>
+              )}
             </div>
           </div>
         </>
       ) : (
-        <div>로딩 중...</div>
+        null
       )}
     </div>
   );
