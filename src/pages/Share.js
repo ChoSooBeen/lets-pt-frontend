@@ -9,7 +9,7 @@ const Share = () => {
   const userId = searchParams.get('userId');
 
   const copyTitle = () => {
-    navigator.clipboard.writeText(`http://15.165.41.221:3000/record/SVOIEWOV53245vcxvnweiqwjsdiof?title=${title}&userId=${userId}`);
+    navigator.clipboard.writeText(`http://lets-pt.store/record/SVOIEWOV53245vcxvnweiqwjsdiof?title=${title}&userId=${userId}`);
   };
 
   return (
@@ -17,7 +17,7 @@ const Share = () => {
       <h1 className="share-title">영상공유 URL</h1>
       <div className="share-url-container">
         <div className="share-url-area">
-          {`http://15.165.41.221:3000/record/SVOIEWOV53245vcxvnweiqwjsdiof?title=${title}&userId=${userId}`}
+          {`http://lets_pt.store/record/SVOIEWOV53245vcxvnweiqwjsdiof?title=${title}&userId=${userId}`}
         </div>
         <button onClick={copyTitle} className="share-copy-button">
           <PiCopyBold size={30} />

@@ -1213,7 +1213,7 @@ const Practice = () => {
         </div>
 
       ) : (
-        <div>
+        <div className="real-container">
           <div className="observe-camera-container">
             {joinUser.length === 0 && (
               <div>참관자 입장 시 참관자의 카메라가 표시됩니다</div>

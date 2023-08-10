@@ -28,21 +28,6 @@ const Result = () => {
           setVideoData(response.data.resultVideo);
           setVideoLoading(false);
         } else {
-          if (!response.data.qna) {
-            let attempts = 0;
-            const maxAttempts = 20; // 최대 시도 횟수
-            let qnaResponse = null;
-            while (attempts < maxAttempts && (!qnaResponse || !qnaResponse.data)) {
-              qnaResponse = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/getQnaData?title=${title}&userId=${userId}`);
-              attempts++;
-              await new Promise(resolve => setTimeout(resolve, 1500)); // 1초 간격으로 요청
-            }
-            if (qnaResponse && qnaResponse.data) {
-              setQnaData(qnaResponse.data);
-              setQnaLoading(false);
-            }
-          }
-
           if (!response.data.resultVideo) {
             let attempts = 0;
             const maxAttempts = 20; // 최대 시도 횟수
@@ -55,6 +40,20 @@ const Result = () => {
             if (videoResponse && videoResponse.data) {
               setVideoData(videoResponse.data);
               setVideoLoading(false);
+            }
+          }
+          if (!response.data.qna) {
+            let attempts = 0;
+            const maxAttempts = 20; // 최대 시도 횟수
+            let qnaResponse = null;
+            while (attempts < maxAttempts && (!qnaResponse || !qnaResponse.data)) {
+              qnaResponse = await axios.get(`${process.env.REACT_APP_SITE_URL}/presentation/getQnaData?title=${title}&userId=${userId}`);
+              attempts++;
+              await new Promise(resolve => setTimeout(resolve, 1500)); // 1초 간격으로 요청
+            }
+            if (qnaResponse && qnaResponse.data) {
+              setQnaData(qnaResponse.data);
+              setQnaLoading(false);
             }
           }
         }
